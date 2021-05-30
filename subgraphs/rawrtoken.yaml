@@ -1,0 +1,31 @@
+specVersion: 0.0.2
+description: Rawrshak Network
+repository: https://github.com/gcbsumid/rawrshak-graphnode
+schema:
+  file: ./rawrtoken.graphql
+dataSources:
+  - name: RawrToken
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      address: "0xE46716b9cC681De2833C261674dd724Cc14ddd95"
+      abi: RawrToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/token.ts
+      entities:
+        - Token
+        - TokenEntity
+        - Account
+      abis:
+        - name: RawrToken
+          file: ../abis/RawrToken.json
+      eventHandlers:
+        - event: TokenCreated(indexed address,string,string,bytes32,uint256)
+          handler: handleTokenCreated
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval

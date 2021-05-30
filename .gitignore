@@ -4,3 +4,9 @@ build
 
 # graph-node generated data
 generated
+
+# deprecated files
+deprecated
+
+# docker data files
+docker/data

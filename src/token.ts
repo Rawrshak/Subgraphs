@@ -1,15 +1,16 @@
-import { ByteArray, BigInt, crypto } from "@graphprotocol/graph-ts"
+import { ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts"
 import {
   RawrToken,
   TokenCreated,
-  Transfer
+  Transfer,
+  Approval
 } from "../generated/RawrToken/RawrToken"
 import { 
   Token,
   TokenBalance,
   Account
  } from "../generated/schema"
- import {Address} from "@graphprotocol/graph-ts/index";
+//  import {Address} from "@graphprotocol/graph-ts/index";
 
 let zeroAddress = '0x0000000000000000000000000000000000000000';
 
@@ -21,10 +22,12 @@ export function handleTokenCreated(event: TokenCreated): void {
     token = new Token(tokenId);
   }
   token.contractAddress = event.params.addr;
-  token.name = event.params.name;
-  token.symbol = event.params.symbol;
+  token.name = event.params.name.toString();
+  token.symbol = event.params.symbol.toString();
   token.createdAt = event.block.timestamp;
+  token.lastMintAt = event.block.timestamp;
   token.supply = event.params.supply;
+  token.initialSupply = event.params.supply;
   token.save();
 }
 
@@ -60,6 +63,12 @@ export function handleTransfer(event: Transfer): void {
     tokenBalance.amount = tokenBalance.amount.minus(event.params.value);
     tokenBalance.save()
   }
+
+  // Todo: Handle Mint function
+}
+
+function handleApproval(event: Approval): void {
+
 }
 
 // Helper for concatenating two byte arrays
