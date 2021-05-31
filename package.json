@@ -3,8 +3,8 @@
   "license": "UNLICENSED",
   "author": "Rawrshak",
   "scripts": {
-    "docker-up -clean": "cd docker && rmdir /S data && docker-compose up",
     "docker-up": "cd docker && docker-compose up",
+    "docker-up:clean": "cd docker && rmdir /S data && docker-compose up",
     "codegen": "graph codegen",
     "codegen:rawrtoken": "npm run codegen -- subgraphs/rawrtoken.yaml",
     "build": "graph build",

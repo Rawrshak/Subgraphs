@@ -19,11 +19,11 @@ export function handleTokenCreated(event: TokenCreated): void {
   let tokenId = event.params.id.toHex();
   let token = Token.load(tokenId);
   if (token == null) {
-    token = new Token(tokenId);
+    token = createToken(tokenId, event.params.addr);
   }
   let supply = Supply.load(tokenId);
   if (supply == null) {
-    supply = new Supply(tokenId);
+    supply = createSupply(tokenId);
   }
 
   token.contractAddress = event.params.addr;
@@ -31,25 +31,31 @@ export function handleTokenCreated(event: TokenCreated): void {
   token.symbol = event.params.symbol.toString();
   token.createdAt = event.block.timestamp;
   token.supply = tokenId;
-  token.numberOfOwners = BigInt.fromI32(0);
   token.save();
 
   // Update supply
   supply.token = tokenId;
   supply.initialSupply = event.params.supply;
-  supply.currentSupply = event.params.supply;
-  if (event.params.supply != BigInt.fromI32(0)) {
-    supply.lastMintAt = event.block.timestamp;
-    supply.numberOfMints = BigInt.fromI32(1);
-  }
+//   supply.currentSupply = event.params.supply;
+//   if (event.params.supply != BigInt.fromI32(0)) {
+//     supply.lastMintAt = event.block.timestamp;
+//     supply.numberOfMints = BigInt.fromI32(1);
+//   }
   supply.save();
 }
 
 export function handleTransfer(event: Transfer): void {  
   // Add the amount to that user's TokenBalance
   let tokenContract = RawrToken.bind(event.address);
-  let token = Token.load(tokenContract.tokenId().toHex());
-  let supply = Supply.load(tokenContract.tokenId().toHex());
+  let tokenId = tokenContract.tokenId().toHex();
+  let token = Token.load(tokenId);
+  if (token == null) {
+    token = createToken(tokenId, event.address);
+  }
+  let supply = Supply.load(tokenId);
+  if (supply == null) {
+    supply = createSupply(tokenId);
+  }
 
   if (event.params.to.toHex() != zeroAddress) {
     // There is a receiver
@@ -76,6 +82,7 @@ export function handleTransfer(event: Transfer): void {
     // Tokens are being burnt
     supply.lastBurnAt = event.block.timestamp;
     supply.currentSupply = supply.currentSupply.minus(event.params.value);
+    supply.numberOfBurns = supply.numberOfBurns.plus(BigInt.fromI32(1));
   }
 
   if (event.params.from.toHex() != zeroAddress) {
@@ -97,6 +104,7 @@ export function handleTransfer(event: Transfer): void {
     // Tokens are being minted
     supply.lastMintAt = event.block.timestamp;
     supply.currentSupply = supply.currentSupply.plus(event.params.value);
+    supply.numberOfMints = supply.numberOfMints.plus(BigInt.fromI32(1));
   }
   token.save();
   supply.save();
@@ -112,6 +120,21 @@ function concat(a: ByteArray, b: ByteArray): ByteArray {
     out[a.length + j] = b[j]
   }
   return out as ByteArray
+}
+
+function createToken(id: string, address: Address): Token {
+    let token = new Token(id);
+    token.contractAddress = address;
+    token.numberOfOwners = BigInt.fromI32(0);
+    return token;
+}
+
+function createSupply(id: string): Supply {
+    let supply = new Supply(id);
+    supply.token = id;
+    supply.numberOfMints = BigInt.fromI32(0);
+    supply.numberOfBurns = BigInt.fromI32(0);
+    return supply;
 }
 
 function createTokenBalance(id: string, tokenId: string, owner: string): TokenBalance {
