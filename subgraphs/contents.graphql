@@ -1,0 +1,52 @@
+type ContentManagerRegistry @entity {
+  id: ID!
+  contentManagers: [ContentManager!]
+}
+
+type ContentManager @entity {
+  id: ID!
+  content: Content!
+  contentStorage: ContentStorage!
+  systemRegistry: SystemRegistry!
+}
+
+type SystemRegistry @entity {
+  id: ID!
+  content: Content!
+  operators: [Bytes!]
+  users: [Bytes!]
+}
+
+type ContentStorage @entity {
+  id: ID!
+  content: Content!
+  tokens: [Asset!]
+}
+
+type Asset @entity{
+  id: ID!
+  parentContract: Content!
+  currentSupply: BigInt
+  maxSupply: BigInt
+  balances: [AssetBalance!]
+}
+
+type AssetBalance @entity {
+  id: ID!
+  asset: Asset!
+  owner: Account!
+  amount: BigInt
+}
+
+type Content @entity {
+  id: ID!
+  contractAddress: Bytes!
+  name: String
+  symbol: String
+}
+
+type Account @entity {
+  id: ID!
+  address: Bytes!
+  assetBalances: [AssetBalance!] @derivedFrom(field: "owner")
+}

@@ -10,7 +10,6 @@ import {
   Account,
   Supply
  } from "../generated/schema"
-//  import {Address} from "@graphprotocol/graph-ts/index";
 
 let zeroAddress = '0x0000000000000000000000000000000000000000';
 
@@ -36,11 +35,6 @@ export function handleTokenCreated(event: TokenCreated): void {
   // Update supply
   supply.token = tokenId;
   supply.initialSupply = event.params.supply;
-//   supply.currentSupply = event.params.supply;
-//   if (event.params.supply != BigInt.fromI32(0)) {
-//     supply.lastMintAt = event.block.timestamp;
-//     supply.numberOfMints = BigInt.fromI32(1);
-//   }
   supply.save();
 }
 
