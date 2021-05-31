@@ -5,9 +5,10 @@ type Token @entity {
   symbol: String!
   balances: [TokenBalance!] @derivedFrom(field: "token")
   createdAt: BigInt!
-  lastMintAt: BigInt!
-  supply: BigInt
-  initialSupply: BigInt
+  lastMintAt: BigInt
+  lastBurnAt: BigInt
+  supply: Supply!
+  numberOfOwners: BigInt
 }
 
 type TokenBalance @entity {
@@ -15,11 +16,21 @@ type TokenBalance @entity {
   amount: BigInt!
   token: Token!
   owner: Account!
-  approvals: [Bytes!]
 }
 
 type Account @entity {
   id: ID!
   address: Bytes!
   tokenBalances: [TokenBalance!] @derivedFrom(field: "owner")
+}
+
+type Supply @entity {
+    id: ID!
+    token: Token!
+    initialSupply: BigInt!
+    currentSupply: BigInt!
+    lastMintAt: BigInt
+    lastBurnAt: BigInt
+    numberOfMints: BigInt
+    numberOfBurns: BigInt
 }

@@ -2,13 +2,13 @@ import { ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts"
 import {
   RawrToken,
   TokenCreated,
-  Transfer,
-  Approval
+  Transfer
 } from "../generated/RawrToken/RawrToken"
 import { 
   Token,
   TokenBalance,
-  Account
+  Account,
+  Supply
  } from "../generated/schema"
 //  import {Address} from "@graphprotocol/graph-ts/index";
 
@@ -21,54 +21,85 @@ export function handleTokenCreated(event: TokenCreated): void {
   if (token == null) {
     token = new Token(tokenId);
   }
+  let supply = Supply.load(tokenId);
+  if (supply == null) {
+    supply = new Supply(tokenId);
+  }
+
   token.contractAddress = event.params.addr;
   token.name = event.params.name.toString();
   token.symbol = event.params.symbol.toString();
   token.createdAt = event.block.timestamp;
-  token.lastMintAt = event.block.timestamp;
-  token.supply = event.params.supply;
-  token.initialSupply = event.params.supply;
+  token.supply = tokenId;
+  token.numberOfOwners = BigInt.fromI32(0);
   token.save();
+
+  // Update supply
+  supply.token = tokenId;
+  supply.initialSupply = event.params.supply;
+  supply.currentSupply = event.params.supply;
+  if (event.params.supply != BigInt.fromI32(0)) {
+    supply.lastMintAt = event.block.timestamp;
+    supply.numberOfMints = BigInt.fromI32(1);
+  }
+  supply.save();
 }
 
 export function handleTransfer(event: Transfer): void {  
   // Add the amount to that user's TokenBalance
   let tokenContract = RawrToken.bind(event.address);
+  let token = Token.load(tokenContract.tokenId().toHex());
+  let supply = Supply.load(tokenContract.tokenId().toHex());
+
   if (event.params.to.toHex() != zeroAddress) {
+    // There is a receiver
     // Get User To and add if it doesn't exist
     let userToId = event.params.to.toHex();
     let userTo = Account.load(userToId);
     if (userTo == null) {
-      userTo = new Account(userToId);
-      userTo.address = event.params.to;
+      // Add new owner and increment token number of owners
+      userTo = createAccount(userToId, event.params.to);
+      token.numberOfOwners = token.numberOfOwners.plus(BigInt.fromI32(1));
     }
     userTo.save();
 
     let tokenBalanceId = createTokenBalanceId(event.address.toHexString(), event.params.to.toHexString());
     let tokenBalance = TokenBalance.load(tokenBalanceId);
     if (tokenBalance == null) {
-      tokenBalance = new TokenBalance(tokenBalanceId);
-      tokenBalance.amount = BigInt.fromI32(0);
-      tokenBalance.token = tokenContract.tokenId().toHex();
-      tokenBalance.owner = event.params.to.toHex();
+        tokenBalance = createTokenBalance(tokenBalanceId, tokenContract.tokenId().toHex(), event.params.to.toHex());
     }
     tokenBalance.amount = tokenBalance.amount.plus(event.params.value);
     tokenBalance.save()
   }
-
-  // Subract the amount to the User from's token balance (if address is not null)
-  let tokenBalanceId = createTokenBalanceId(event.address.toHexString(), event.params.from.toHexString());
-  let tokenBalance = TokenBalance.load(tokenBalanceId);
-  if (tokenBalance != null) {
-    tokenBalance.amount = tokenBalance.amount.minus(event.params.value);
-    tokenBalance.save()
+  else
+  {
+    // Tokens are being burnt
+    supply.lastBurnAt = event.block.timestamp;
+    supply.currentSupply = supply.currentSupply.minus(event.params.value);
   }
 
-  // Todo: Handle Mint function
-}
+  if (event.params.from.toHex() != zeroAddress) {
+    // Subract the amount to the User from's token balance (if address is not null)
+    let tokenBalanceId = createTokenBalanceId(event.address.toHexString(), event.params.from.toHexString());
+    let tokenBalance = TokenBalance.load(tokenBalanceId);
+    if (tokenBalance != null) {
+      tokenBalance.amount = tokenBalance.amount.minus(event.params.value);
+      tokenBalance.save()
 
-function handleApproval(event: Approval): void {
-
+      // if sender's balance is 0
+      if (tokenBalance.amount == BigInt.fromI32(0)) {
+        token.numberOfOwners = token.numberOfOwners.minus(BigInt.fromI32(1));
+      }
+    }
+  }
+  else
+  {
+    // Tokens are being minted
+    supply.lastMintAt = event.block.timestamp;
+    supply.currentSupply = supply.currentSupply.plus(event.params.value);
+  }
+  token.save();
+  supply.save();
 }
 
 // Helper for concatenating two byte arrays
@@ -81,6 +112,20 @@ function concat(a: ByteArray, b: ByteArray): ByteArray {
     out[a.length + j] = b[j]
   }
   return out as ByteArray
+}
+
+function createTokenBalance(id: string, tokenId: string, owner: string): TokenBalance {
+    let tokenBalance = new TokenBalance(id);
+    tokenBalance.amount = BigInt.fromI32(0);
+    tokenBalance.token = tokenId;
+    tokenBalance.owner = owner;
+    return tokenBalance;
+}
+
+function createAccount(id: string, address: Address): Account {
+    let account = new Account(id);
+    account.address = address;
+    return account;
 }
 
 // Todo: change owner from 'string' to 'Address'. Keep it for now for readability though

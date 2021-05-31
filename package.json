@@ -18,7 +18,7 @@
     "deploy-local:rawrtoken": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/rawrtoken subgraphs/rawrtoken.yaml"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.19.0",
-    "@graphprotocol/graph-ts": "0.19.0"
+    "@graphprotocol/graph-cli": "0.20.0",
+    "@graphprotocol/graph-ts": "0.20.0"
   }
 }

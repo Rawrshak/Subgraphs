@@ -27,5 +27,3 @@ dataSources:
           handler: handleTokenCreated
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
