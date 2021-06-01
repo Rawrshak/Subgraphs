@@ -14,7 +14,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/content.ts
+      file: ../src/contents.ts
       entities:
         - Content
         - ContentManager
@@ -35,17 +35,13 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/Content.ts
+      file: ../src/Contents.ts
       entities:
         - Content
       abis:
         - name: Content
           file: ../abis/Content.json
       eventHandlers:
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: ApprovalForAll(indexed address,indexed address,bool)
-          handler: handleApprovalForAll
         - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
           handler: handleTransferBatch
         - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
@@ -59,7 +55,7 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/Content.ts
+      file: ../src/Contents.ts
       entities:
         - Content
         - ContentStorage
@@ -71,29 +67,50 @@ templates:
           handler: handleAssetsAdded
         - event: ContractRoyaltiesUpdated(indexed address,(address,uint256)[])
           handler: handleContractRoyaltiesUpdated
-        - event: HiddenTokenUriUpdated(indexed address,indexed uint256,indexed uint256,string)
+        - event: HiddenTokenUriUpdated(indexed address,indexed uint256,indexed uint256)
           handler: handleHiddenTokenUriUpdated
         - event: TokenRoyaltiesUpdated(indexed address,indexed uint256,(address,uint256)[])
           handler: handleTokenRoyaltiesUpdated
         - event: TokenUriPrefixUpdated(indexed address,string)
           handler: handleTokenUriPrefixUpdated
-  - name: ContentManager
+  # - name: ContentManager
+  #   kind: ethereum/contract
+  #   network: mainnet
+  #   source:
+  #     abi: ContentManager
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.4
+  #     language: wasm/assemblyscript
+  #     file: ../src/Contents.ts
+  #     entities:
+  #       - Content
+  #       - ContentManager
+  #     abis:
+  #       - name: ContentManager
+  #         file: ../abis/ContentManager.json
+  #     eventHandlers:
+  #       - event: ContentManagerCreated(indexed address,address,address,address)
+  #         handler: handleContentManagerCreated
+  - name: SystemsRegistry
     kind: ethereum/contract
     network: mainnet
     source:
-      abi: ContentManager
+      abi: SystemsRegistry
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/Content.ts
+      file: ../src/Contents.ts
       entities:
-        - Content
-        - ContentManager
+        - SystemsRegistry
       abis:
-        - name: ContentManager
-          file: ../abis/ContentManager.json
+        - name: SystemsRegistry
+          file: ../abis/SystemsRegistry.json
       eventHandlers:
-        - event: ContentManagerCreated(indexed address,address,address,address)
-          handler: handleContentManagerCreated
+        - event: UserApproved(indexed address,indexed address,bool)
+          handler: handleUserApproved
+        - event: RegisteredSystemsUpdated(indexed address,(address,bool)[])
+          handler: handleRegisteredSystemsUpdated
+
 

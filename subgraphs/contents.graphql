@@ -25,10 +25,13 @@ type ContentStorage @entity {
 
 type Asset @entity{
   id: ID!
+  tokenId: BigInt!
   parentContract: Content!
   currentSupply: BigInt
   maxSupply: BigInt
-  balances: [AssetBalance!]
+  balances: [AssetBalance!] @derivedFrom(field: "asset")
+  assetRoyalties: [AssetFee!] @derivedFrom(field: "asset")
+  latestHiddenUriVersion: BigInt
 }
 
 type AssetBalance @entity {
@@ -38,15 +41,49 @@ type AssetBalance @entity {
   amount: BigInt
 }
 
+type AssetFee @entity {
+  id: ID!
+  asset: Asset!
+  creator: Bytes!
+  rate: BigInt
+}
+
+type ContractFee @entity {
+  id: ID!
+  content: Content!
+  creator: Bytes!
+  rate: BigInt
+}
+
 type Content @entity {
   id: ID!
   contractAddress: Bytes!
   name: String
   symbol: String
+  contractUriPrefix: String
+  assets: [Asset!] @derivedFrom(field: "parentContract")
+  contractRoyalties: [ContractFee!] @derivedFrom(field: "content")
+  userApprovals: [UserApproval!] @derivedFrom(field: "content")
+  operators: [Operator!] @derivedFrom(field: "content")
 }
 
 type Account @entity {
   id: ID!
   address: Bytes!
   assetBalances: [AssetBalance!] @derivedFrom(field: "owner")
+  approvals: [UserApproval!] @derivedFrom(field: "user")
+}
+
+type UserApproval @entity {
+  id: ID!
+  content: Content!
+  user: Account!
+  approved: Boolean!
+}
+
+type Operator @entity {
+  id: ID!
+  address: Bytes!
+  content: Content!
+  approved: Boolean!
 }

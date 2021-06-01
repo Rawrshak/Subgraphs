@@ -11,7 +11,7 @@
         {
           "indexed": true,
           "internalType": "address",
-          "name": "content",
+          "name": "contentManager",
           "type": "address"
         }
       ],
