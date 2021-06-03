@@ -22,30 +22,38 @@ dataSources:
       abis:
         - name: ContentManagerRegistry
           file: ../abis/ContentManagerRegistry.json
+        - name: ContentManager
+          file: ../abis/ContentManager.json
+        - name: Content
+          file: ../abis/Content.json
+        - name: ContentStorage
+          file: ../abis/ContentStorage.json
+        - name: SystemsRegistry
+          file: ../abis/SystemsRegistry.json
       eventHandlers:
         - event: ContentManagerRegistered(indexed address,indexed address)
           handler: handleContentManagerRegistered
 templates:
-  - name: Content
-    kind: ethereum/contract
-    network: mainnet
-    source:
-      abi: Content
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/Contents.ts
-      entities:
-        - Content
-      abis:
-        - name: Content
-          file: ../abis/Content.json
-      eventHandlers:
-        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
-          handler: handleTransferBatch
-        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
-          handler: handleTransferSingle
+#   - name: Content
+#     kind: ethereum/contract
+#     network: mainnet
+#     source:
+#       abi: Content
+#     mapping:
+#       kind: ethereum/events
+#       apiVersion: 0.0.4
+#       language: wasm/assemblyscript
+#       file: ../src/Contents.ts
+#       entities:
+#         - Content
+#       abis:
+#         - name: Content
+#           file: ../abis/Content.json
+#       eventHandlers:
+#         - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+#           handler: handleTransferBatch
+#         - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+#           handler: handleTransferSingle
   - name: ContentStorage
     kind: ethereum/contract
     network: mainnet
@@ -62,17 +70,19 @@ templates:
       abis:
         - name: ContentStorage
           file: ../abis/ContentStorage.json
+        - name: Content
+          file: ../abis/Content.json
       eventHandlers:
         - event: AssetsAdded(indexed address,(uint256,string,uint256,(address,uint256)[])[])
           handler: handleAssetsAdded
         - event: ContractRoyaltiesUpdated(indexed address,(address,uint256)[])
           handler: handleContractRoyaltiesUpdated
-        - event: HiddenTokenUriUpdated(indexed address,indexed uint256,indexed uint256)
-          handler: handleHiddenTokenUriUpdated
-        - event: TokenRoyaltiesUpdated(indexed address,indexed uint256,(address,uint256)[])
-          handler: handleTokenRoyaltiesUpdated
-        - event: TokenUriPrefixUpdated(indexed address,string)
-          handler: handleTokenUriPrefixUpdated
+        # - event: HiddenTokenUriUpdated(indexed address,indexed uint256,indexed uint256)
+        #   handler: handleHiddenTokenUriUpdated
+        # - event: TokenRoyaltiesUpdated(indexed address,indexed uint256,(address,uint256)[])
+        #   handler: handleTokenRoyaltiesUpdated
+        # - event: TokenUriPrefixUpdated(indexed address,string)
+        #   handler: handleTokenUriPrefixUpdated
   # - name: ContentManager
   #   kind: ethereum/contract
   #   network: mainnet
@@ -92,25 +102,25 @@ templates:
   #     eventHandlers:
   #       - event: ContentManagerCreated(indexed address,address,address,address)
   #         handler: handleContentManagerCreated
-  - name: SystemsRegistry
-    kind: ethereum/contract
-    network: mainnet
-    source:
-      abi: SystemsRegistry
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/Contents.ts
-      entities:
-        - SystemsRegistry
-      abis:
-        - name: SystemsRegistry
-          file: ../abis/SystemsRegistry.json
-      eventHandlers:
-        - event: UserApproved(indexed address,indexed address,bool)
-          handler: handleUserApproved
-        - event: RegisteredSystemsUpdated(indexed address,(address,bool)[])
-          handler: handleRegisteredSystemsUpdated
+  # - name: SystemsRegistry
+  #   kind: ethereum/contract
+  #   network: mainnet
+  #   source:
+  #     abi: SystemsRegistry
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.4
+  #     language: wasm/assemblyscript
+  #     file: ../src/Contents.ts
+  #     entities:
+  #       - SystemsRegistry
+  #     abis:
+  #       - name: SystemsRegistry
+  #         file: ../abis/SystemsRegistry.json
+  #     eventHandlers:
+  #       - event: UserApproved(indexed address,indexed address,bool)
+  #         handler: handleUserApproved
+  #       - event: RegisteredSystemsUpdated(indexed address,(address,bool)[])
+  #         handler: handleRegisteredSystemsUpdated
 
 
