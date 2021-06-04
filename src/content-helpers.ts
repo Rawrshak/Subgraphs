@@ -28,7 +28,11 @@ export function createContentManagerRegistry(id: Address, creator: Address): Reg
   return contentManagerRegistry;
 }
 
-import { ContentStorage as ContentStorageTemplate } from '../generated/templates';
+import {
+    ContentStorage as ContentStorageTemplate,
+    SystemsRegistry as SystemsRegistryTemplate,
+    Content as ContentTemplate
+} from '../generated/templates';
 
 export function createContentManager(id: Address, creator: Address, registry: string): ContentManager {
   let contentManager = new ContentManager(id.toHexString());
@@ -72,6 +76,7 @@ export function createContentManager(id: Address, creator: Address, registry: st
   
   
 export function createSystemRegistry(id: Address, content: Address): SystemRegistry {
+  SystemsRegistryTemplate.create(id);
   let systemRegistry = new SystemRegistry(id.toHexString());
   systemRegistry.content = content.toHexString();
   systemRegistry.save();
@@ -79,12 +84,14 @@ export function createSystemRegistry(id: Address, content: Address): SystemRegis
 }
   
 export function createContent(id: Address): Content {
+  ContentTemplate.create(id);
   let content = new Content(id.toHexString());
   content.contractAddress = id;
   
   let contentContract = ContentContract.bind(id);
   content.name = contentContract.name();
   content.symbol = contentContract.symbol();
+  content.contractRoyalties = [];
   content.save();
   return content;
 }
@@ -111,18 +118,19 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
   asset.currentSupply = BigInt.fromI32(0);
   asset.maxSupply = BigInt.fromI32(0);
   asset.latestHiddenUriVersion = BigInt.fromI32(0);
+  asset.assetRoyalties = [];
   asset.save();
   return asset;
 }
   
-  export function createAssetBalance(id: string, asset: string, owner: string): AssetBalance {
+export function createAssetBalance(id: string, asset: string, owner: string): AssetBalance {
   let balance = new AssetBalance(id);
   balance.asset = asset;
   balance.owner = owner;
   balance.amount = BigInt.fromI32(0);
   balance.save();
   return balance;
-  }
+}
   
 export function createAssetFees(id: string, creator: Address, assetId: string): AssetFee {
   let fee = new AssetFee(id);

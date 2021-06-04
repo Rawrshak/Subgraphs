@@ -1,4 +1,4 @@
-import { ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts"
+import { log, ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts"
 import {
   ContentManagerRegistered
 } from "../generated/ContentManagerRegistry/ContentManagerRegistry";
@@ -71,107 +71,109 @@ export function handleContentManagerRegistered(event: ContentManagerRegistered):
   }
 }
 
-// // Content Events
-// export function handleTransferBatch(event: TransferBatchEvent): void {
-//   //TransferBatch(address operator, address from, address to, uint256[] ids, u as TransferSingleEventint256[] values)
-//   // transfer multiple assets
-//   let content = Content.load(event.address.toHexString());
-//   if (content == null) {
-//     return;
-//   }
-//   if (content != null) {
-//     let ids = event.params.ids;
-//     let amounts = event.params.values;
-//     for (let i = 0; i < event.params.ids.length; ++i) {
-//       // get/create asset
-//       let assetId = getAssetId(content.id, ids[i].toString());
-//       let asset = Asset.load(assetId);
-//       if (asset == null) {
-//         asset = createAsset(assetId, content.id, ids[i]);
-//         asset.save();
-//       }
+// Content Events
+export function handleTransferBatch(event: TransferBatchEvent): void {
+  //TransferBatch(address operator, address from, address to, uint256[] ids, u as TransferSingleEventint256[] values)
+  // transfer multiple assets
+  let content = Content.load(event.address.toHexString());
+  if (content == null) {
+    return;
+  }
+  //   log.info('-------- LOG: content address: {}, ID: {}', [event.address.toHexString(), content.id])
 
-//       if (event.params.to.toHex() != zeroAddress) {
-//         // receiver exists
-//         let receiver = Account.load(event.params.to.toHexString());
-//         if (receiver == null) {
-//           // Add new owner and increment token number of owners
-//           receiver = createAccount(event.params.to);
-//         }
+  let ids = event.params.ids;
+  let amounts = event.params.values;
+  for (let i = 0; i < ids.length; ++i) {
+    // get/create asset
+    let assetId = getAssetId(content.id, ids[i].toString());
+    let asset = Asset.load(assetId);
 
-//         // get/create account balance
-//         let assetBalanceId = getAssetBalanceId(content.id, receiver.id, ids[i].toString());
-//         let balance = AssetBalance.load(assetBalanceId);
-//         if (balance == null) {
-//           balance = createAssetBalance(assetBalanceId, asset.id, receiver.id);
-//         }
+    if (event.params.to.toHex() != zeroAddress) {
+      // receiver exists
+      let receiver = Account.load(event.params.to.toHexString());
+      if (receiver == null) {
+      // Add new owner and increment token number of owners
+        receiver = createAccount(event.params.to);
+      }
 
-//         balance.amount = balance.amount.plus(amounts[i]);
-//         balance.save();
-//         receiver.save();
-//       }
+      // get/create account balance
+      let assetBalanceId = getAssetBalanceId(content.id, receiver.id, ids[i].toString());
+      let balance = AssetBalance.load(assetBalanceId);
+      if (balance == null) {
+        balance = createAssetBalance(assetBalanceId, asset.id, receiver.id);
+      }
 
-//       if (event.params.from.toHex() != zeroAddress) {
-//         // sender exists
-//         let sender = Account.load(event.params.from.toHexString());
-        
-//         // get/create account balance
-//         let assetBalanceId = getAssetBalanceId(content.id, sender.id, ids[i].toString());
-//         let balance = AssetBalance.load(assetBalanceId);
-        
-//         balance.amount = balance.amount.minus(amounts[i]);
-//         balance.save();
-//       }
-//     }
-//   }
-// }
+      balance.amount = balance.amount.plus(amounts[i]);
+      balance.save();
+    } else {
+      asset.currentSupply = asset.currentSupply.minus(amounts[i]);
+      asset.save();
+    }
+
+    if (event.params.from.toHex() != zeroAddress) {
+      // sender exists
+      let sender = Account.load(event.params.from.toHexString());
+      
+      // get/create account balance
+      let assetBalanceId = getAssetBalanceId(content.id, sender.id, ids[i].toString());
+      let balance = AssetBalance.load(assetBalanceId);
+      
+      balance.amount = balance.amount.minus(amounts[i]);
+      balance.save();
+    } else {
+      asset.currentSupply = asset.currentSupply.plus(amounts[i]);
+      asset.save();
+    }
+  }
+}
  
-// export function handleTransferSingle(event: TransferSingleEvent): void {
-//   let content = Content.load(event.address.toHexString());
-//   if (content == null) {
-//     return;
-//   }
-//   // get/create asset
-//   let assetId = getAssetId(content.id, event.params.id.toString());
-//   let amount = event.params.value;
-//   let asset = Asset.load(assetId);
-//   if (asset == null) {
-//     asset = createAsset(assetId, content.id, event.params.id);
-//     asset.save();
-//   }
+export function handleTransferSingle(event: TransferSingleEvent): void {
+  let content = Content.load(event.address.toHexString());
+  if (content == null) {
+    return;
+  }
+  // get/create asset
+  let assetId = getAssetId(content.id, event.params.id.toString());
+  let amount = event.params.value;
+  let asset = Asset.load(assetId);
 
-//   if (event.params.to.toHex() != zeroAddress) {
-//     // receiver exists
-//     let receiver = Account.load(event.params.to.toHexString());
-//     if (receiver == null) {
-//       // Add new owner and increment token number of owners
-//       receiver = createAccount(event.params.to);
-//     }
+  if (event.params.to.toHex() != zeroAddress) {
+    // receiver exists
+    let receiver = Account.load(event.params.to.toHexString());
+    if (receiver == null) {
+      // Add new owner and increment token number of owners
+      receiver = createAccount(event.params.to);
+    }
 
-//     // get/create account balance
-//     let assetBalanceId = getAssetBalanceId(content.id, receiver.id, event.params.id.toString());
-//     let balance = AssetBalance.load(assetBalanceId);
-//     if (balance == null) {
-//       balance = createAssetBalance(assetBalanceId, asset.id, receiver.id);
-//     }
+    // get/create account balance
+    let assetBalanceId = getAssetBalanceId(content.id, receiver.id, event.params.id.toString());
+    let balance = AssetBalance.load(assetBalanceId);
+    if (balance == null) {
+      balance = createAssetBalance(assetBalanceId, asset.id, receiver.id);
+    }
 
-//     balance.amount = balance.amount.plus(amount);
-//     balance.save();
-//     receiver.save();
-//   }
+    balance.amount = balance.amount.plus(amount);
+    balance.save();
+  } else {
+    asset.currentSupply = asset.currentSupply.minus(amount);
+    asset.save();
+  }
 
-//   if (event.params.from.toHex() != zeroAddress) {
-//     // sender exists
-//     let sender = Account.load(event.params.from.toHexString());
+  if (event.params.from.toHex() != zeroAddress) {
+    // sender exists
+    let sender = Account.load(event.params.from.toHexString());
     
-//     // get/create account balance
-//     let assetBalanceId = getAssetBalanceId(content.id, sender.id, event.params.id.toString());
-//     let balance = AssetBalance.load(assetBalanceId);
+    // get/create account balance
+    let assetBalanceId = getAssetBalanceId(content.id, sender.id, event.params.id.toString());
+    let balance = AssetBalance.load(assetBalanceId);
     
-//     balance.amount = balance.amount.minus(amount);
-//     balance.save();
-//   }
-// }
+    balance.amount = balance.amount.minus(amount);
+    balance.save();
+  } else {
+    asset.currentSupply = asset.currentSupply.plus(amount);
+    asset.save();
+  }
+}
 
 // ContentStorage Events
 export function handleAssetsAdded(event: AssetsAddedEvent): void {
@@ -186,25 +188,30 @@ export function handleAssetsAdded(event: AssetsAddedEvent): void {
   for (let j = 0; j < assets.length; ++j) {
     let newAsset = assets[j];
     let tokenId = newAsset.tokenId;
-    let assetId = getAssetId(parent.id, tokenId.toHexString());
+    let assetId = getAssetId(parent.id, tokenId.toString());
     let asset = Asset.load(assetId);
     if (asset == null) {
       asset = createAsset(assetId, parent.id, tokenId);
     }
     asset.maxSupply = newAsset.maxSupply;
 
+    // Note: we cannot iterate through 'derived' properties. Instead, we have to manually
+    // manage them. This is the case for asset royalties and contract royalties
     let royaltyFeesLength = newAsset.fees.length;
     let fees = newAsset.fees;
+    let royalties = asset.assetRoyalties;
     for (let i = 0; i < royaltyFeesLength; ++i) {
       let account = fees[i].account;
-      let feeId = getAssetFeeId(parent.id, account.toHexString(), tokenId.toHexString());
+      let feeId = getAssetFeeId(parent.id, account.toHexString(), tokenId.toString());
       let fee = AssetFee.load(feeId);
       if (fee == null) {
         fee = createAssetFees(feeId, account, asset.id);
+        royalties.push(fee.id);
       }
       fee.rate = fees[i].rate;
       fee.save();
     }
+    asset.assetRoyalties = royalties;
     asset.save();
   }
 }
@@ -224,120 +231,109 @@ export function handleContractRoyaltiesUpdated(event: ContractRoyaltiesUpdatedEv
   });
 
   // For every asset added, create a new asset object
-  // let fees = event.params.fees;
   let fees = event.params.fees;
+  let royalties = parent.contractRoyalties;
   for (let i = 0; i < fees.length; ++i) {
-    // let newFee = fees[i];
     let feeId = getContractFeeId(parent.id, fees[i].account.toHexString());
     let fee = ContractFee.load(feeId);
     if (fee == null) {
       fee = createContractFees(feeId, fees[i].account, parent.id);
+      royalties.push(fee.id);
     }
     fee.rate = fees[i].rate;
     fee.save();
   }
+  parent.contractRoyalties = royalties;
+  parent.save();
 }
  
-// export function handleHiddenTokenUriUpdated(event: HiddenTokenUriUpdatedEvent): void {
-//   let parent = Content.load(event.params.parent.toString());
-//   if (parent == null) {
-//     return;
-//   }
-//   // (address indexed parent, uint256 indexed id, uint256 indexed version);
-//   let assetId = getAssetId(parent.id, event.params.id.toString());
-//   let asset = Asset.load(assetId);
-//   if (asset != null) {
-//     asset.latestHiddenUriVersion = event.params.version;
-//     asset.save();
-//   }
-// }
- 
-// export function handleTokenRoyaltiesUpdated(event: TokenRoyaltiesUpdatedEvent): void {
-//   let parent = Content.load(event.params.parent.toString());
-//   if (parent == null) {
-//     return;
-//   }
-//   // Delete all asset royalties first
-//   let assetId = getAssetId(parent.id, event.params.tokenId.toString());
-//   let asset = Asset.load(assetId);
-//   if (asset == null) {
-//     return;
-//   }
-
-//   // let currentFees = asset.assetRoyalties;
-//   asset.assetRoyalties.forEach(currentFeeId => {
-//     let fee = AssetFee.load(currentFeeId);
-//     fee.rate = BigInt.fromI32(0);
-//     fee.save();
-//   });
-
-//   // Add/update new asset royalties
-//   let fees = event.params.fees;
-//   for (let i = 0; i < fees.length; ++i) {
-//     // let newFee = fees[i];
-//     let assetFeeId = getAssetFeeId(parent.id, fees[i].account.toString(), asset.tokenId.toString());
-//     let fee = AssetFee.load(assetFeeId);
-//     if (fee == null) {
-//       fee = createAssetFees(assetFeeId, fees[i].account, assetId);
-//     }
-//     fee.rate = fees[i].rate;
-//     fee.save();
-//   }
-//   asset.save();
-// }
- 
-// export function handleTokenUriPrefixUpdated(event: TokenUriPrefixUpdatedEvent): void {
-//   // event TokenUriPrefixUpdated(address indexed parent, string uriPrefix);
-//   let parent = Content.load(event.params.parent.toString());
-//   if (parent == null) {
-//     return;
-//   }
+export function handleHiddenTokenUriUpdated(event: HiddenTokenUriUpdatedEvent): void {
+  let parent = Content.load(event.params.parent.toHexString());
+  if (parent == null) {
+    return;
+  }
   
-//   parent.contractUriPrefix = event.params.uriPrefix;
-//   parent.save();
-// }
+  let assetId = getAssetId(parent.id, event.params.id.toString());
+  let asset = Asset.load(assetId);
+  if (asset != null) {
+    asset.latestHiddenUriVersion = event.params.version;
+    asset.save();
+  }
+}
+ 
+export function handleTokenRoyaltiesUpdated(event: TokenRoyaltiesUpdatedEvent): void {
+  let parent = Content.load(event.params.parent.toHexString());
+  if (parent == null) {
+    return;
+  }
+  // Delete all asset royalties first
+  let assetId = getAssetId(parent.id, event.params.tokenId.toString());
+  let asset = Asset.load(assetId);
+  if (asset == null) {
+    return;
+  }
 
-// // SystemsRegistry Events
-// export function handleUserApproved(event: UserApprovedEvent): void {
-//   // UserApproved(address indexed contentContract, address indexed user, bool approved);
-//   let parent = Content.load(event.params.contentContract.toString());
-//   if (parent == null) {
-//     return;
-//   }
+  asset.assetRoyalties.forEach(currentFeeId => {
+    let fee = AssetFee.load(currentFeeId);
+    fee.rate = BigInt.fromI32(0);
+    fee.save();
+  });
 
-//   let user = Account.load(event.params.user.toString());
-//   if (user == null) {
-//     user = createAccount(event.params.user);
-//     user.save();
-//   }
+  // Add/update new asset royalties
+  let fees = event.params.fees;
+  let royalties = asset.assetRoyalties;
+  for (let i = 0; i < fees.length; ++i) {
+    let assetFeeId = getAssetFeeId(parent.id, fees[i].account.toHexString(), asset.tokenId.toString());
+    let fee = AssetFee.load(assetFeeId);
+    if (fee == null) {
+      fee = createAssetFees(assetFeeId, fees[i].account, assetId);
+      royalties.push(fee.id);
+    }
+    fee.rate = fees[i].rate;
+    fee.save();
+  }
+  asset.assetRoyalties = royalties;
+  asset.save();
+}
 
-//   let approvalId = getUserApprovalId(parent.id, event.params.user.toString());
-//   let approval = UserApproval.load(approvalId);
-//   if (approval == null) {
-//     approval = createUserApproval(approvalId, parent.id, user.id);
-//   }
-//   approval.approved = event.params.approved;
-//   approval.save();
-// }
+// SystemsRegistry Events
+export function handleUserApproved(event: UserApprovedEvent): void {
+  let parent = Content.load(event.params.contentContract.toHexString());
+  if (parent == null) {
+    return;
+  }
 
-// // Content 
-// export function handleRegisteredSystemsUpdated(event: RegisteredSystemsUpdatedEvent): void {
-//   // RegisteredSystemsUpdated(address indexed contentContract, LibAsset.SystemApprovalPair[] operators);
-//   // UserApproved(address indexed contentContract, address indexed user, bool approved);
-//   let parent = Content.load(event.params.contentContract.toString());
-//   if (parent == null) {
-//     return;
-//   }
+  let user = Account.load(event.params.user.toHexString());
+  if (user == null) {
+    user = createAccount(event.params.user);
+    user.save();
+  }
 
-//   let operatorPairs = event.params.operators;
-//   for (let i = 0; i < operatorPairs.length; ++i) {
-//     // let operatorPair = operatorPairs[i];
-//     let operatorId = getOperatorId(parent.id, operatorPairs[i].operator.toString());
-//     let operator = Operator.load(operatorId);
-//     if (operator == null) {
-//       operator = createOperator(operatorId, parent.id, operatorPairs[i].operator);
-//     }
-//     operator.approved = operatorPairs[i].approved;
-//     operator.save();
-//   }
-// }
+  let approvalId = getUserApprovalId(parent.id, event.params.user.toHexString());
+  let approval = UserApproval.load(approvalId);
+  if (approval == null) {
+    approval = createUserApproval(approvalId, parent.id, user.id);
+  }
+  approval.approved = event.params.approved;
+  approval.save();
+}
+
+// Content 
+export function handleRegisteredSystemsUpdated(event: RegisteredSystemsUpdatedEvent): void {
+  let parent = Content.load(event.params.contentContract.toHexString());
+  if (parent == null) {
+    return;
+  }
+
+  let operatorPairs = event.params.operators;
+  for (let i = 0; i < operatorPairs.length; ++i) {
+    // let operatorPair = operatorPairs[i];
+    let operatorId = getOperatorId(parent.id, operatorPairs[i].operator.toHexString());
+    let operator = Operator.load(operatorId);
+    if (operator == null) {
+      operator = createOperator(operatorId, parent.id, operatorPairs[i].operator);
+    }
+    operator.approved = operatorPairs[i].approved;
+    operator.save();
+  }
+}

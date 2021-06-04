@@ -32,7 +32,7 @@ type Asset @entity{
   currentSupply: BigInt
   maxSupply: BigInt
   balances: [AssetBalance!] @derivedFrom(field: "asset")
-  assetRoyalties: [AssetFee!] @derivedFrom(field: "asset")
+  assetRoyalties: [AssetFee!]!
   latestHiddenUriVersion: BigInt
 }
 
@@ -62,9 +62,8 @@ type Content @entity {
   contractAddress: Bytes!
   name: String
   symbol: String
-  contractUriPrefix: String
   assets: [Asset!] @derivedFrom(field: "parentContract")
-  contractRoyalties: [ContractFee!] @derivedFrom(field: "content")
+  contractRoyalties: [ContractFee!]!
   userApprovals: [UserApproval!] @derivedFrom(field: "content")
   operators: [Operator!] @derivedFrom(field: "content")
 }
