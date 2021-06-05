@@ -5,7 +5,9 @@ import {
 import {
   Content as ContentContract,
   TransferBatch as TransferBatchEvent,
-  TransferSingle as TransferSingleEvent
+  TransferSingle as TransferSingleEvent,
+  Mint as MintEvent,
+  Burn as BurnEvent
 } from "../generated/templates/Content/Content";
 import {
   ContentManager as ContentManagerContract
@@ -47,12 +49,16 @@ import {
   createContractFees,
   createUserApproval,
   createOperator,
+  createTransaction,
+  createMintTransaction,
+  createBurnTransaction,
   getAssetId,
   getAssetBalanceId,
   getAssetFeeId,
   getContractFeeId,
   getUserApprovalId,
   getOperatorId,
+  getTransactionId,
   createContentManagerRegistry
 } from "./content-helpers";
 
@@ -84,10 +90,9 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
   let ids = event.params.ids;
   let amounts = event.params.values;
   for (let i = 0; i < ids.length; ++i) {
-    // get/create asset
+    // get asset
     let assetId = getAssetId(content.id, ids[i].toString());
-    let asset = Asset.load(assetId);
-
+    
     if (event.params.to.toHex() != zeroAddress) {
       // receiver exists
       let receiver = Account.load(event.params.to.toHexString());
@@ -100,14 +105,11 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
       let assetBalanceId = getAssetBalanceId(content.id, receiver.id, ids[i].toString());
       let balance = AssetBalance.load(assetBalanceId);
       if (balance == null) {
-        balance = createAssetBalance(assetBalanceId, asset.id, receiver.id);
+        balance = createAssetBalance(assetBalanceId, assetId, receiver.id);
       }
 
       balance.amount = balance.amount.plus(amounts[i]);
       balance.save();
-    } else {
-      asset.currentSupply = asset.currentSupply.minus(amounts[i]);
-      asset.save();
     }
 
     if (event.params.from.toHex() != zeroAddress) {
@@ -120,9 +122,6 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
       
       balance.amount = balance.amount.minus(amounts[i]);
       balance.save();
-    } else {
-      asset.currentSupply = asset.currentSupply.plus(amounts[i]);
-      asset.save();
     }
   }
 }
@@ -132,11 +131,9 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
   if (content == null) {
     return;
   }
-  // get/create asset
+  // get asset
   let assetId = getAssetId(content.id, event.params.id.toString());
   let amount = event.params.value;
-  let asset = Asset.load(assetId);
-
   if (event.params.to.toHex() != zeroAddress) {
     // receiver exists
     let receiver = Account.load(event.params.to.toHexString());
@@ -149,15 +146,12 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
     let assetBalanceId = getAssetBalanceId(content.id, receiver.id, event.params.id.toString());
     let balance = AssetBalance.load(assetBalanceId);
     if (balance == null) {
-      balance = createAssetBalance(assetBalanceId, asset.id, receiver.id);
+      balance = createAssetBalance(assetBalanceId, assetId, receiver.id);
     }
 
     balance.amount = balance.amount.plus(amount);
     balance.save();
-  } else {
-    asset.currentSupply = asset.currentSupply.minus(amount);
-    asset.save();
-  }
+  } 
 
   if (event.params.from.toHex() != zeroAddress) {
     // sender exists
@@ -169,8 +163,73 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
     
     balance.amount = balance.amount.minus(amount);
     balance.save();
-  } else {
-    asset.currentSupply = asset.currentSupply.plus(amount);
+  }
+}
+
+export function handleMint(event: MintEvent): void {
+  // make sure parent content contract has been loaded
+  let parent = Content.load(event.address.toHexString());
+  if (parent == null) {
+    return;
+  }
+
+  let transaction = createTransaction(event.transaction.hash.toHexString());
+  transaction.blockNumber = event.block.number;
+  transaction.timestamp = event.block.timestamp;
+  transaction.gasUSed = event.transaction.gasUsed;
+  transaction.gasPrice = event.transaction.gasPrice;
+  transaction.save();
+
+  let assetIds = event.params.data.tokenIds;
+  let amounts = event.params.data.amounts;
+  for (let i = 0; i < assetIds.length; ++i) {
+    let assetId = getAssetId(parent.id, assetIds[i].toString());
+    let mintId = getTransactionId(transaction.id, assetIds[i].toString());
+    let mintTransaction = createMintTransaction(
+      mintId,
+      transaction.id,
+      event.params.operator.toHexString(),
+      event.params.data.to.toHexString(),
+      assetId
+    );
+
+    let asset = Asset.load(assetId);
+    asset.mintCount = asset.mintCount.plus(BigInt.fromI32(1));
+    asset.currentSupply = asset.currentSupply.plus(amounts[i]);
+    asset.save();
+  }
+}
+
+export function handleBurn(event: BurnEvent): void {
+  // make sure parent content contract has been loaded
+  let parent = Content.load(event.address.toHexString());
+  if (parent == null) {
+    return;
+  }
+
+  let transaction = createTransaction(event.transaction.hash.toHexString());
+  transaction.blockNumber = event.block.number;
+  transaction.timestamp = event.block.timestamp;
+  transaction.gasUSed = event.transaction.gasUsed;
+  transaction.gasPrice = event.transaction.gasPrice;
+  transaction.save();
+
+  let assetIds = event.params.data.tokenIds;
+  let amounts = event.params.data.amounts;
+  for (let i = 0; i < assetIds.length; ++i) {
+    let assetId = getAssetId(parent.id, assetIds[i].toString());
+    let burnId = getTransactionId(transaction.id, assetIds[i].toString());
+    let burnTransaction = createBurnTransaction(
+      burnId,
+      transaction.id,
+      event.params.operator.toHexString(),
+      event.params.data.account.toHexString(),
+      assetId
+    );
+
+    let asset = Asset.load(assetId);
+    asset.burnCount = asset.burnCount.plus(BigInt.fromI32(1));
+    asset.currentSupply = asset.currentSupply.minus(amounts[i]);
     asset.save();
   }
 }

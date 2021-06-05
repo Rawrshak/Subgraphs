@@ -54,6 +54,10 @@ templates:
           handler: handleTransferBatch
         - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleTransferSingle
+        - event: Mint(address,(address,uint256[],uint256[],uint256,address,bytes))
+          handler: handleMint
+        - event: Burn(address,(address,uint256[],uint256[]))
+          handler: handleBurn
   - name: ContentStorage
     kind: ethereum/contract
     network: mainnet
