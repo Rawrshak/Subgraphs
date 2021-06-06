@@ -8,7 +8,7 @@ import {
 } from "../generated/templates/ContentManager/ContentManager";
 
 import { 
-  ContentManagerRegistry as Registry,
+  ContractRegistry as Registry,
   ContentManager,
   SystemRegistry,
   ContentStorage,
@@ -25,10 +25,10 @@ import {
   BurnTransaction
 } from "../generated/schema";
 
-export function createContentManagerRegistry(id: Address, creator: Address): Registry {
-  let contentManagerRegistry = new Registry(id.toHexString());
-  contentManagerRegistry.save();
-  return contentManagerRegistry;
+export function createContractRegistry(id: Address, creator: Address): Registry {
+  let contractRegistry = new Registry(id.toHexString());
+  contractRegistry.save();
+  return contractRegistry;
 }
 
 import {

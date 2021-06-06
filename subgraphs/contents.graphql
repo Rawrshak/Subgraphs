@@ -1,4 +1,4 @@
-type ContentManagerRegistry @entity {
+type ContractRegistry @entity {
   id: ID!
   contentManagers: [ContentManager!] @derivedFrom(field: "registry")
 }
@@ -9,7 +9,7 @@ type ContentManager @entity {
   contentStorage: ContentStorage!
   systemRegistry: SystemRegistry!
   creator: Bytes!
-  registry: ContentManagerRegistry!
+  registry: ContractRegistry!
 }
 
 type SystemRegistry @entity {

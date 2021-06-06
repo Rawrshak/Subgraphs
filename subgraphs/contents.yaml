@@ -4,12 +4,12 @@ repository: https://github.com/gcbsumid/rawrshak-graphnode
 schema:
   file: ./contents.graphql
 dataSources:
-  - name: ContentManagerRegistry
+  - name: ContractRegistry
     kind: ethereum/contract
     network: mainnet
     source:
       address: "0xBCB8B9da0285e304B10a2e7Db0B213aFddED9Dd6"
-      abi: ContentManagerRegistry
+      abi: ContractRegistry
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -20,8 +20,8 @@ dataSources:
         - ContentManager
         - ContentStorage
       abis:
-        - name: ContentManagerRegistry
-          file: ../abis/ContentManagerRegistry.json
+        - name: ContractRegistry
+          file: ../abis/ContractRegistry.json
         - name: ContentManager
           file: ../abis/ContentManager.json
         - name: Content

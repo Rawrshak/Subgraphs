@@ -1,7 +1,7 @@
 import { log, ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts"
 import {
   ContentManagerRegistered
-} from "../generated/ContentManagerRegistry/ContentManagerRegistry";
+} from "../generated/ContractRegistry/ContractRegistry";
 import {
   Content as ContentContract,
   TransferBatch as TransferBatchEvent,
@@ -28,7 +28,7 @@ import {
   RegisteredSystemsUpdated as RegisteredSystemsUpdatedEvent
 } from "../generated/templates/SystemsRegistry/SystemsRegistry";
 import { 
-  ContentManagerRegistry as Registry,
+  ContractRegistry as Registry,
   ContentManager,
   Asset,
   AssetBalance,
@@ -59,7 +59,7 @@ import {
   getUserApprovalId,
   getOperatorId,
   getTransactionId,
-  createContentManagerRegistry
+  createContractRegistry
 } from "./content-helpers";
 
 let zeroAddress = '0x0000000000000000000000000000000000000000';
@@ -68,7 +68,7 @@ export function handleContentManagerRegistered(event: ContentManagerRegistered):
   // let owner = event.params.owner.toHexString();
   let registry = Registry.load(event.address.toHexString());
   if (registry == null) {
-    registry = createContentManagerRegistry(event.address, event.params.owner);
+    registry = createContractRegistry(event.address, event.params.owner);
   }
 
   let contentManager = ContentManager.load(event.params.contentManager.toHexString());

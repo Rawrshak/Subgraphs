@@ -1,0 +1,78 @@
+specVersion: 0.0.2
+description: Rawrshak Network
+repository: https://github.com/gcbsumid/rawrshak-graphnode
+schema:
+  file: ./craft.graphql
+dataSources:
+  - name: ContractRegistry
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      address: "0xBCB8B9da0285e304B10a2e7Db0B213aFddED9Dd6"
+      abi: ContractRegistry
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/craft.ts
+      entities:
+        - Content
+        - Craft
+        - Salvage
+      abis:
+        - name: ContractRegistry
+          file: ../abis/ContractRegistry.json
+        - name: Craft
+          file: ../abis/Craft.json
+        - name: Salvage
+          file: ../abis/Salvage.json
+      eventHandlers:
+        - event: CraftRegistered(indexed address,indexed address)
+          handler: handleCraftRegistered
+        - event: SalvageRegistered(indexed address,indexed address)
+          handler: handleSalvageRegistered
+templates:
+  - name: Craft
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: Craft
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/Craft.ts
+      entities:
+        - Craft
+      abis:
+        - name: Craft
+          file: ../abis/Craft.json
+      eventHandlers:
+        - event: AssetsCrafted(indexed address,indexed uint256,uint256)
+          handler: handleAssetsCrafted
+        - event: RecipeEnabled(indexed address,indexed uint256,bool)
+          handler: handleRecipeEnabled
+        - event: RecipeUpdated(indexed address,(uint256,uint256,bool,(address,uint256)[],uint256[],(address,uint256)[],uint256[])[])
+          handler: handleRecipeUpdated          
+  - name: Salvage
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: Salvage
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/Craft.ts
+      entities:
+        - Salvage
+      abis:
+        - name: Salvage
+          file: ../abis/Salvage.json
+      eventHandlers:
+        - event: AssetSalvaged(indexed address,(address,uint256),uint256)
+          handler: handleAssetSalvaged
+        - event: AssetSalvagedBatch(indexed address,(address,uint256)[],uint256[])
+          handler: handleAssetSalvagedBatch
+        - event: SalvageableAssetsUpdated(indexed address,((address,uint256),uint256,((address,uint256),uint256,uint256)[])[],uint256[])
+          handler: handleSalvageableAssetsUpdated
