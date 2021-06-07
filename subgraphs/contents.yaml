@@ -1,0 +1,109 @@
+specVersion: 0.0.2
+description: Rawrshak Network
+repository: https://github.com/gcbsumid/rawrshak-graphnode
+schema:
+  file: ./contents.graphql
+dataSources:
+  - name: ContractRegistry
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      address: "0xBCB8B9da0285e304B10a2e7Db0B213aFddED9Dd6"
+      abi: ContractRegistry
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/contents.ts
+      entities:
+        - Content
+        - ContentManager
+        - ContentStorage
+      abis:
+        - name: ContractRegistry
+          file: ../abis/ContractRegistry.json
+        - name: ContentManager
+          file: ../abis/ContentManager.json
+        - name: Content
+          file: ../abis/Content.json
+        - name: ContentStorage
+          file: ../abis/ContentStorage.json
+        - name: SystemsRegistry
+          file: ../abis/SystemsRegistry.json
+      eventHandlers:
+        - event: ContentManagerRegistered(indexed address,indexed address)
+          handler: handleContentManagerRegistered
+templates:
+  - name: Content
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: Content
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/Contents.ts
+      entities:
+        - Content
+      abis:
+        - name: Content
+          file: ../abis/Content.json
+      eventHandlers:
+        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+          handler: handleTransferBatch
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle
+        - event: Mint(address,(address,uint256[],uint256[],uint256,address,bytes))
+          handler: handleMint
+        - event: Burn(address,(address,uint256[],uint256[]))
+          handler: handleBurn
+  - name: ContentStorage
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: ContentStorage
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/Contents.ts
+      entities:
+        - Content
+        - ContentStorage
+      abis:
+        - name: ContentStorage
+          file: ../abis/ContentStorage.json
+        - name: Content
+          file: ../abis/Content.json
+      eventHandlers:
+        - event: AssetsAdded(indexed address,(uint256,string,uint256,(address,uint256)[])[])
+          handler: handleAssetsAdded
+        - event: ContractRoyaltiesUpdated(indexed address,(address,uint256)[])
+          handler: handleContractRoyaltiesUpdated
+        - event: HiddenTokenUriUpdated(indexed address,indexed uint256,indexed uint256)
+          handler: handleHiddenTokenUriUpdated
+        - event: TokenRoyaltiesUpdated(indexed address,indexed uint256,(address,uint256)[])
+          handler: handleTokenRoyaltiesUpdated
+  - name: SystemsRegistry
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: SystemsRegistry
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/Contents.ts
+      entities:
+        - SystemsRegistry
+      abis:
+        - name: SystemsRegistry
+          file: ../abis/SystemsRegistry.json
+      eventHandlers:
+        - event: UserApproved(indexed address,indexed address,bool)
+          handler: handleUserApproved
+        - event: RegisteredSystemsUpdated(indexed address,(address,bool)[])
+          handler: handleRegisteredSystemsUpdated
+
+

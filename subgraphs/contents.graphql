@@ -1,0 +1,125 @@
+type ContractRegistry @entity {
+  id: ID!
+  contentManagers: [ContentManager!] @derivedFrom(field: "registry")
+}
+
+type ContentManager @entity {
+  id: ID!
+  content: Content!
+  contentStorage: ContentStorage!
+  systemRegistry: SystemRegistry!
+  creator: Bytes!
+  registry: ContractRegistry!
+}
+
+type SystemRegistry @entity {
+  id: ID!
+  content: Content!
+  operators: [Bytes!]
+  users: [Bytes!]
+}
+
+type ContentStorage @entity {
+  id: ID!
+  content: Content!
+  tokens: [Asset!]
+}
+
+type Asset @entity{
+  id: ID!
+  tokenId: BigInt!
+  parentContract: Content!
+  currentSupply: BigInt!
+  maxSupply: BigInt!
+  balances: [AssetBalance!] @derivedFrom(field: "asset")
+  assetRoyalties: [AssetFee!]!
+  latestHiddenUriVersion: BigInt!
+  mintTransactions: [MintTransaction!]! @derivedFrom(field: "asset")
+  burnTransactions: [BurnTransaction!]! @derivedFrom(field: "asset")
+  mintCount: BigInt!
+  burnCount: BigInt!
+}
+
+type AssetBalance @entity {
+  id: ID!
+  asset: Asset!
+  owner: Account!
+  amount: BigInt!
+}
+
+type AssetFee @entity {
+  id: ID!
+  asset: Asset!
+  creator: Bytes!
+  rate: BigInt!
+}
+
+type ContractFee @entity {
+  id: ID!
+  content: Content!
+  creator: Bytes!
+  rate: BigInt!
+}
+
+type Content @entity {
+  id: ID!
+  contractAddress: Bytes!
+  name: String!
+  symbol: String!
+  assets: [Asset!]! @derivedFrom(field: "parentContract")
+  contractRoyalties: [ContractFee!]!
+  userApprovals: [UserApproval!]! @derivedFrom(field: "content")
+  operators: [Operator!]! @derivedFrom(field: "content")
+}
+
+type Account @entity {
+  id: ID!
+  address: Bytes!
+  assetBalances: [AssetBalance!]! @derivedFrom(field: "owner")
+  approvals: [UserApproval!]! @derivedFrom(field: "user")
+  mints: [MintTransaction!]! @derivedFrom(field: "receiver")
+  burns: [BurnTransaction!]! @derivedFrom(field: "burner")
+}
+
+type UserApproval @entity {
+  id: ID!
+  content: Content!
+  user: Account!
+  approved: Boolean!
+}
+
+type Operator @entity {
+  id: ID!
+  address: Bytes!
+  content: Content!
+  approved: Boolean!
+}
+
+type Transaction @entity {
+  id: ID!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  gasUSed: BigInt!
+  gasPrice: BigInt!
+  #derived values
+  mints: [MintTransaction]! @derivedFrom(field: "transaction")
+  burns: [BurnTransaction]! @derivedFrom(field: "transaction")
+}
+
+type MintTransaction @entity {
+  id: ID!
+  operator: Account!
+  receiver: Account!
+  transaction: Transaction!
+  asset: Asset! 
+  amount: BigInt!
+}
+
+type BurnTransaction @entity {
+  id: ID!
+  operator: Account!
+  burner: Account!
+  transaction: Transaction!
+  asset: Asset! 
+  amount: BigInt!
+}
