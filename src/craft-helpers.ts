@@ -17,7 +17,7 @@ import {
     Salvage as SalvageTemplate
 } from '../generated/templates';
 
-let zeroAddress = '0x0000000000000000000000000000000000000000';
+import { ADDRESS_ZERO, ZERO_BI } from "./constants";
 
 export function createContractRegistry(id: Address, creator: Address): Registry {
   let contractRegistry = new Registry(id.toHexString());
@@ -29,8 +29,8 @@ export function createCraft(id: Address, manager: Address, registry: string): Cr
   CraftTemplate.create(id);
   let craft = new Craft(id.toHexString());
   craft.registry = registry;
-  craft.recipesCount = BigInt.fromI32(0);
-  craft.craftCount = BigInt.fromI32(0);
+  craft.recipesCount = ZERO_BI;
+  craft.craftCount = ZERO_BI;
   craft.parents = [];
   craft.save();
   return craft;
@@ -40,8 +40,8 @@ export function createSalvage(id: Address, manager: Address, registry: string): 
   SalvageTemplate.create(id);
   let salvage = new Salvage(id.toHexString());
   salvage.registry = registry;
-  salvage.salvageableAssetsCount = BigInt.fromI32(0);
-  salvage.salvageCount = BigInt.fromI32(0);
+  salvage.salvageableAssetsCount = ZERO_BI;
+  salvage.salvageCount = ZERO_BI;
   salvage.parents = [];
   salvage.save();
   return salvage;
@@ -49,10 +49,10 @@ export function createSalvage(id: Address, manager: Address, registry: string): 
 
 export function createTransaction(id: string): Transaction {
   let transaction = new Transaction(id);
-  transaction.blockNumber = BigInt.fromI32(0);
-  transaction.timestamp = BigInt.fromI32(0);
-  transaction.gasUSed = BigInt.fromI32(0);
-  transaction.gasPrice = BigInt.fromI32(0);
+  transaction.blockNumber = ZERO_BI;
+  transaction.timestamp = ZERO_BI;
+  transaction.gasUSed = ZERO_BI;
+  transaction.gasPrice = ZERO_BI;
   transaction.save();
   return transaction;
 }
@@ -63,7 +63,7 @@ export function createCraftTransaction(id: string, transactionId: string): Craft
   transaction.transaction = transactionId;
   transaction.recipe = "";
   transaction.contract = "";
-  transaction.amount = BigInt.fromI32(0);
+  transaction.amount = ZERO_BI;
   transaction.save();
   return transaction;
 }
@@ -74,15 +74,15 @@ export function createSalvageTransaction(id: string, transactionId: string): Sal
   transaction.transaction = transactionId;
   transaction.salvageableAsset = "";
   transaction.contract = "";
-  transaction.amount = BigInt.fromI32(0);
+  transaction.amount = ZERO_BI;
   transaction.save();
   return transaction;
 }
 
 export function createAccount(address: Address): Account {
   let account = new Account(address.toHexString());
-  account.craftCount = BigInt.fromI32(0);
-  account.salvageCount = BigInt.fromI32(0);
+  account.craftCount = ZERO_BI;
+  account.salvageCount = ZERO_BI;
   account.save();
   return account;
 }
@@ -90,7 +90,7 @@ export function createAccount(address: Address): Account {
 export function createRecipe(id: string, parent: string, recipeId: BigInt): Recipe {
   let recipe = new Recipe(id);
   recipe.recipeId = recipeId;
-  recipe.craftCount = BigInt.fromI32(0);
+  recipe.craftCount = ZERO_BI;
   recipe.parent = parent;
   recipe.enabled = false;
   recipe.save();
@@ -99,10 +99,10 @@ export function createRecipe(id: string, parent: string, recipeId: BigInt): Reci
 
 export function createSalvageableAsset(id: string, parent: string, salvageableAssetId: BigInt): SalvageableAsset {
   let asset = new SalvageableAsset(id);
-  asset.content = Address.fromString(zeroAddress);
-  asset.tokenId = BigInt.fromI32(0);
+  asset.content = Address.fromString(ADDRESS_ZERO);
+  asset.tokenId = ZERO_BI;
   asset.salvageId = salvageableAssetId;
-  asset.salvageCount = BigInt.fromI32(0);
+  asset.salvageCount = ZERO_BI;
   asset.parent = parent;
   asset.save();
   return asset;

@@ -22,7 +22,7 @@ The Rawrshak Graph Node repo contains the Rawrshak Subgraph code for The Graph. 
     
 ## To set up the local graph node:
     1. open a new terminal/powershell/command prompt and run the deterministic Ganache instruction above
-    2. open a new terminal/powershell/command prompt and "cd docker && docker-compose up"
+    2. open a new terminal/powershell/command prompt and "yarn docker-up:clean". This deletes any data folders in the docker and starts a docker instance
         - make sure docker is installed
         - delete **docker\data** folder if it exists before running "docker-compose up"
     3. After installing the graph-cli (instructions above), make sure you've created an account on [the graph](https://thegraph.com/)
@@ -33,10 +33,11 @@ The Rawrshak Graph Node repo contains the Rawrshak Subgraph code for The Graph. 
         rawrshak\subgraph.yaml (and rawrshak\src\game.ts).
     6. copy the updated ABIs from build\contracts\ to rawrshak\abis if these smart contracts were updated after 
         compiling
-    6. cd rawrshak && yarn && yarn codegen
-    7. yarn create-local (if it hasn't already been created)
+    7. run "yarn install" to download packages
+    8. run "yarn codegen:<subgraph>" where "subgraph" is replaced with the specific subgraph you're building
+    9. run "yarn create-local:<subgraph>" after starting docker to create the subgraph (if it hasn't already been created)
         - run 'yarn remove-local' if necessary
-    8. yarn deploy-local (deploy the local graph node)
+    10. run "yarn deploy-local:<subgraph>" to deploy subgraph 
         - the powershell running the ganache and docker service should be doing stuff
-    9. confirm that the ethereum data is being parsed properly
-        http://localhost:8000/subgraphs/name/<github_account>/rawrshak/
+    11. confirm that the ethereum data is being parsed properly
+        http://localhost:8000/subgraphs/name/<github_account>/<subgraph>/

@@ -1,17 +1,24 @@
-import { ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts"
+import { ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts";
 import {
   RawrToken,
   TokenCreated,
   Transfer
-} from "../generated/RawrToken/RawrToken"
+} from "../generated/RawrToken/RawrToken";
 import { 
   Token,
   TokenBalance,
   Account,
   Supply
- } from "../generated/schema"
+} from "../generated/schema";
+import {
+  createToken,
+  createSupply,
+  createAccount,
+  createTokenBalance,
+  getTokenBalanceId
+} from "./token-helpers";
 
-let zeroAddress = '0x0000000000000000000000000000000000000000';
+import { ADDRESS_ZERO, ONE_BI, ZERO_BI } from "./constants";
 
 export function handleTokenCreated(event: TokenCreated): void {
   // let tokenId = crypto.keccak256(event.params.name.).toHexString();
@@ -51,7 +58,7 @@ export function handleTransfer(event: Transfer): void {
     supply = createSupply(tokenId);
   }
 
-  if (event.params.to.toHex() != zeroAddress) {
+  if (event.params.to.toHex() != ADDRESS_ZERO) {
     // There is a receiver
     // Get User To and add if it doesn't exist
     let userToId = event.params.to.toHex();
@@ -59,11 +66,10 @@ export function handleTransfer(event: Transfer): void {
     if (userTo == null) {
       // Add new owner and increment token number of owners
       userTo = createAccount(userToId, event.params.to);
-      token.numberOfOwners = token.numberOfOwners.plus(BigInt.fromI32(1));
+      token.numberOfOwners = token.numberOfOwners.plus(ONE_BI);
     }
-    userTo.save();
 
-    let tokenBalanceId = createTokenBalanceId(event.address.toHexString(), event.params.to.toHexString());
+    let tokenBalanceId = getTokenBalanceId(event.address.toHexString(), event.params.to.toHexString());
     let tokenBalance = TokenBalance.load(tokenBalanceId);
     if (tokenBalance == null) {
         tokenBalance = createTokenBalance(tokenBalanceId, tokenContract.tokenId().toHex(), event.params.to.toHex());
@@ -76,20 +82,20 @@ export function handleTransfer(event: Transfer): void {
     // Tokens are being burnt
     supply.lastBurnAt = event.block.timestamp;
     supply.currentSupply = supply.currentSupply.minus(event.params.value);
-    supply.numberOfBurns = supply.numberOfBurns.plus(BigInt.fromI32(1));
+    supply.numberOfBurns = supply.numberOfBurns.plus(ONE_BI);
   }
 
-  if (event.params.from.toHex() != zeroAddress) {
+  if (event.params.from.toHex() != ADDRESS_ZERO) {
     // Subract the amount to the User from's token balance (if address is not null)
-    let tokenBalanceId = createTokenBalanceId(event.address.toHexString(), event.params.from.toHexString());
+    let tokenBalanceId = getTokenBalanceId(event.address.toHexString(), event.params.from.toHexString());
     let tokenBalance = TokenBalance.load(tokenBalanceId);
     if (tokenBalance != null) {
       tokenBalance.amount = tokenBalance.amount.minus(event.params.value);
       tokenBalance.save()
 
       // if sender's balance is 0
-      if (tokenBalance.amount == BigInt.fromI32(0)) {
-        token.numberOfOwners = token.numberOfOwners.minus(BigInt.fromI32(1));
+      if (tokenBalance.amount == ZERO_BI) {
+        token.numberOfOwners = token.numberOfOwners.minus(ONE_BI);
       }
     }
   }
@@ -98,54 +104,8 @@ export function handleTransfer(event: Transfer): void {
     // Tokens are being minted
     supply.lastMintAt = event.block.timestamp;
     supply.currentSupply = supply.currentSupply.plus(event.params.value);
-    supply.numberOfMints = supply.numberOfMints.plus(BigInt.fromI32(1));
+    supply.numberOfMints = supply.numberOfMints.plus(ONE_BI);
   }
   token.save();
   supply.save();
-}
-
-// Helper for concatenating two byte arrays
-function concat(a: ByteArray, b: ByteArray): ByteArray {
-  let out = new Uint8Array(a.length + b.length)
-  for (let i = 0; i < a.length; i++) {
-    out[i] = a[i]
-  }
-  for (let j = 0; j < b.length; j++) {
-    out[a.length + j] = b[j]
-  }
-  return out as ByteArray
-}
-
-function createToken(id: string, address: Address): Token {
-    let token = new Token(id);
-    token.contractAddress = address;
-    token.numberOfOwners = BigInt.fromI32(0);
-    return token;
-}
-
-function createSupply(id: string): Supply {
-    let supply = new Supply(id);
-    supply.token = id;
-    supply.numberOfMints = BigInt.fromI32(0);
-    supply.numberOfBurns = BigInt.fromI32(0);
-    return supply;
-}
-
-function createTokenBalance(id: string, tokenId: string, owner: string): TokenBalance {
-    let tokenBalance = new TokenBalance(id);
-    tokenBalance.amount = BigInt.fromI32(0);
-    tokenBalance.token = tokenId;
-    tokenBalance.owner = owner;
-    return tokenBalance;
-}
-
-function createAccount(id: string, address: Address): Account {
-    let account = new Account(id);
-    account.address = address;
-    return account;
-}
-
-// Todo: change owner from 'string' to 'Address'. Keep it for now for readability though
-function createTokenBalanceId(tokenAddress: string, owner: string): string {
-  return tokenAddress.concat('-').concat(owner);
 }

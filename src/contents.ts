@@ -62,7 +62,7 @@ import {
   createContractRegistry
 } from "./content-helpers";
 
-let zeroAddress = '0x0000000000000000000000000000000000000000';
+import { ADDRESS_ZERO, ONE_BI, ZERO_BI } from "./constants";
  
 export function handleContentManagerRegistered(event: ContentManagerRegistered): void {
   // let owner = event.params.owner.toHexString();
@@ -95,7 +95,7 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
     // get asset
     let assetId = getAssetId(content.id, ids[i].toString());
     
-    if (event.params.to.toHex() != zeroAddress) {
+    if (event.params.to.toHex() != ADDRESS_ZERO) {
       // receiver exists
       let receiver = Account.load(event.params.to.toHexString());
       if (receiver == null) {
@@ -114,7 +114,7 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
       balance.save();
     }
 
-    if (event.params.from.toHex() != zeroAddress) {
+    if (event.params.from.toHex() != ADDRESS_ZERO) {
       // sender exists
       let sender = Account.load(event.params.from.toHexString());
       
@@ -136,7 +136,7 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
   // get asset
   let assetId = getAssetId(content.id, event.params.id.toString());
   let amount = event.params.value;
-  if (event.params.to.toHex() != zeroAddress) {
+  if (event.params.to.toHex() != ADDRESS_ZERO) {
     // receiver exists
     let receiver = Account.load(event.params.to.toHexString());
     if (receiver == null) {
@@ -155,7 +155,7 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
     balance.save();
   } 
 
-  if (event.params.from.toHex() != zeroAddress) {
+  if (event.params.from.toHex() != ADDRESS_ZERO) {
     // sender exists
     let sender = Account.load(event.params.from.toHexString());
     
@@ -196,7 +196,7 @@ export function handleMint(event: MintEvent): void {
     );
 
     let asset = Asset.load(assetId);
-    asset.mintCount = asset.mintCount.plus(BigInt.fromI32(1));
+    asset.mintCount = asset.mintCount.plus(ONE_BI);
     asset.currentSupply = asset.currentSupply.plus(amounts[i]);
     asset.save();
   }
@@ -230,7 +230,7 @@ export function handleBurn(event: BurnEvent): void {
     );
 
     let asset = Asset.load(assetId);
-    asset.burnCount = asset.burnCount.plus(BigInt.fromI32(1));
+    asset.burnCount = asset.burnCount.plus(ONE_BI);
     asset.currentSupply = asset.currentSupply.minus(amounts[i]);
     asset.save();
   }
@@ -287,7 +287,7 @@ export function handleContractRoyaltiesUpdated(event: ContractRoyaltiesUpdatedEv
   // Delete existing contract royalties
   parent.contractRoyalties.forEach(currentFee => {
     let fee = ContractFee.load(currentFee);
-    fee.rate = BigInt.fromI32(0);
+    fee.rate = ZERO_BI;
     fee.save();
   });
 
@@ -336,7 +336,7 @@ export function handleTokenRoyaltiesUpdated(event: TokenRoyaltiesUpdatedEvent): 
 
   asset.assetRoyalties.forEach(currentFeeId => {
     let fee = AssetFee.load(currentFeeId);
-    fee.rate = BigInt.fromI32(0);
+    fee.rate = ZERO_BI;
     fee.save();
   });
 

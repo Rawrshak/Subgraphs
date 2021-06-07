@@ -37,6 +37,8 @@ import {
     Content as ContentTemplate
 } from '../generated/templates';
 
+import { ZERO_BI } from "./constants";
+
 export function createContentManager(id: Address, creator: Address, registry: string): ContentManager {
   let contentManager = new ContentManager(id.toHexString());
   let contentManagerContract = ContentManagerContract.bind(id);
@@ -125,15 +127,15 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
   let asset = new Asset(id);
   asset.tokenId = tokenId;
   asset.parentContract = parent;
-  asset.currentSupply = BigInt.fromI32(0);
-  asset.maxSupply = BigInt.fromI32(0);
-  asset.latestHiddenUriVersion = BigInt.fromI32(0);
+  asset.currentSupply = ZERO_BI;
+  asset.maxSupply = ZERO_BI;
+  asset.latestHiddenUriVersion = ZERO_BI;
   asset.assetRoyalties = [];
   asset.balances = [];
   asset.mintTransactions = [];
   asset.burnTransactions = [];
-  asset.mintCount = BigInt.fromI32(0);
-  asset.burnCount = BigInt.fromI32(0);
+  asset.mintCount = ZERO_BI;
+  asset.burnCount = ZERO_BI;
   asset.save();
   return asset;
 }
@@ -142,7 +144,7 @@ export function createAssetBalance(id: string, asset: string, owner: string): As
   let balance = new AssetBalance(id);
   balance.asset = asset;
   balance.owner = owner;
-  balance.amount = BigInt.fromI32(0);
+  balance.amount = ZERO_BI;
   balance.save();
   return balance;
 }
@@ -151,7 +153,7 @@ export function createAssetFees(id: string, creator: Address, assetId: string): 
   let fee = new AssetFee(id);
   fee.creator = creator; 
   fee.asset = assetId;
-  fee.rate = BigInt.fromI32(0);
+  fee.rate = ZERO_BI;
   fee.save();
   return fee;
 }
@@ -160,7 +162,7 @@ export function createContractFees(id: string, creator: Address, content: string
   let fee = new ContractFee(id);
   fee.creator = creator; 
   fee.content = content;
-  fee.rate = BigInt.fromI32(0);
+  fee.rate = ZERO_BI;
   fee.save();
   return fee;
 }
@@ -185,10 +187,10 @@ export function createOperator(id: string, content: string, address: Address): O
 
 export function createTransaction(id: string): Transaction {
   let transaction = new Transaction(id);
-  transaction.blockNumber = BigInt.fromI32(0);
-  transaction.timestamp = BigInt.fromI32(0);
-  transaction.gasUSed = BigInt.fromI32(0);
-  transaction.gasPrice = BigInt.fromI32(0);
+  transaction.blockNumber = ZERO_BI;
+  transaction.timestamp = ZERO_BI;
+  transaction.gasUSed = ZERO_BI;
+  transaction.gasPrice = ZERO_BI;
   transaction.mints = [];
   transaction.burns = [];
   transaction.save();
@@ -201,7 +203,7 @@ export function createMintTransaction(id: string, transactionId: string, operato
   transaction.receiver = receiver;
   transaction.transaction = transactionId;
   transaction.asset = asset;
-  transaction.amount = BigInt.fromI32(0);
+  transaction.amount = ZERO_BI;
   transaction.save();
   return transaction;
 }
@@ -212,7 +214,7 @@ export function createBurnTransaction(id: string, transactionId: string, operato
   transaction.burner = burner;
   transaction.transaction = transactionId;
   transaction.asset = asset;
-  transaction.amount = BigInt.fromI32(0);
+  transaction.amount = ZERO_BI;
   transaction.save();
   return transaction;
 }

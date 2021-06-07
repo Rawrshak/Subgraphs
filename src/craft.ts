@@ -48,7 +48,7 @@ import {
   createAccount
 } from "./craft-helpers";
 
-let zeroAddress = '0x0000000000000000000000000000000000000000';
+import { ONE_BI } from "./constants";
 
 export function handleCraftRegistered(event: CraftRegisteredEvent): void {
   let registry = Registry.load(event.address.toHexString());
@@ -80,13 +80,13 @@ export function handleAssetsCrafted(event: AssetsCraftedEvent): void {
   if (craft == null) {
     return;
   }
-  craft.craftCount = craft.craftCount.plus(BigInt.fromI32(1));
+  craft.craftCount = craft.craftCount.plus(ONE_BI);
   craft.save();
 
   // Get recipe and increment craft count
   let recipeId = getRecipeId(craft.id, event.params.id.toString());
   let recipe = Recipe.load(recipeId);
-  recipe.craftCount = recipe.craftCount.plus(BigInt.fromI32(1));
+  recipe.craftCount = recipe.craftCount.plus(ONE_BI);
   recipe.save();
 
   // Get account and increment craft count
@@ -94,7 +94,7 @@ export function handleAssetsCrafted(event: AssetsCraftedEvent): void {
   if (account == null) {
       account = createAccount(event.params.user);
   }
-  account.craftCount = account.craftCount.plus(BigInt.fromI32(1));
+  account.craftCount = account.craftCount.plus(ONE_BI);
   account.save();
 
   // Create Craft Transaction
@@ -129,7 +129,7 @@ export function handleRecipeUpdated(event: RecipeUpdatedEvent): void {
     let recipe = Recipe.load(recipeId);
     if (recipe == null) {
       recipe = createRecipe(recipeId, craft.id, recipes[i].id);
-      craft.recipesCount = craft.recipesCount.plus(BigInt.fromI32(1));
+      craft.recipesCount = craft.recipesCount.plus(ONE_BI);
     }
     recipe.enabled = recipes[i].enabled;
     recipe.save(); 
@@ -158,13 +158,13 @@ export function handleAssetSalvaged(event: AssetSalvagedEvent): void {
   if (salvage == null) {
     return;
   }
-  salvage.salvageCount = salvage.salvageCount.plus(BigInt.fromI32(1));
+  salvage.salvageCount = salvage.salvageCount.plus(ONE_BI);
   salvage.save();
 
   // Get salvageable asset and increment salvage count
   let assetId = getSalvageableAssetId(salvage.id, event.params.asset.content.toHexString(), event.params.asset.tokenId.toString());
   let asset = SalvageableAsset.load(assetId);
-  asset.salvageCount = asset.salvageCount.plus(BigInt.fromI32(1));
+  asset.salvageCount = asset.salvageCount.plus(ONE_BI);
   asset.save();
 
   // Get account and increment salvage count
@@ -172,7 +172,7 @@ export function handleAssetSalvaged(event: AssetSalvagedEvent): void {
   if (account == null) {
       account = createAccount(event.params.user);
   }
-  account.salvageCount = account.salvageCount.plus(BigInt.fromI32(1));
+  account.salvageCount = account.salvageCount.plus(ONE_BI);
   account.save();
 
   // Create Salvage Transaction
@@ -198,7 +198,7 @@ export function handleAssetSalvagedBatch(event: AssetSalvagedBatchEvent): void {
   if (salvage == null) {
     return;
   }
-  salvage.salvageCount = salvage.salvageCount.plus(BigInt.fromI32(1));
+  salvage.salvageCount = salvage.salvageCount.plus(ONE_BI);
   salvage.save();
   
   // Get account and increment salvage count
@@ -206,7 +206,7 @@ export function handleAssetSalvagedBatch(event: AssetSalvagedBatchEvent): void {
   if (account == null) {
     account = createAccount(event.params.user);
   }
-  account.salvageCount = account.salvageCount.plus(BigInt.fromI32(1));
+  account.salvageCount = account.salvageCount.plus(ONE_BI);
   account.save();
   
   // Create Salvage Transaction
@@ -223,7 +223,7 @@ export function handleAssetSalvagedBatch(event: AssetSalvagedBatchEvent): void {
   for (let i = 0; i < salvageableAssets.length; ++i) {
     let assetId = getSalvageableAssetId(salvage.id, salvageableAssets[i].content.toHexString(), salvageableAssets[i].tokenId.toString());
     let asset = SalvageableAsset.load(assetId);
-    asset.salvageCount = asset.salvageCount.plus(BigInt.fromI32(1));
+    asset.salvageCount = asset.salvageCount.plus(ONE_BI);
     asset.save();
 
     let transactionId = getTransactionId(transaction.id, assetId);
@@ -254,7 +254,7 @@ export function handleSalvageableAssetsUpdated(event: SalvageableAssetsUpdatedEv
       salvageableAsset.content = salvageableAssets[i].asset.content;
       salvageableAsset.tokenId = salvageableAssets[i].asset.tokenId;
       salvageableAsset.save();
-      salvage.salvageableAssetsCount = salvage.salvageableAssetsCount.plus(BigInt.fromI32(1));
+      salvage.salvageableAssetsCount = salvage.salvageableAssetsCount.plus(ONE_BI);
     }
   }
 
