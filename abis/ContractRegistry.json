@@ -227,7 +227,7 @@
         "type": "address"
       }
     ],
-    "name": "registryCraft",
+    "name": "registerCraft",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -240,7 +240,7 @@
         "type": "address"
       }
     ],
-    "name": "registrySalvage",
+    "name": "registerSalvage",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

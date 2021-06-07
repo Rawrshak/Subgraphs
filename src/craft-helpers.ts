@@ -2,7 +2,6 @@ import { ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts"
 
 import { 
   ContractRegistry as Registry,
-  Content,
   Account,
   Transaction,
   CraftTransaction,
@@ -13,22 +12,24 @@ import {
   SalvageableAsset
 } from "../generated/schema";
 
+import {
+    Craft as CraftTemplate,
+    Salvage as SalvageTemplate
+} from '../generated/templates';
+
 let zeroAddress = '0x0000000000000000000000000000000000000000';
 
 export function createContractRegistry(id: Address, creator: Address): Registry {
   let contractRegistry = new Registry(id.toHexString());
-  contractRegistry.craft = [];
-  contractRegistry.salvage = [];
   contractRegistry.save();
   return contractRegistry;
 }
 
 export function createCraft(id: Address, manager: Address, registry: string): Craft {
+  CraftTemplate.create(id);
   let craft = new Craft(id.toHexString());
   craft.registry = registry;
-  craft.recipes = [];
   craft.recipesCount = BigInt.fromI32(0);
-  craft.craftTransactions = [];
   craft.craftCount = BigInt.fromI32(0);
   craft.parents = [];
   craft.save();
@@ -36,11 +37,10 @@ export function createCraft(id: Address, manager: Address, registry: string): Cr
 }
 
 export function createSalvage(id: Address, manager: Address, registry: string): Salvage {
+  SalvageTemplate.create(id);
   let salvage = new Salvage(id.toHexString());
   salvage.registry = registry;
-  salvage.salvageableAssets = [];
   salvage.salvageableAssetsCount = BigInt.fromI32(0);
-  salvage.salvageTransactions = [];
   salvage.salvageCount = BigInt.fromI32(0);
   salvage.parents = [];
   salvage.save();
@@ -63,6 +63,7 @@ export function createCraftTransaction(id: string, transactionId: string): Craft
   transaction.transaction = transactionId;
   transaction.recipe = "";
   transaction.contract = "";
+  transaction.amount = BigInt.fromI32(0);
   transaction.save();
   return transaction;
 }
@@ -73,14 +74,13 @@ export function createSalvageTransaction(id: string, transactionId: string): Sal
   transaction.transaction = transactionId;
   transaction.salvageableAsset = "";
   transaction.contract = "";
+  transaction.amount = BigInt.fromI32(0);
   transaction.save();
   return transaction;
 }
 
 export function createAccount(address: Address): Account {
   let account = new Account(address.toHexString());
-  account.craftTransactions = [];
-  account.salvageTransactions = [];
   account.craftCount = BigInt.fromI32(0);
   account.salvageCount = BigInt.fromI32(0);
   account.save();
@@ -91,7 +91,6 @@ export function createRecipe(id: string, parent: string, recipeId: BigInt): Reci
   let recipe = new Recipe(id);
   recipe.recipeId = recipeId;
   recipe.craftCount = BigInt.fromI32(0);
-  recipe.craftTransactions = [];
   recipe.parent = parent;
   recipe.enabled = false;
   recipe.save();
@@ -104,7 +103,6 @@ export function createSalvageableAsset(id: string, parent: string, salvageableAs
   asset.tokenId = BigInt.fromI32(0);
   asset.salvageId = salvageableAssetId;
   asset.salvageCount = BigInt.fromI32(0);
-  asset.salvageTransactions = [];
   asset.parent = parent;
   asset.save();
   return asset;

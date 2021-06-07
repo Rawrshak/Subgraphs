@@ -75,6 +75,8 @@ export function handleContentManagerRegistered(event: ContentManagerRegistered):
   if (contentManager == null) {
     contentManager = createContentManager(event.params.contentManager, event.params.owner, registry.id);
   }
+
+  // Todo: set up content contract royalties
 }
 
 // Content Events
