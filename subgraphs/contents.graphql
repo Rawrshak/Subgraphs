@@ -34,6 +34,7 @@ type Asset @entity{
   balances: [AssetBalance!] @derivedFrom(field: "asset")
   assetRoyalties: [AssetFee!]!
   latestHiddenUriVersion: BigInt!
+  latestPublicUriVersion: BigInt!
   mintTransactions: [MintTransaction!]! @derivedFrom(field: "asset")
   burnTransactions: [BurnTransaction!]! @derivedFrom(field: "asset")
   mintCount: BigInt!

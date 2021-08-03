@@ -130,6 +130,7 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
   asset.currentSupply = ZERO_BI;
   asset.maxSupply = ZERO_BI;
   asset.latestHiddenUriVersion = ZERO_BI;
+  asset.latestPublicUriVersion = ZERO_BI;
   asset.assetRoyalties = [];
   asset.balances = [];
   asset.mintTransactions = [];

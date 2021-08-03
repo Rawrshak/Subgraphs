@@ -17,8 +17,8 @@ import {
   AssetsAdded as AssetsAddedEvent,
   ContractRoyaltiesUpdated as ContractRoyaltiesUpdatedEvent,
   HiddenTokenUriUpdated as HiddenTokenUriUpdatedEvent,
-  TokenRoyaltiesUpdated as TokenRoyaltiesUpdatedEvent,
-  TokenUriPrefixUpdated as TokenUriPrefixUpdatedEvent
+  PublicTokenUriUpdated as PublicTokenUriUpdatedEvent,
+  TokenRoyaltiesUpdated as TokenRoyaltiesUpdatedEvent
 } from "../generated/templates/ContentStorage/ContentStorage";
 import {
   SystemsRegistry as SystemsRegistryContract
@@ -318,6 +318,20 @@ export function handleHiddenTokenUriUpdated(event: HiddenTokenUriUpdatedEvent): 
   let asset = Asset.load(assetId);
   if (asset != null) {
     asset.latestHiddenUriVersion = event.params.version;
+    asset.save();
+  }
+}
+ 
+export function handlePublicTokenUriUpdated(event: PublicTokenUriUpdatedEvent): void {
+  let parent = Content.load(event.params.parent.toHexString());
+  if (parent == null) {
+    return;
+  }
+  
+  let assetId = getAssetId(parent.id, event.params.id.toString());
+  let asset = Asset.load(assetId);
+  if (asset != null) {
+    asset.latestPublicUriVersion = event.params.version;
     asset.save();
   }
 }
