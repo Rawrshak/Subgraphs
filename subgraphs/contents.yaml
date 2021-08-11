@@ -77,12 +77,14 @@ templates:
         - name: Content
           file: ../abis/Content.json
       eventHandlers:
-        - event: AssetsAdded(indexed address,(uint256,string,uint256,(address,uint256)[])[])
+        - event: AssetsAdded(indexed address,(uint256,string,string,uint256,(address,uint256)[])[])
           handler: handleAssetsAdded
         - event: ContractRoyaltiesUpdated(indexed address,(address,uint256)[])
           handler: handleContractRoyaltiesUpdated
         - event: HiddenTokenUriUpdated(indexed address,indexed uint256,indexed uint256)
           handler: handleHiddenTokenUriUpdated
+        - event: PublicTokenUriUpdated(indexed address,indexed uint256,indexed uint256)
+          handler: handlePublicTokenUriUpdated
         - event: TokenRoyaltiesUpdated(indexed address,indexed uint256,(address,uint256)[])
           handler: handleTokenRoyaltiesUpdated
   - name: SystemsRegistry

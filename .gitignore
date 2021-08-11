@@ -10,3 +10,6 @@ deprecated
 
 # docker data files
 docker/data
+
+# error logs
+yarn-error.log
