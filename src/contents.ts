@@ -16,8 +16,8 @@ import {
   ContentStorage as ContentStorageContract,
   AssetsAdded as AssetsAddedEvent,
   ContractRoyaltiesUpdated as ContractRoyaltiesUpdatedEvent,
-  HiddenTokenUriUpdated as HiddenTokenUriUpdatedEvent,
-  PublicTokenUriUpdated as PublicTokenUriUpdatedEvent,
+  HiddenUriUpdated as HiddenUriUpdatedEvent,
+  PublicUriUpdated as PublicUriUpdatedEvent,
   TokenRoyaltiesUpdated as TokenRoyaltiesUpdatedEvent
 } from "../generated/templates/ContentStorage/ContentStorage";
 import {
@@ -308,7 +308,7 @@ export function handleContractRoyaltiesUpdated(event: ContractRoyaltiesUpdatedEv
   parent.save();
 }
  
-export function handleHiddenTokenUriUpdated(event: HiddenTokenUriUpdatedEvent): void {
+export function handleHiddenUriUpdated(event: HiddenUriUpdatedEvent): void {
   let parent = Content.load(event.params.parent.toHexString());
   if (parent == null) {
     return;
@@ -322,7 +322,7 @@ export function handleHiddenTokenUriUpdated(event: HiddenTokenUriUpdatedEvent): 
   }
 }
  
-export function handlePublicTokenUriUpdated(event: PublicTokenUriUpdatedEvent): void {
+export function handlePublicUriUpdated(event: PublicUriUpdatedEvent): void {
   let parent = Content.load(event.params.parent.toHexString());
   if (parent == null) {
     return;

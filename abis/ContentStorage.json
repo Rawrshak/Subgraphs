@@ -98,6 +98,25 @@
         "type": "address"
       },
       {
+        "indexed": false,
+        "internalType": "string",
+        "name": "uriPrefix",
+        "type": "string"
+      }
+    ],
+    "name": "ContractUriUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "parent",
+        "type": "address"
+      },
+      {
         "indexed": true,
         "internalType": "uint256",
         "name": "id",
@@ -110,7 +129,7 @@
         "type": "uint256"
       }
     ],
-    "name": "HiddenTokenUriUpdated",
+    "name": "HiddenUriUpdated",
     "type": "event"
   },
   {
@@ -148,7 +167,7 @@
         "type": "uint256"
       }
     ],
-    "name": "PublicTokenUriUpdated",
+    "name": "PublicUriUpdated",
     "type": "event"
   },
   {
@@ -308,6 +327,19 @@
         "internalType": "uint256",
         "name": "rate",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "contractUri",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -522,6 +554,11 @@
         "internalType": "struct LibRoyalties.Fees[]",
         "name": "_contractFees",
         "type": "tuple[]"
+      },
+      {
+        "internalType": "string",
+        "name": "_contractUri",
+        "type": "string"
       }
     ],
     "name": "__ContentStorage_init",
@@ -649,7 +686,7 @@
         "type": "uint256"
       }
     ],
-    "name": "hiddenTokenUri",
+    "name": "hiddenUri",
     "outputs": [
       {
         "internalType": "string",
@@ -680,7 +717,7 @@
         "type": "tuple[]"
       }
     ],
-    "name": "setHiddenTokenUriBatch",
+    "name": "setHiddenUriBatch",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -705,7 +742,7 @@
         "type": "tuple[]"
       }
     ],
-    "name": "setPublicTokenUriBatch",
+    "name": "setPublicUriBatch",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -81,10 +81,10 @@ templates:
           handler: handleAssetsAdded
         - event: ContractRoyaltiesUpdated(indexed address,(address,uint256)[])
           handler: handleContractRoyaltiesUpdated
-        - event: HiddenTokenUriUpdated(indexed address,indexed uint256,indexed uint256)
-          handler: handleHiddenTokenUriUpdated
-        - event: PublicTokenUriUpdated(indexed address,indexed uint256,indexed uint256)
-          handler: handlePublicTokenUriUpdated
+        - event: HiddenUriUpdated(indexed address,indexed uint256,indexed uint256)
+          handler: handleHiddenUriUpdated
+        - event: PublicUriUpdated(indexed address,indexed uint256,indexed uint256)
+          handler: handlePublicUriUpdated
         - event: TokenRoyaltiesUpdated(indexed address,indexed uint256,(address,uint256)[])
           handler: handleTokenRoyaltiesUpdated
   - name: SystemsRegistry

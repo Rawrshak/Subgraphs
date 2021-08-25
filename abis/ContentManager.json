@@ -210,7 +210,7 @@
         "type": "tuple[]"
       }
     ],
-    "name": "setHiddenTokenUriBatch",
+    "name": "setHiddenUriBatch",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -235,7 +235,7 @@
         "type": "tuple[]"
       }
     ],
-    "name": "setPublicTokenUriBatch",
+    "name": "setPublicUriBatch",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

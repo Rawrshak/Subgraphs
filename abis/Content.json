@@ -454,25 +454,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "uri",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "string",
         "name": "_name",
         "type": "string"
@@ -480,11 +461,6 @@
       {
         "internalType": "string",
         "name": "_symbol",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_contractUri",
         "type": "string"
       },
       {
@@ -517,6 +493,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "contractUri",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -524,7 +513,7 @@
         "type": "uint256"
       }
     ],
-    "name": "tokenUri",
+    "name": "uri",
     "outputs": [
       {
         "internalType": "string",
@@ -548,50 +537,7 @@
         "type": "uint256"
       }
     ],
-    "name": "tokenUri",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_version",
-        "type": "uint256"
-      }
-    ],
-    "name": "hiddenTokenUri",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "hiddenTokenUri",
+    "name": "uri",
     "outputs": [
       {
         "internalType": "string",
