@@ -28,8 +28,8 @@ dataSources:
           file: ../abis/Content.json
         - name: ContentStorage
           file: ../abis/ContentStorage.json
-        - name: SystemsRegistry
-          file: ../abis/SystemsRegistry.json
+        - name: AccessControlManager
+          file: ../abis/AccessControlManager.json
       eventHandlers:
         - event: ContentManagerRegistered(indexed address,indexed address)
           handler: handleContentManagerRegistered
@@ -58,6 +58,8 @@ templates:
           handler: handleMint
         - event: Burn(address,(address,uint256[],uint256[]))
           handler: handleBurn
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
   - name: ContentStorage
     kind: ethereum/contract
     network: mainnet
@@ -87,25 +89,23 @@ templates:
           handler: handlePublicUriUpdated
         - event: TokenRoyaltiesUpdated(indexed address,indexed uint256,(address,uint256)[])
           handler: handleTokenRoyaltiesUpdated
-  - name: SystemsRegistry
+  - name: AccessControlManager
     kind: ethereum/contract
     network: mainnet
     source:
-      abi: SystemsRegistry
+      abi: AccessControlManager
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       file: ../src/Contents.ts
       entities:
-        - SystemsRegistry
+        - AccessControlManager
       abis:
-        - name: SystemsRegistry
-          file: ../abis/SystemsRegistry.json
+        - name: AccessControlManager
+          file: ../abis/AccessControlManager.json
       eventHandlers:
-        - event: UserApproved(indexed address,indexed address,bool)
-          handler: handleUserApproved
-        - event: RegisteredSystemsUpdated(indexed address,(address,bool)[])
-          handler: handleRegisteredSystemsUpdated
-
-
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleGranted
+        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleRevoked
