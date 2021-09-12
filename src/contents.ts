@@ -7,11 +7,12 @@ import {
   TransferBatch as TransferBatchEvent,
   TransferSingle as TransferSingleEvent,
   Mint as MintEvent,
-  Burn as BurnEvent
+  Burn as BurnEvent,
+  ApprovalForAll as ApprovalForAllEvent
 } from "../generated/templates/Content/Content";
 import {
   ContentManager as ContentManagerContract
-} from "../generated/templates/ContentManager/ContentManager";
+} from "../generated/ContractRegistry/ContentManager";
 import {
   ContentStorage as ContentStorageContract,
   AssetsAdded as AssetsAddedEvent,
@@ -21,12 +22,10 @@ import {
   TokenRoyaltiesUpdated as TokenRoyaltiesUpdatedEvent
 } from "../generated/templates/ContentStorage/ContentStorage";
 import {
-  SystemsRegistry as SystemsRegistryContract
-} from "../generated/templates/SystemsRegistry/SystemsRegistry";
-import {
-  UserApproved as UserApprovedEvent,
-  RegisteredSystemsUpdated as RegisteredSystemsUpdatedEvent
-} from "../generated/templates/SystemsRegistry/SystemsRegistry";
+  AccessControlManager as AccessControlManagerContract,
+  RoleGranted as RoleGraontedEvent,
+  RoleRevoked as RoleRevokedEvent
+} from "../generated/templates/AccessControlManager/AccessControlManager";
 import { 
   ContractRegistry as Registry,
   ContentManager,
@@ -36,30 +35,26 @@ import {
   Account,
   AssetFee,
   ContractFee,
-  UserApproval,
-  Operator
+  Approval,
+  Transaction
 } from "../generated/schema";
 
 import {
+  createContractRegistry,
   createContentManager,
   createAccount,
   createAsset,
   createAssetBalance,
   createAssetFees,
   createContractFees,
-  createUserApproval,
-  createOperator,
+  createApproval,
   createTransaction,
-  createMintTransaction,
-  createBurnTransaction,
   getAssetId,
   getAssetBalanceId,
   getAssetFeeId,
   getContractFeeId,
-  getUserApprovalId,
-  getOperatorId,
-  getTransactionId,
-  createContractRegistry
+  getApprovalId,
+  getTransactionId
 } from "./content-helpers";
 
 import { ADDRESS_ZERO, ONE_BI, ZERO_BI } from "./constants";

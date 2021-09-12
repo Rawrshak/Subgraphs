@@ -5,25 +5,28 @@ import {
 } from "../generated/templates/Content/Content";
 import {
   ContentManager as ContentManagerContract
-} from "../generated/templates/ContentManager/ContentManager";
+} from "../generated/ContractRegistry/ContentManager";
 
 import { 
   ContractRegistry as Registry,
   ContentManager,
-  SystemRegistry,
-  ContentStorage,
   Asset,
   AssetBalance,
   Content,
   Account,
   AssetFee,
   ContractFee,
-  UserApproval,
-  Operator,
-  Transaction,
-  MintTransaction,
-  BurnTransaction
+  Approval,
+  Transaction
 } from "../generated/schema";
+
+import {
+    ContentStorage as ContentStorageTemplate,
+    AccessControlManager as AccessControlManagerTemplate,
+    Content as ContentTemplate
+} from '../generated/templates';
+
+import { ZERO_BI } from "./constants";
 
 export function createContractRegistry(id: Address, creator: Address): Registry {
   let contractRegistry = new Registry(id.toHexString());
@@ -31,21 +34,16 @@ export function createContractRegistry(id: Address, creator: Address): Registry 
   return contractRegistry;
 }
 
-import {
-    ContentStorage as ContentStorageTemplate,
-    SystemsRegistry as SystemsRegistryTemplate,
-    Content as ContentTemplate
-} from '../generated/templates';
-
-import { ZERO_BI } from "./constants";
-
 export function createContentManager(id: Address, creator: Address, registry: string): ContentManager {
   let contentManager = new ContentManager(id.toHexString());
+
+  // Bind allows you to call content manager contract functions
   let contentManagerContract = ContentManagerContract.bind(id);
   let contentAddress = contentManagerContract.content();
   let contentStorageAddress = contentManagerContract.contentStorage();
-  let systemRegistryAddress = contentManagerContract.systemsRegistry();
+  let accessControlManagerAddress = contentManagerContract.accessControlManager();
 
+  // Todo: Query for ContractUri()
   // Get the objects if they exist
   let systemRegistry = SystemRegistry.load(systemRegistryAddress.toHexString());
   let content = Content.load(contentAddress.toHexString());
