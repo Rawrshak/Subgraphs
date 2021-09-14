@@ -6,6 +6,9 @@ import {
 import {
   ContentManager as ContentManagerContract
 } from "../generated/ContractRegistry/ContentManager";
+import {
+  ContentStorage as ContentStorageContract
+} from "../generated/templates/ContentStorage/ContentStorage";
 
 import { 
   ContractRegistry as Registry,
@@ -17,7 +20,8 @@ import {
   AssetFee,
   ContractFee,
   Approval,
-  Transaction
+  Transaction,
+  Minter
 } from "../generated/schema";
 
 import {
@@ -41,49 +45,41 @@ export function createContentManager(id: Address, creator: Address, registry: st
   let contentManagerContract = ContentManagerContract.bind(id);
   let contentAddress = contentManagerContract.content();
   let contentStorageAddress = contentManagerContract.contentStorage();
-  let accessControlManagerAddress = contentManagerContract.accessControlManager();
 
-  // Todo: Query for ContractUri()
   // Get the objects if they exist
-  let systemRegistry = SystemRegistry.load(systemRegistryAddress.toHexString());
+  AccessControlManagerTemplate.create(contentManagerContract.accessControlManager());
+  ContentStorageTemplate.create(contentStorageAddress);
   let content = Content.load(contentAddress.toHexString());
-  let contentStorage = ContentStorage.load(contentStorageAddress.toHexString());
 
   // Create content object
   if (content == null) {
     content = createContent(contentAddress);
-    content.save();
   }
-  
-  // Create system registry object
-  if (systemRegistry == null) {
-    systemRegistry = createSystemRegistry(systemRegistryAddress, contentAddress);
-    systemRegistry.save();
+
+  // Get Contract Fees
+  let contentStorage = ContentStorageContract.bind(contentStorageAddress);
+  let fees = contentStorage.contractRoyalties();
+  let royalties = content.contractRoyalties;
+  for (let i = 0; i < fees.length; ++i) {
+    let feeId = getContractFeeId(contentAddress.toHexString(), fees[i].account.toHexString());
+    let fee = ContractFee.load(feeId);
+    if (fee == null) {
+      fee = createContractFees(feeId, fees[i].account, contentAddress.toHexString());
+      royalties.push(fee.id);
+    }
+    fee.rate = fees[i].rate;
+    fee.save();
   }
+  content.contractRoyalties = royalties;
+  content.save();
   
-  // Create content storage object
-  if (contentStorage == null) {
-    contentStorage = createContentStorage(contentStorageAddress, contentAddress);
-    contentStorage.save();
-  }
-  
+  // Set the rest of the content manager data
   contentManager.content = contentAddress.toHexString();
-  contentManager.systemRegistry = systemRegistryAddress.toHexString();
-  contentManager.contentStorage = contentStorageAddress.toHexString();
-  contentManager.creator = creator;
+  contentManager.creator = creator.toHexString();
   contentManager.registry = registry;
   contentManager.save();
   
   return contentManager;
-}
-  
-  
-export function createSystemRegistry(id: Address, content: Address): SystemRegistry {
-  SystemsRegistryTemplate.create(id);
-  let systemRegistry = new SystemRegistry(id.toHexString());
-  systemRegistry.content = content.toHexString();
-  systemRegistry.save();
-  return systemRegistry;
 }
   
 export function createContent(id: Address): Content {
@@ -91,23 +87,14 @@ export function createContent(id: Address): Content {
   let content = new Content(id.toHexString());
   content.contractAddress = id;
   
+  // Get Contract URI
   let contentContract = ContentContract.bind(id);
-  content.name = contentContract.name();
-  content.symbol = contentContract.symbol();
+  content.contractUri = contentContract.contractUri();
   content.contractRoyalties = [];
   content.assets = [];
-  content.userApprovals = [];
-  content.operators = [];
+  content.minters = [];
   content.save();
   return content;
-}
-  
-export function createContentStorage(id: Address, content: Address): ContentStorage {
-  ContentStorageTemplate.create(id);
-  let contentStorage = new ContentStorage(id.toHexString());
-  contentStorage.content = content.toHexString();
-  contentStorage.save();
-  return contentStorage;
 }
 
 export function createAccount(address: Address): Account {
@@ -115,8 +102,11 @@ export function createAccount(address: Address): Account {
   account.address = address;
   account.assetBalances = [];
   account.approvals = [];
-  account.mints = [];
-  account.burns = [];
+  account.minters = [];
+  account.transactions = [];
+  account.transactionsAsOperator = [];
+  account.mintCount = ZERO_BI;
+  account.burnCount = ZERO_BI;
   account.save();
   return account;
 }
@@ -131,8 +121,7 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
   asset.latestPublicUriVersion = ZERO_BI;
   asset.assetRoyalties = [];
   asset.balances = [];
-  asset.mintTransactions = [];
-  asset.burnTransactions = [];
+  asset.transactions = [];
   asset.mintCount = ZERO_BI;
   asset.burnCount = ZERO_BI;
   asset.save();
@@ -150,7 +139,7 @@ export function createAssetBalance(id: string, asset: string, owner: string): As
   
 export function createAssetFees(id: string, creator: Address, assetId: string): AssetFee {
   let fee = new AssetFee(id);
-  fee.creator = creator; 
+  fee.creator = creator.toHexString(); 
   fee.asset = assetId;
   fee.rate = ZERO_BI;
   fee.save();
@@ -159,61 +148,41 @@ export function createAssetFees(id: string, creator: Address, assetId: string): 
   
 export function createContractFees(id: string, creator: Address, content: string): ContractFee {
   let fee = new ContractFee(id);
-  fee.creator = creator; 
+  fee.creator = creator.toHexString(); 
   fee.content = content;
   fee.rate = ZERO_BI;
   fee.save();
   return fee;
 }
   
-export function createUserApproval(id: string, content: string, user: string): UserApproval {
-  let approval = new UserApproval(id);
+export function createApproval(id: string, content: string, operator: string, user: string): Approval {
+  let approval = new Approval(id);
   approval.content = content;
   approval.user = user;
-  approval.approved = false;
+  approval.operator = operator;
   approval.save();
   return approval;
 }
-  
-export function createOperator(id: string, content: string, address: Address): Operator {
-  let operator = new Operator(id)
-  operator.content = content;
-  operator.address = address;
-  operator.approved = false;
-  operator.save();
-  return operator;
+
+export function createMinter(id: string, content: string, operator: string) : Minter {
+  let minter = new Minter(id);
+  minter.content = content;
+  minter.operator = operator;
+  minter.save();
+  return minter;
 }
 
-export function createTransaction(id: string): Transaction {
+export function createTransaction(id: string, operator: string, user: string, transactionType: string): Transaction {
   let transaction = new Transaction(id);
+  transaction.operator = operator;
+  transaction.user = user;
+  transaction.assets = [];
+  transaction.amounts = [];
+  transaction.transactionType = transactionType;
   transaction.blockNumber = ZERO_BI;
   transaction.timestamp = ZERO_BI;
   transaction.gasUSed = ZERO_BI;
   transaction.gasPrice = ZERO_BI;
-  transaction.mints = [];
-  transaction.burns = [];
-  transaction.save();
-  return transaction;
-}
-
-export function createMintTransaction(id: string, transactionId: string, operator: string, receiver: string, asset: string): MintTransaction {
-  let transaction = new MintTransaction(id);
-  transaction.operator = operator;
-  transaction.receiver = receiver;
-  transaction.transaction = transactionId;
-  transaction.asset = asset;
-  transaction.amount = ZERO_BI;
-  transaction.save();
-  return transaction;
-}
-
-export function createBurnTransaction(id: string, transactionId: string, operator: string, burner: string, asset: string): BurnTransaction {
-  let transaction = new BurnTransaction(id);
-  transaction.operator = operator;
-  transaction.burner = burner;
-  transaction.transaction = transactionId;
-  transaction.asset = asset;
-  transaction.amount = ZERO_BI;
   transaction.save();
   return transaction;
 }
@@ -234,12 +203,12 @@ export function getContractFeeId(content: string, account: string): string {
   return concat(content, account);
 }
 
-export function getUserApprovalId(content: string, account: string): string {
-  return concat(content, account);
+export function getApprovalId(content: string, account: string, operator: string): string {
+  return concat2(content, account, operator);
 }
 
-export function getOperatorId(content: string, address: string): string {
-  return concat(content, address);
+export function getMinterId(content: string, operator: string): string {
+  return concat(content, operator);
 }
 
 export function getTransactionId(transactionId: string, tokenId: string): string {

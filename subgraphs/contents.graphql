@@ -20,7 +20,7 @@ type Asset @entity{
   assetRoyalties: [AssetFee!]!
   latestHiddenUriVersion: BigInt!
   latestPublicUriVersion: BigInt!
-  transactions: [Transaction!]! @derivedFrom(field: "asset")
+  transactions: [Transaction!]! @derivedFrom(field: "assets")
   mintCount: BigInt!
   burnCount: BigInt!
 }
@@ -52,26 +52,26 @@ type Content @entity {
   contractUri: String!
   assets: [Asset!]! @derivedFrom(field: "parentContract")
   contractRoyalties: [ContractFee!]!
-  approvals: [Approval!]! @derivedFrom(field: "content")
-  minters: [Account!]
+  minters: [Minter!] @derivedFrom(field: "content")
 }
 
 type Account @entity {
   id: ID!
   address: Bytes!
   assetBalances: [AssetBalance!]! @derivedFrom(field: "owner")
-  approvals: [Approval!]! @derivedFrom(field: "user")
-  transactions: [Transaction!]!
+  transactions: [Transaction!]! @derivedFrom(field: "user")
+  transactionsAsOperator: [Transaction!]! @derivedFrom(field: "operator")
   mintCount: BigInt!
   burnCount: BigInt!
-  transactionOperator: [Transaction!]! @derivedFrom(field: "operator")
+  approvals: [Approval!] @derivedFrom(field: "user")
+  minters: [Minter!] @derivedFrom(field: "operator")
 }
 
 type Approval @entity {
   id: ID!
   content: Content!
+  operator: Account!
   user: Account!
-  operators: [Account!]!
 }
 
 enum TransactionType {
@@ -84,10 +84,16 @@ type Transaction @entity {
   operator: Account!
   user: Account!
   transactionType: TransactionType!
-  asset: Asset! 
-  amount: BigInt!
+  assets: [Asset!]! 
+  amounts: [BigInt!]!
   blockNumber: BigInt!
   timestamp: BigInt!
   gasUSed: BigInt!
   gasPrice: BigInt!
+}
+
+type Minter @entity {
+  id: ID!
+  content: Content!
+  operator: Account!
 }
