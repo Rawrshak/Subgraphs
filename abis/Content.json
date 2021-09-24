@@ -553,12 +553,12 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "receiver",
         "type": "address"
       },
       {
         "internalType": "uint24",
-        "name": "",
+        "name": "rate",
         "type": "uint24"
       }
     ],

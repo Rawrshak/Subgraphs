@@ -49,8 +49,7 @@ export function createAccount(id: string, address: Address): Account {
   account.save();
   return account;
 }
-  
-  // Todo: change owner from 'string' to 'Address'. Keep it for now for readability though
+
 export function getTokenBalanceId(tokenAddress: string, owner: string): string {
   return tokenAddress.concat('-').concat(owner);
 }

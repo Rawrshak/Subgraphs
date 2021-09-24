@@ -1,26 +1,21 @@
 import { log, ByteArray, BigInt, Address, crypto, store } from "@graphprotocol/graph-ts"
 import {
-  ContentManagerRegistered
-} from "../generated/ContractRegistry/ContractRegistry";
+  ContractsDeployed as ContractsDeployedEvent
+} from "../generated/ContentFactory/ContentFactory";
 import {
-  Content as ContentContract,
   TransferBatch as TransferBatchEvent,
   TransferSingle as TransferSingleEvent,
   Mint as MintEvent,
   Burn as BurnEvent,
-  ApprovalForAll as ApprovalForAllEvent,
-  ApprovalForAll
+  ApprovalForAll as ApprovalForAllEvent
 } from "../generated/templates/Content/Content";
-import {
-  ContentManager as ContentManagerContract
-} from "../generated/ContractRegistry/ContentManager";
 import {
   ContentStorage as ContentStorageContract,
   AssetsAdded as AssetsAddedEvent,
-  ContractRoyaltiesUpdated as ContractRoyaltiesUpdatedEvent,
+  ContractRoyaltyUpdated as ContractRoyaltyUpdatedEvent,
   HiddenUriUpdated as HiddenUriUpdatedEvent,
   PublicUriUpdated as PublicUriUpdatedEvent,
-  TokenRoyaltiesUpdated as TokenRoyaltiesUpdatedEvent
+  TokenRoyaltyUpdated as TokenRoyaltyUpdatedEvent
 } from "../generated/templates/ContentStorage/ContentStorage";
 import {
   AccessControlManager as AccessControlManagerContract,
@@ -28,51 +23,49 @@ import {
   RoleRevoked as RoleRevokedEvent
 } from "../generated/templates/AccessControlManager/AccessControlManager";
 import { 
-  ContractRegistry as Registry,
+  ContentFactory as Factory,
   ContentManager,
   Asset,
   AssetBalance,
   Content,
   Account,
-  AssetFee,
-  ContractFee,
   Approval,
-  Transaction,
   Minter
 } from "../generated/schema";
 
 import {
-  createContractRegistry,
+  createContentFactory,
   createContentManager,
+  createContent,
   createAccount,
   createAsset,
   createAssetBalance,
-  createAssetFees,
-  createContractFees,
   createApproval,
   createTransaction,
   getAssetId,
   getAssetBalanceId,
-  getAssetFeeId,
-  getContractFeeId,
   getApprovalId,
-  getTransactionId,
   getMinterId,
   createMinter
 } from "./content-helpers";
 
 import { ADDRESS_ZERO, ONE_BI, ZERO_BI } from "./constants";
  
-export function handleContentManagerRegistered(event: ContentManagerRegistered): void {
-  // let owner = event.params.owner.toHexString();
-  let registry = Registry.load(event.address.toHexString());
-  if (registry == null) {
-    registry = createContractRegistry(event.address, event.params.owner);
+export function handleContractsDeployed(event: ContractsDeployedEvent): void {
+  let factory = Factory.load(event.address.toHexString());
+  if (factory == null) {
+    factory = createContentFactory(event.address);
+  }
+
+  let content = Content.load(event.params.content.toHexString());
+  // Create content object
+  if (content == null) {
+    content = createContent(event.params.content);
   }
 
   let contentManager = ContentManager.load(event.params.contentManager.toHexString());
   if (contentManager == null) {
-    contentManager = createContentManager(event.params.contentManager, event.params.owner, registry.id);
+    contentManager = createContentManager(event.params.contentManager, factory.id);
   }
 }
 
@@ -289,56 +282,21 @@ export function handleAssetsAdded(event: AssetsAddedEvent): void {
       asset = createAsset(assetId, parent.id, tokenId);
     }
     asset.maxSupply = newAsset.maxSupply;
-
-    // Note: we cannot iterate through 'derived' properties. Instead, we have to manually
-    // manage them. This is the case for asset royalties and contract royalties
-    let royaltyFeesLength = newAsset.fees.length;
-    let fees = newAsset.fees;
-    let royalties = asset.assetRoyalties;
-    for (let i = 0; i < royaltyFeesLength; ++i) {
-      let account = fees[i].account;
-      let feeId = getAssetFeeId(parent.id, account.toHexString(), tokenId.toString());
-      let fee = AssetFee.load(feeId);
-      if (fee == null) {
-        fee = createAssetFees(feeId, account, asset.id);
-        royalties.push(fee.id);
-      }
-      fee.rate = fees[i].rate;
-      fee.save();
-    }
-    asset.assetRoyalties = royalties;
+    asset.royaltyRate = newAsset.royaltyRate;
+    asset.royaltyReceiver = newAsset.royaltyReceiver.toHexString();
     asset.save();
   }
 }
  
-export function handleContractRoyaltiesUpdated(event: ContractRoyaltiesUpdatedEvent): void {
+export function handleContractRoyaltyUpdated(event: ContractRoyaltyUpdatedEvent): void {
   // createContractFees
   let parent = Content.load(event.params.parent.toHexString());
   if (parent == null) {
     return;
   }
-  
-  // Delete existing contract royalties
-  parent.contractRoyalties.forEach(currentFee => {
-    let fee = ContractFee.load(currentFee);
-    fee.rate = ZERO_BI;
-    fee.save();
-  });
 
-  // For every asset added, create a new asset object
-  let fees = event.params.fees;
-  let royalties = parent.contractRoyalties;
-  for (let i = 0; i < fees.length; ++i) {
-    let feeId = getContractFeeId(parent.id, fees[i].account.toHexString());
-    let fee = ContractFee.load(feeId);
-    if (fee == null) {
-      fee = createContractFees(feeId, fees[i].account, parent.id);
-      royalties.push(fee.id);
-    }
-    fee.rate = fees[i].rate;
-    fee.save();
-  }
-  parent.contractRoyalties = royalties;
+  parent.royaltyRate = event.params.rate;
+  parent.royaltyReceiver = event.params.receiver.toHexString();
   parent.save();
 }
  
@@ -370,7 +328,7 @@ export function handlePublicUriUpdated(event: PublicUriUpdatedEvent): void {
   }
 }
  
-export function handleTokenRoyaltiesUpdated(event: TokenRoyaltiesUpdatedEvent): void {
+export function handleTokenRoyaltyUpdated(event: TokenRoyaltyUpdatedEvent): void {
   let parent = Content.load(event.params.parent.toHexString());
   if (parent == null) {
     return;
@@ -382,26 +340,8 @@ export function handleTokenRoyaltiesUpdated(event: TokenRoyaltiesUpdatedEvent): 
     return;
   }
 
-  asset.assetRoyalties.forEach(currentFeeId => {
-    let fee = AssetFee.load(currentFeeId);
-    fee.rate = ZERO_BI;
-    fee.save();
-  });
-
-  // Add/update new asset royalties
-  let fees = event.params.fees;
-  let royalties = asset.assetRoyalties;
-  for (let i = 0; i < fees.length; ++i) {
-    let assetFeeId = getAssetFeeId(parent.id, fees[i].account.toHexString(), asset.tokenId.toString());
-    let fee = AssetFee.load(assetFeeId);
-    if (fee == null) {
-      fee = createAssetFees(assetFeeId, fees[i].account, assetId);
-      royalties.push(fee.id);
-    }
-    fee.rate = fees[i].rate;
-    fee.save();
-  }
-  asset.assetRoyalties = royalties;
+  asset.royaltyReceiver = event.params.receiver.toHexString();
+  asset.royaltyRate = event.params.rate;
   asset.save();
 }
 

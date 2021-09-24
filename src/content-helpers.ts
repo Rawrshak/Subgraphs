@@ -5,78 +5,43 @@ import {
 } from "../generated/templates/Content/Content";
 import {
   ContentManager as ContentManagerContract
-} from "../generated/ContractRegistry/ContentManager";
-import {
-  ContentStorage as ContentStorageContract
-} from "../generated/templates/ContentStorage/ContentStorage";
+} from "../generated/ContentFactory/ContentManager";
 
 import { 
-  ContractRegistry as Registry,
+  ContentFactory as Factory,
   ContentManager,
   Asset,
   AssetBalance,
   Content,
   Account,
-  AssetFee,
-  ContractFee,
   Approval,
   Transaction,
   Minter
 } from "../generated/schema";
 
 import {
-    ContentStorage as ContentStorageTemplate,
-    AccessControlManager as AccessControlManagerTemplate,
-    Content as ContentTemplate
+  Content as ContentTemplate
 } from '../generated/templates';
 
-import { ZERO_BI } from "./constants";
+import { ADDRESS_ZERO, ZERO_BI } from "./constants";
 
-export function createContractRegistry(id: Address, creator: Address): Registry {
-  let contractRegistry = new Registry(id.toHexString());
-  contractRegistry.save();
-  return contractRegistry;
+export function createContentFactory(id: Address): Factory {
+  let contentFactory = new Factory(id.toHexString());
+  contentFactory.save();
+  return contentFactory;
 }
 
-export function createContentManager(id: Address, creator: Address, registry: string): ContentManager {
+export function createContentManager(id: Address, factory: string): ContentManager {
   let contentManager = new ContentManager(id.toHexString());
 
   // Bind allows you to call content manager contract functions
   let contentManagerContract = ContentManagerContract.bind(id);
   let contentAddress = contentManagerContract.content();
-  let contentStorageAddress = contentManagerContract.contentStorage();
-
-  // Get the objects if they exist
-  AccessControlManagerTemplate.create(contentManagerContract.accessControlManager());
-  ContentStorageTemplate.create(contentStorageAddress);
-  let content = Content.load(contentAddress.toHexString());
-
-  // Create content object
-  if (content == null) {
-    content = createContent(contentAddress);
-  }
-
-  // Get Contract Fees
-  let contentStorage = ContentStorageContract.bind(contentStorageAddress);
-  let fees = contentStorage.contractRoyalties();
-  let royalties = content.contractRoyalties;
-  for (let i = 0; i < fees.length; ++i) {
-    let feeId = getContractFeeId(contentAddress.toHexString(), fees[i].account.toHexString());
-    let fee = ContractFee.load(feeId);
-    if (fee == null) {
-      fee = createContractFees(feeId, fees[i].account, contentAddress.toHexString());
-      royalties.push(fee.id);
-    }
-    fee.rate = fees[i].rate;
-    fee.save();
-  }
-  content.contractRoyalties = royalties;
-  content.save();
   
   // Set the rest of the content manager data
   contentManager.content = contentAddress.toHexString();
-  contentManager.creator = creator.toHexString();
-  contentManager.registry = registry;
+  contentManager.owner = contentManagerContract.owner().toHexString();
+  contentManager.factory = factory;
   contentManager.save();
   
   return contentManager;
@@ -89,8 +54,11 @@ export function createContent(id: Address): Content {
   
   // Get Contract URI
   let contentContract = ContentContract.bind(id);
+  let royalties = contentContract.contractRoyalty();
+  // Todo: update the return names so this isn't value0 and value1
+  content.royaltyReceiver = royalties.value0.toHexString();
+  content.royaltyRate = royalties.value1;
   content.contractUri = contentContract.contractUri();
-  content.contractRoyalties = [];
   content.assets = [];
   content.minters = [];
   content.save();
@@ -119,7 +87,8 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
   asset.maxSupply = ZERO_BI;
   asset.latestHiddenUriVersion = ZERO_BI;
   asset.latestPublicUriVersion = ZERO_BI;
-  asset.assetRoyalties = [];
+  asset.royaltyReceiver = ADDRESS_ZERO;
+  asset.royaltyRate = 0;
   asset.balances = [];
   asset.transactions = [];
   asset.mintCount = ZERO_BI;
@@ -135,24 +104,6 @@ export function createAssetBalance(id: string, asset: string, owner: string): As
   balance.amount = ZERO_BI;
   balance.save();
   return balance;
-}
-  
-export function createAssetFees(id: string, creator: Address, assetId: string): AssetFee {
-  let fee = new AssetFee(id);
-  fee.creator = creator.toHexString(); 
-  fee.asset = assetId;
-  fee.rate = ZERO_BI;
-  fee.save();
-  return fee;
-}
-  
-export function createContractFees(id: string, creator: Address, content: string): ContractFee {
-  let fee = new ContractFee(id);
-  fee.creator = creator.toHexString(); 
-  fee.content = content;
-  fee.rate = ZERO_BI;
-  fee.save();
-  return fee;
 }
   
 export function createApproval(id: string, content: string, operator: string, user: string): Approval {

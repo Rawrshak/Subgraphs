@@ -20,7 +20,7 @@
     "remove-local:contents": "graph remove --node http://localhost:8020/ gcbsumid/contents",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/rawrshak",
     "deploy-local:rawrtoken": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/rawrtoken subgraphs/rawrtoken.yaml",
-    "deploy-local:contents": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/contents subgraphs/contents.yaml",
+    "deploy-local:contents": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/contents subgraphs/contents.yaml"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.20.0",

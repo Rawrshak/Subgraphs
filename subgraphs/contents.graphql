@@ -1,13 +1,14 @@
-type ContractRegistry @entity {
+type ContentFactory @entity {
   id: ID!
-  contentManagers: [ContentManager!] @derivedFrom(field: "registry")
+  contents: [Content!] 
+  contentManagers: [ContentManager!]
 }
 
 type ContentManager @entity {
   id: ID!
+  factory: ContentFactory! @derivedFrom(field: "contentManagers")
   content: Content!
-  creator: Account!
-  registry: ContractRegistry!
+  owner: Account!
 }
 
 type Asset @entity{
@@ -17,7 +18,8 @@ type Asset @entity{
   currentSupply: BigInt!
   maxSupply: BigInt!
   balances: [AssetBalance!] @derivedFrom(field: "asset")
-  assetRoyalties: [AssetFee!]!
+  royaltyReceiver: Account!
+  royaltyRate: Int!
   latestHiddenUriVersion: BigInt!
   latestPublicUriVersion: BigInt!
   transactions: [Transaction!]! @derivedFrom(field: "assets")
@@ -32,26 +34,15 @@ type AssetBalance @entity {
   amount: BigInt!
 }
 
-type AssetFee @entity {
-  id: ID!
-  asset: Asset!
-  creator: Account!
-  rate: BigInt!
-}
-
-type ContractFee @entity {
-  id: ID!
-  content: Content!
-  creator: Account!
-  rate: BigInt!
-}
-
 type Content @entity {
   id: ID!
+  factory: ContentFactory! @derivedFrom(field: "contents")
+  owner: Account!
   contractAddress: Bytes!
   contractUri: String!
   assets: [Asset!]! @derivedFrom(field: "parentContract")
-  contractRoyalties: [ContractFee!]!
+  royaltyReceiver: Account!
+  royaltyRate: Int!
   minters: [Minter!] @derivedFrom(field: "content")
 }
 

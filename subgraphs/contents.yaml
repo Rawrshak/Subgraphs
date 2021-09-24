@@ -4,12 +4,12 @@ repository: https://github.com/gcbsumid/rawrshak-graphnode
 schema:
   file: ./contents.graphql
 dataSources:
-  - name: ContractRegistry
+  - name: ContentFactory
     kind: ethereum/contract
     network: mainnet
     source:
       address: "0xBCB8B9da0285e304B10a2e7Db0B213aFddED9Dd6"
-      abi: ContractRegistry
+      abi: ContentFactory
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -20,8 +20,8 @@ dataSources:
         - ContentManager
         - ContentStorage
       abis:
-        - name: ContractRegistry
-          file: ../abis/ContractRegistry.json
+        - name: ContentFactory
+          file: ../abis/ContentFactory.json
         - name: ContentManager
           file: ../abis/ContentManager.json
         - name: Content
@@ -31,8 +31,8 @@ dataSources:
         - name: AccessControlManager
           file: ../abis/AccessControlManager.json
       eventHandlers:
-        - event: ContentManagerRegistered(indexed address,indexed address)
-          handler: handleContentManagerRegistered
+        - event: ContractsDeployed(indexed address,indexed address)
+          handler: handleContractsDeployed
 templates:
   - name: Content
     kind: ethereum/contract
@@ -79,16 +79,16 @@ templates:
         - name: Content
           file: ../abis/Content.json
       eventHandlers:
-        - event: AssetsAdded(indexed address,(uint256,string,string,uint256,(address,uint256)[])[])
+        - event: AssetsAdded(indexed address,(uint256,string,string,uint256,address,uint24)[])
           handler: handleAssetsAdded
-        - event: ContractRoyaltiesUpdated(indexed address,(address,uint256)[])
-          handler: handleContractRoyaltiesUpdated
+        - event: ContractRoyaltyUpdated(indexed address,address,uint24)
+          handler: handleContractRoyaltyUpdated
         - event: HiddenUriUpdated(indexed address,indexed uint256,indexed uint256)
           handler: handleHiddenUriUpdated
         - event: PublicUriUpdated(indexed address,indexed uint256,indexed uint256)
           handler: handlePublicUriUpdated
-        - event: TokenRoyaltiesUpdated(indexed address,indexed uint256,(address,uint256)[])
-          handler: handleTokenRoyaltiesUpdated
+        - event: TokenRoyaltyUpdated(indexed address,indexed uint256,address,uint24)
+          handler: handleTokenRoyaltyUpdated
   - name: AccessControlManager
     kind: ethereum/contract
     network: mainnet
