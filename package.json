@@ -7,15 +7,20 @@
     "docker-up:clean": "cd docker && rmdir /S data && docker-compose up",
     "codegen": "graph codegen",
     "codegen:contents": "npm run codegen -- subgraphs/contents.yaml",
+    "codegen:exchange": "npm run codegen -- subgraphs/exchange.yaml",
     "build": "graph build",
     "build:contents": "graph build subgraphs/contents.yaml",
+    "build:exchange": "graph build subgraphs/exchange.yaml",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ gcbsumid/rawrshak",
     "create-local": "graph create --node http://localhost:8020/ gcbsumid/rawrshak",
     "create-local:contents": "graph create --node http://localhost:8020/ gcbsumid/contents",
+    "create-local:exchange": "graph create --node http://localhost:8020/ gcbsumid/exchange",
     "remove-local": "graph remove --node http://localhost:8020/ gcbsumid/rawrshak",
     "remove-local:contents": "graph remove --node http://localhost:8020/ gcbsumid/contents",
+    "remove-local:exchange": "graph remove --node http://localhost:8020/ gcbsumid/exchange",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/rawrshak",
-    "deploy-local:contents": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/contents subgraphs/contents.yaml"
+    "deploy-local:contents": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/contents subgraphs/contents.yaml",
+    "deploy-local:exchange": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/exchange subgraphs/exchange.yaml"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.20.0",

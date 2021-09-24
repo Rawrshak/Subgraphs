@@ -1,0 +1,78 @@
+specVersion: 0.0.2
+description: Rawrshak Network
+repository: https://github.com/gcbsumid/rawrshak-graphnode
+schema:
+  file: ./exchange.graphql
+dataSources:
+  - name: AddressResolver
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      address: "0xBCB8B9da0285e304B10a2e7Db0B213aFddED9Dd6"
+      abi: AddressResolver
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchange.ts
+      entities:
+        - AddressResolver
+        - Exchange
+        - Erc20Escrow
+      abis:
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+        - name: Exchange
+          file: ../abis/Exchange.json
+        - name: Erc20Escrow
+          file: ../abis/Erc20Escrow.json
+      eventHandlers:
+        - event: AddressRegistered(indexed bytes4,indexed address)
+          handler: handleAddressRegistered
+templates:
+  - name: Exchange
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: Exchange
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchange.ts
+      entities:
+        - Exchange
+      abis:
+        - name: Exchange
+          file: ../abis/Exchange.json
+      eventHandlers:
+        - event: OrderPlaced(indexed address,indexed uint256,((address,uint256),address,address,uint256,uint256,bool))
+          handler: handleOrderPlaced
+        - event: BuyOrdersFilled(indexed address,uint256[],uint256[],(address,uint256),address,uint256)
+          handler: handleBuyOrdersFilled
+        - event: SellOrdersFilled(indexed address,uint256[],uint256[],(address,uint256),address,uint256)
+          handler: handleSellOrdersFilled
+        - event: OrdersDeleted(indexed address,uint256[])
+          handler: handleOrdersDeleted
+        - event: OrdersClaimed(indexed address,uint256[])
+          handler: handleOrdersClaimed
+  - name: Erc20Escrow
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: Erc20Escrow
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchange.ts
+      entities:
+        - Erc20Escrow
+      abis:
+        - name: Erc20Escrow
+          file: ../abis/Erc20Escrow.json
+      eventHandlers:
+        - event: ClaimedRoyalties(indexed address,address[],uint256[])
+          handler: handleClaimedRoyalties
+        - event: AddedTokenSupport(indexed address)
+          handler: handleAddedTokenSupport

@@ -1,0 +1,52 @@
+type AddressResolver @entity {
+  id: ID!
+  exchange: Exchange!
+  tokenEscrow: TokenEscrow!
+}
+
+type Exchange @entity {
+  id: ID!
+  orders: [Order!]
+  numOfOrders: Int
+  numOfBuyOrders: Int
+  numOfSellOrders: Int
+}
+
+type TokenEscrow @entity {
+  id: ID!
+  supportedTokens: [Bytes!]
+}
+
+type Account @entity {
+  id: ID!
+  address: Bytes!
+  orders: [Order!]! @derivedFrom(field: "owner")
+}
+
+type Order @entity {
+  id: ID!
+  asset: Asset!
+  owner: Account!
+  amountOrdered: Int
+  amountFilled: Int
+  status: OrderStatus
+  dateCreated: BigInt
+  dateFilled: BigInt
+  dateCancelled: BigInt
+  dateClaimed: BigInt
+}
+
+enum OrderStatus {
+  Ready
+  PartiallyFilled
+  Filled
+  Cancelled
+  Claimed
+}
+
+
+type Asset @entity{
+  id: ID!
+  tokenId: BigInt!
+  parentContract: Bytes!
+}
