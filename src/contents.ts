@@ -60,7 +60,7 @@ export function handleContractsDeployed(event: ContractsDeployedEvent): void {
   let content = Content.load(event.params.content.toHexString());
   // Create content object
   if (content == null) {
-    content = createContent(event.params.content);
+    content = createContent(event.params.content, factory.id);
   }
 
   let contentManager = ContentManager.load(event.params.contentManager.toHexString());

@@ -1,12 +1,12 @@
 type ContentFactory @entity {
   id: ID!
-  contents: [Content!] 
-  contentManagers: [ContentManager!]
+  contents: [Content!] @derivedFrom(field: "factory")
+  contentManagers: [ContentManager!] @derivedFrom(field: "factory")
 }
 
 type ContentManager @entity {
   id: ID!
-  factory: ContentFactory! @derivedFrom(field: "contentManagers")
+  factory: ContentFactory!
   content: Content!
   owner: Account!
 }
@@ -36,8 +36,8 @@ type AssetBalance @entity {
 
 type Content @entity {
   id: ID!
-  factory: ContentFactory! @derivedFrom(field: "contents")
-  owner: Account!
+  factory: ContentFactory!
+  manager: ContentManager! @derivedFrom(field: "content")
   contractAddress: Bytes!
   contractUri: String!
   assets: [Asset!]! @derivedFrom(field: "parentContract")

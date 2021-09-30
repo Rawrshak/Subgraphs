@@ -1,4 +1,4 @@
-import { ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts"
+import { log, ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts"
 
 import {
   Content as ContentContract
@@ -20,6 +20,8 @@ import {
 } from "../generated/schema";
 
 import {
+  ContentStorage as ContentStorageTemplate,
+  AccessControlManager as AccessControlManagerTemplate,
   Content as ContentTemplate
 } from '../generated/templates';
 
@@ -36,8 +38,13 @@ export function createContentManager(id: Address, factory: string): ContentManag
 
   // Bind allows you to call content manager contract functions
   let contentManagerContract = ContentManagerContract.bind(id);
+
+  // Create() allows you to start indexing events from these contracts
+  AccessControlManagerTemplate.create(contentManagerContract.accessControlManager());
+  ContentStorageTemplate.create(contentManagerContract.contentStorage());
+
   let contentAddress = contentManagerContract.content();
-  
+
   // Set the rest of the content manager data
   contentManager.content = contentAddress.toHexString();
   contentManager.owner = contentManagerContract.owner().toHexString();
@@ -47,7 +54,7 @@ export function createContentManager(id: Address, factory: string): ContentManag
   return contentManager;
 }
   
-export function createContent(id: Address): Content {
+export function createContent(id: Address, factory: string): Content {
   ContentTemplate.create(id);
   let content = new Content(id.toHexString());
   content.contractAddress = id;
@@ -59,8 +66,7 @@ export function createContent(id: Address): Content {
   content.royaltyReceiver = royalties.value0.toHexString();
   content.royaltyRate = royalties.value1;
   content.contractUri = contentContract.contractUri();
-  content.assets = [];
-  content.minters = [];
+  content.factory = factory;
   content.save();
   return content;
 }
@@ -68,11 +74,6 @@ export function createContent(id: Address): Content {
 export function createAccount(address: Address): Account {
   let account = new Account(address.toHexString());
   account.address = address;
-  account.assetBalances = [];
-  account.approvals = [];
-  account.minters = [];
-  account.transactions = [];
-  account.transactionsAsOperator = [];
   account.mintCount = ZERO_BI;
   account.burnCount = ZERO_BI;
   account.save();
@@ -89,8 +90,6 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
   asset.latestPublicUriVersion = ZERO_BI;
   asset.royaltyReceiver = ADDRESS_ZERO;
   asset.royaltyRate = 0;
-  asset.balances = [];
-  asset.transactions = [];
   asset.mintCount = ZERO_BI;
   asset.burnCount = ZERO_BI;
   asset.save();
