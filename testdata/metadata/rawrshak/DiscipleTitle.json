@@ -1,0 +1,17 @@
+{
+    "name": "Rawr Disciple Title",
+    "description": "He's been here a while. Reward their loyalty!",
+    "image": "<default text icon uri on arweave>",
+    "tags": [
+        "Rawrshak",
+        "Title",
+        "Rawrshak Reward"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Rawr Disciple",
+        "description": "This kid is going places."
+    }
+}

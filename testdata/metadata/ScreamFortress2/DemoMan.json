@@ -1,0 +1,17 @@
+{
+    "name": "Demoman Title",
+    "description": "Irish Demolitions expert",
+    "image": "<default text icon uri on arweave>",
+    "tags": [
+        "BlackBox FPS",
+        "Title",
+        "FPS"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Demoman",
+        "description": "Ha, hahaha! Oh, they're gon to hafta glue you back together.. in hell!"
+    }
+}

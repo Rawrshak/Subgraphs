@@ -1,0 +1,17 @@
+{
+    "name": "Scout Title",
+    "description": "American Scout",
+    "image": "<default text icon uri on arweave>",
+    "tags": [
+        "BlackBox FPS",
+        "Title",
+        "FPS"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Scout",
+        "description": "Yeah, why don't ya come over and say that to my face, tough guy? Bonk!"
+    }
+}

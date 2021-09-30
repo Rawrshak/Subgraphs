@@ -1,0 +1,17 @@
+{
+    "name": "The Strongk Title",
+    "description": "Defeat Nikolai, The Stongk.",
+    "image": "<default text icon uri on arweave>",
+    "tags": [
+        "FightBuddy",
+        "Title",
+        "Fighting"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "The Strongk",
+        "description": "I am not ashamed by defeat. Now we drink! - Nikolai, the Stronk"
+    }
+}

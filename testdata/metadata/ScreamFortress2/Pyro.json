@@ -1,0 +1,17 @@
+{
+    "name": "Pyro Title",
+    "description": "??? Pyro",
+    "image": "<default text icon uri on arweave>",
+    "tags": [
+        "BlackBox FPS",
+        "Title",
+        "FPS"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Pyro",
+        "description": "I fear no man... But that THING!?! ... It scares me"
+    }
+}

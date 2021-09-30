@@ -1,0 +1,18 @@
+{
+    "name": "Rawr Lord Title",
+    "description": "Title bestowed to the Rawrshak Core contributors",
+    "image": "<default text icon uri on arweave>",
+    "tags": [
+        "Rawrshak",
+        "Title",
+        "Rawrshak Reward",
+        "Rawrshak Core Contributor"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Rawr Lord",
+        "description": "This guy works all day - all night for us gamer pesants. Careful, he's a hero."
+    }
+}

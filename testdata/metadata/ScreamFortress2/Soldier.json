@@ -1,0 +1,17 @@
+{
+    "name": "Soldier Title",
+    "description": "American Soldier",
+    "image": "<default text icon uri on arweave>",
+    "tags": [
+        "BlackBox FPS",
+        "Title",
+        "FPS"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Soldier",
+        "description": "If God had wanted you to live, He would not have created ME!"
+    }
+}

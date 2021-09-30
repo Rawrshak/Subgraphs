@@ -1,0 +1,17 @@
+{
+    "name": "Rawrshak Default Assets",
+    "description": "Rawrshak Default Asset Content Contract. This will contain some basic assets for developers to test out.",
+    "image": "https://arweave.net/9KvpWZFGq1rD0slJYbe54-cQ34RTDHmNHiuqJk__AB8",
+    "creator": "Rawrshak Dev Team",
+    "owner": "Rawrshak Dev Team",
+    "tags": [
+        "Rawrshak",
+        "Testnet"
+    ],
+    "properties": {
+        "hidden_secrets": {
+            "description": "Congrats! You're a super sleuth and you found an Easter Egg. Get it? Because our founder is Christian. Kek. Anyways, this is the first of many. Don't tell anyone else though! It'll spoil the surprise.",
+            "link": "Christian - todo: Easter-egg link"
+        }
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "name": "Scary Terry Title",
+    "description": "Something something Rick & Morty Reference",
+    "image": "<default text icon uri on arweave>",
+    "tags": [
+        "SuperScaryHorrorGame",
+        "Title",
+        "Horror"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Scary Terry",
+        "description": "Welcome to your nightmare, bitch!"
+    }
+}

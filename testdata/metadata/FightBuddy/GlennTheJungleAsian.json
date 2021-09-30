@@ -1,0 +1,17 @@
+{
+    "name": "The Jungle Asian Title",
+    "description": "Defeat Josip, The Jungle Asian.",
+    "image": "<default text icon uri on arweave>",
+    "tags": [
+        "FightBuddy",
+        "Title",
+        "Fighting"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "The Jungle Asian",
+        "description": "I ****ing hate open areas! - Glenn, the Jungle Asian"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "name": "Heavy Title",
+    "description": "Russian Heavy Weapons guy",
+    "image": "<default text icon uri on arweave>",
+    "tags": [
+        "BlackBox FPS",
+        "Title",
+        "FPS"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Heavy",
+        "description": "What was that Sandvich? Kill them all? Good Idea! AHAHAHAHA"
+    }
+}
