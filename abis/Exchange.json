@@ -1,575 +1,569 @@
 [
     {
-      "anonymous": false,
-      "inputs": [
+        "anonymous": false,
+        "inputs": [
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "from",
-          "type": "address"
+            "indexed": true,
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
         },
         {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "orderIds",
-          "type": "uint256[]"
+            "indexed": false,
+            "internalType": "uint256[]",
+            "name": "orderIds",
+            "type": "uint256[]"
         },
         {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "amounts",
-          "type": "uint256[]"
+            "indexed": false,
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
         },
         {
-          "components": [
+            "components": [
             {
-              "internalType": "address",
-              "name": "contentAddress",
-              "type": "address"
+                "internalType": "address",
+                "name": "contentAddress",
+                "type": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "tokenId",
-              "type": "uint256"
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
             }
-          ],
-          "indexed": false,
-          "internalType": "struct LibOrder.AssetData",
-          "name": "asset",
-          "type": "tuple"
+            ],
+            "indexed": false,
+            "internalType": "struct LibOrder.AssetData",
+            "name": "asset",
+            "type": "tuple"
         },
         {
-          "indexed": false,
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
+            "indexed": false,
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
         },
         {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amountOfAssetsSold",
-          "type": "uint256"
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amountOfAssetsSold",
+            "type": "uint256"
         }
-      ],
-      "name": "BuyOrdersFilled",
-      "type": "event"
+        ],
+        "name": "BuyOrdersFilled",
+        "type": "event"
     },
     {
-      "anonymous": false,
-      "inputs": [
+        "anonymous": false,
+        "inputs": [
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "from",
-          "type": "address"
+            "indexed": true,
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
         },
         {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "orderId",
-          "type": "uint256"
+            "indexed": true,
+            "internalType": "uint256",
+            "name": "orderId",
+            "type": "uint256"
         },
         {
-          "components": [
+            "components": [
             {
-              "components": [
+                "components": [
                 {
-                  "internalType": "address",
-                  "name": "contentAddress",
-                  "type": "address"
+                    "internalType": "address",
+                    "name": "contentAddress",
+                    "type": "address"
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
                 }
-              ],
-              "internalType": "struct LibOrder.AssetData",
-              "name": "asset",
-              "type": "tuple"
+                ],
+                "internalType": "struct LibOrder.AssetData",
+                "name": "asset",
+                "type": "tuple"
             },
             {
-              "internalType": "address",
-              "name": "owner",
-              "type": "address"
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
             },
             {
-              "internalType": "address",
-              "name": "token",
-              "type": "address"
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "price",
-              "type": "uint256"
+                "internalType": "uint256",
+                "name": "price",
+                "type": "uint256"
             },
             {
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
             },
             {
-              "internalType": "bool",
-              "name": "isBuyOrder",
-              "type": "bool"
+                "internalType": "bool",
+                "name": "isBuyOrder",
+                "type": "bool"
             }
-          ],
-          "indexed": false,
-          "internalType": "struct LibOrder.OrderInput",
-          "name": "order",
-          "type": "tuple"
+            ],
+            "indexed": false,
+            "internalType": "struct LibOrder.OrderInput",
+            "name": "order",
+            "type": "tuple"
         }
-      ],
-      "name": "OrderPlaced",
-      "type": "event"
+        ],
+        "name": "OrderPlaced",
+        "type": "event"
     },
     {
-      "anonymous": false,
-      "inputs": [
+        "anonymous": false,
+        "inputs": [
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
+            "indexed": true,
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
         },
         {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "orderIds",
-          "type": "uint256[]"
+            "indexed": false,
+            "internalType": "uint256[]",
+            "name": "orderIds",
+            "type": "uint256[]"
         }
-      ],
-      "name": "OrdersClaimed",
-      "type": "event"
+        ],
+        "name": "OrdersClaimed",
+        "type": "event"
     },
     {
-      "anonymous": false,
-      "inputs": [
+        "anonymous": false,
+        "inputs": [
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
+            "indexed": true,
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
         },
         {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "orderIds",
-          "type": "uint256[]"
+            "indexed": false,
+            "internalType": "uint256[]",
+            "name": "orderIds",
+            "type": "uint256[]"
         }
-      ],
-      "name": "OrdersDeleted",
-      "type": "event"
+        ],
+        "name": "OrdersDeleted",
+        "type": "event"
     },
     {
-      "anonymous": false,
-      "inputs": [
+        "anonymous": false,
+        "inputs": [
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "previousOwner",
-          "type": "address"
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
         },
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
         }
-      ],
-      "name": "OwnershipTransferred",
-      "type": "event"
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
     },
     {
-      "anonymous": false,
-      "inputs": [
+        "anonymous": false,
+        "inputs": [
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "from",
-          "type": "address"
+            "indexed": true,
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
         },
         {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "orderIds",
-          "type": "uint256[]"
+            "indexed": false,
+            "internalType": "uint256[]",
+            "name": "orderIds",
+            "type": "uint256[]"
         },
         {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "amounts",
-          "type": "uint256[]"
+            "indexed": false,
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
         },
         {
-          "components": [
+            "components": [
             {
-              "internalType": "address",
-              "name": "contentAddress",
-              "type": "address"
+                "internalType": "address",
+                "name": "contentAddress",
+                "type": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "tokenId",
-              "type": "uint256"
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
             }
-          ],
-          "indexed": false,
-          "internalType": "struct LibOrder.AssetData",
-          "name": "asset",
-          "type": "tuple"
+            ],
+            "indexed": false,
+            "internalType": "struct LibOrder.AssetData",
+            "name": "asset",
+            "type": "tuple"
         },
         {
-          "indexed": false,
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
+            "indexed": false,
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
         },
         {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amountPaid",
-          "type": "uint256"
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amountPaid",
+            "type": "uint256"
         }
-      ],
-      "name": "SellOrdersFilled",
-      "type": "event"
+        ],
+        "name": "SellOrdersFilled",
+        "type": "event"
     },
     {
-      "inputs": [],
-      "name": "owner",
-      "outputs": [
+        "inputs": [
         {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
+            "internalType": "address",
+            "name": "_token",
+            "type": "address"
         }
-      ],
-      "stateMutability": "view",
-      "type": "function",
-      "constant": true
+        ],
+        "name": "addSupportedToken",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-      "inputs": [],
-      "name": "renounceOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+        "inputs": [
+        {
+            "internalType": "uint256[]",
+            "name": "_orderIds",
+            "type": "uint256[]"
+        }
+        ],
+        "name": "cancelOrders",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-      "inputs": [
+        "inputs": [
         {
-          "internalType": "bytes4",
-          "name": "interfaceId",
-          "type": "bytes4"
+            "internalType": "uint256[]",
+            "name": "_orderIds",
+            "type": "uint256[]"
         }
-      ],
-      "name": "supportsInterface",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function",
-      "constant": true
+        ],
+        "name": "claimOrders",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "transferOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+        "inputs": [],
+        "name": "claimRoyalties",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-      "inputs": [
+        "inputs": [],
+        "name": "claimableRoyalties",
+        "outputs": [
         {
-          "internalType": "address",
-          "name": "_royaltyManager",
-          "type": "address"
+            "internalType": "address[]",
+            "name": "tokens",
+            "type": "address[]"
         },
         {
-          "internalType": "address",
-          "name": "_orderbook",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_executionManager",
-          "type": "address"
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
         }
-      ],
-      "name": "__Exchange_init",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+        ],
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-      "inputs": [
+        "inputs": [
         {
-          "components": [
+            "internalType": "uint256[]",
+            "name": "_orderIds",
+            "type": "uint256[]"
+        },
+        {
+            "internalType": "uint256[]",
+            "name": "_amounts",
+            "type": "uint256[]"
+        }
+        ],
+        "name": "fillBuyOrder",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "internalType": "uint256[]",
+            "name": "_orderIds",
+            "type": "uint256[]"
+        },
+        {
+            "internalType": "uint256[]",
+            "name": "_amounts",
+            "type": "uint256[]"
+        }
+        ],
+        "name": "fillSellOrder",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+        }
+        ],
+        "name": "getOrder",
+        "outputs": [
+        {
+            "components": [
             {
-              "components": [
+                "components": [
                 {
-                  "internalType": "address",
-                  "name": "contentAddress",
-                  "type": "address"
+                    "internalType": "address",
+                    "name": "contentAddress",
+                    "type": "address"
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
                 }
-              ],
-              "internalType": "struct LibOrder.AssetData",
-              "name": "asset",
-              "type": "tuple"
+                ],
+                "internalType": "struct LibOrder.AssetData",
+                "name": "asset",
+                "type": "tuple"
             },
             {
-              "internalType": "address",
-              "name": "owner",
-              "type": "address"
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
             },
             {
-              "internalType": "address",
-              "name": "token",
-              "type": "address"
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "price",
-              "type": "uint256"
+                "internalType": "uint256",
+                "name": "price",
+                "type": "uint256"
             },
             {
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
+                "internalType": "uint256",
+                "name": "amountOrdered",
+                "type": "uint256"
             },
             {
-              "internalType": "bool",
-              "name": "isBuyOrder",
-              "type": "bool"
+                "internalType": "uint256",
+                "name": "amountFilled",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "isBuyOrder",
+                "type": "bool"
+            },
+            {
+                "internalType": "enum LibOrder.OrderState",
+                "name": "state",
+                "type": "uint8"
             }
-          ],
-          "internalType": "struct LibOrder.OrderInput",
-          "name": "_order",
-          "type": "tuple"
+            ],
+            "internalType": "struct LibOrder.Order",
+            "name": "",
+            "type": "tuple"
         }
-      ],
-      "name": "placeOrder",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+        ],
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-      "inputs": [
+        "inputs": [
         {
-          "internalType": "uint256[]",
-          "name": "_orderIds",
-          "type": "uint256[]"
+            "internalType": "address",
+            "name": "_royaltyManager",
+            "type": "address"
         },
         {
-          "internalType": "uint256[]",
-          "name": "_amounts",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "fillBuyOrder",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "_orderIds",
-          "type": "uint256[]"
+            "internalType": "address",
+            "name": "_orderbook",
+            "type": "address"
         },
         {
-          "internalType": "uint256[]",
-          "name": "_amounts",
-          "type": "uint256[]"
+            "internalType": "address",
+            "name": "_executionManager",
+            "type": "address"
         }
-      ],
-      "name": "fillSellOrder",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+        ],
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-      "inputs": [
+        "inputs": [],
+        "name": "nftsEscrow",
+        "outputs": [
         {
-          "internalType": "uint256[]",
-          "name": "_orderIds",
-          "type": "uint256[]"
+            "internalType": "address",
+            "name": "",
+            "type": "address"
         }
-      ],
-      "name": "cancelOrders",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+        ],
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-      "inputs": [
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
         {
-          "internalType": "uint256[]",
-          "name": "_orderIds",
-          "type": "uint256[]"
+            "internalType": "address",
+            "name": "",
+            "type": "address"
         }
-      ],
-      "name": "claimOrders",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+        ],
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-      "inputs": [],
-      "name": "claimRoyalties",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
+        "inputs": [
         {
-          "internalType": "address",
-          "name": "_token",
-          "type": "address"
-        }
-      ],
-      "name": "addSupportedToken",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "id",
-          "type": "uint256"
-        }
-      ],
-      "name": "getOrder",
-      "outputs": [
-        {
-          "components": [
+            "components": [
             {
-              "components": [
+                "components": [
                 {
-                  "internalType": "address",
-                  "name": "contentAddress",
-                  "type": "address"
+                    "internalType": "address",
+                    "name": "contentAddress",
+                    "type": "address"
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
                 }
-              ],
-              "internalType": "struct LibOrder.AssetData",
-              "name": "asset",
-              "type": "tuple"
+                ],
+                "internalType": "struct LibOrder.AssetData",
+                "name": "asset",
+                "type": "tuple"
             },
             {
-              "internalType": "address",
-              "name": "owner",
-              "type": "address"
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
             },
             {
-              "internalType": "address",
-              "name": "token",
-              "type": "address"
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "price",
-              "type": "uint256"
+                "internalType": "uint256",
+                "name": "price",
+                "type": "uint256"
             },
             {
-              "internalType": "uint256",
-              "name": "amountOrdered",
-              "type": "uint256"
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
             },
             {
-              "internalType": "uint256",
-              "name": "amountFilled",
-              "type": "uint256"
-            },
-            {
-              "internalType": "bool",
-              "name": "isBuyOrder",
-              "type": "bool"
-            },
-            {
-              "internalType": "enum LibOrder.OrderState",
-              "name": "state",
-              "type": "uint8"
+                "internalType": "bool",
+                "name": "isBuyOrder",
+                "type": "bool"
             }
-          ],
-          "internalType": "struct LibOrder.Order",
-          "name": "",
-          "type": "tuple"
+            ],
+            "internalType": "struct LibOrder.OrderInput",
+            "name": "_order",
+            "type": "tuple"
         }
-      ],
-      "stateMutability": "view",
-      "type": "function",
-      "constant": true
+        ],
+        "name": "placeOrder",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-      "inputs": [],
-      "name": "tokenEscrow",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function",
-      "constant": true
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-      "inputs": [],
-      "name": "nftsEscrow",
-      "outputs": [
+        "inputs": [
         {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
+            "internalType": "bytes4",
+            "name": "interfaceId",
+            "type": "bytes4"
         }
-      ],
-      "stateMutability": "view",
-      "type": "function",
-      "constant": true
+        ],
+        "name": "supportsInterface",
+        "outputs": [
+        {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+        }
+        ],
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-      "inputs": [],
-      "name": "claimableRoyalties",
-      "outputs": [
+        "inputs": [],
+        "name": "tokenEscrow",
+        "outputs": [
         {
-          "internalType": "address[]",
-          "name": "tokens",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "amounts",
-          "type": "uint256[]"
+            "internalType": "address",
+            "name": "",
+            "type": "address"
         }
-      ],
-      "stateMutability": "view",
-      "type": "function",
-      "constant": true
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+        }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     }
-  ]
+]
