@@ -7,14 +7,21 @@ type AddressResolver @entity {
 type Exchange @entity {
   id: ID!
   orders: [Order!]
-  numOfOrders: Int
-  numOfBuyOrders: Int
-  numOfSellOrders: Int
+  numOfOrders: BigInt
+  numOfBuyOrders: BigInt
+  numOfSellOrders: BigInt
 }
 
 type TokenEscrow @entity {
   id: ID!
-  supportedTokens: [Bytes!]
+  supportedTokens: [Token!] @derivedFrom(field: "escrow")
+}
+
+type Token @entity {
+  id: ID!
+  address: Bytes!
+  escrow: TokenEscrow!
+  totalVolume: BigInt
 }
 
 type Account @entity {
@@ -27,8 +34,8 @@ type Order @entity {
   id: ID!
   asset: Asset!
   owner: Account!
-  amountOrdered: Int
-  amountFilled: Int
+  amountOrdered: BigInt
+  amountFilled: BigInt
   status: OrderStatus
   dateCreated: BigInt
   dateFilled: BigInt
@@ -49,4 +56,5 @@ type Asset @entity{
   id: ID!
   tokenId: BigInt!
   parentContract: Bytes!
+  orders: [Order!] @derivedFrom(field: "asset")
 }

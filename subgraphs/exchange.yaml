@@ -8,7 +8,7 @@ dataSources:
     kind: ethereum/contract
     network: mainnet
     source:
-      address: "0xBCB8B9da0285e304B10a2e7Db0B213aFddED9Dd6"
+      address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
       abi: AddressResolver
     mapping:
       kind: ethereum/events
