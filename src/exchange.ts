@@ -4,10 +4,13 @@ import { ADDRESS_ZERO, ONE_BI, ZERO_BI } from "./constants";
 import { 
     AddressResolver as Resolver,
     Exchange,
+    Order,
     TokenEscrow,
     Token,
     Asset,
-    Account
+    Account,
+    OrderFill,
+    UserRoyalty
 } from "../generated/schema";
 
 import {
@@ -45,7 +48,11 @@ import {
     createOrder,
     createAsset,
     createAccount,
-    getAssetId
+    createOrderFill,
+    createUserRoyalty,
+    getAssetId,
+    getOrderFillId,
+    getUserRoyaltyId,
 } from "./exchange-helpers";
   
 export function handleAddressRegistered(event: AddressRegisteredEvent): void {
@@ -83,8 +90,6 @@ export function handleAddedTokenSupport(event: AddedTokenSupportEvent): void {
 }
 
 export function handleOrderPlaced(event: OrderPlacedEvent): void {
-    let exchange = Exchange.load(event.address.toHexString());
-
     let assetId = getAssetId(event.params.order.asset.contentAddress.toHexString(), event.params.order.asset.tokenId.toHexString());
 
     // Create asset object if it doesn't already exist
@@ -101,25 +106,181 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
 
     // Create Order
     let order = createOrder(event.params.orderId, assetId, event.params.order.owner.toHexString());
+    order.type = (event.params.order.isBuyOrder) ? "Buy" : "Sell";
     order.dateCreated = event.block.timestamp;
+    order.save();
+    
+    // Update exchange data
+    let exchange = Exchange.load(event.address.toHexString());
+    exchange.numOfOrders = exchange.numOfOrders.plus(ONE_BI);
+    if (event.params.order.isBuyOrder) {
+        exchange.numOfBuyOrders = exchange.numOfBuyOrders.plus(ONE_BI);
+    } else {
+        exchange.numOfSellOrders = exchange.numOfSellOrders.plus(ONE_BI);
+    }
+    exchange.save();
 }
 
 export function handleBuyOrdersFilled(event: BuyOrdersFilledEvent): void {
-    // Todo:
+    let buyer = Account.load(event.params.from.toHexString());
+    if (buyer == null) {
+        buyer = createAccount(event.params.from);
+    }
+
+    // Check asset and token - must already exist
+    let assetId = getAssetId(event.params.asset.contentAddress.toHexString(), event.params.asset.tokenId.toString());
+    let asset = Asset.load(assetId);
+    let token = Token.load(event.params.token.toHexString());
+
+    // These should be the same lengths, checked by the smart contract
+    let orderIds = event.params.orderIds;
+    let orderAmounts = event.params.amounts;
+    for (let j = 0; j < orderIds.length; ++j) {
+        let orderId = orderIds[j];
+        
+        // create OrderFill object
+        let orderFillId = getOrderFillId(orderId.toHexString(), event.transaction.hash.toHexString());
+        let orderFill = createOrderFill(orderFillId, buyer.id, orderId.toHexString(), token.id);
+
+        // get order data and update orderFill object
+        let exchange = ExchangeContract.bind(event.address);
+        let orderData = exchange.getOrder(orderId);
+        orderFill.amount = orderAmounts[j];
+        orderFill.pricePerItem = orderData.price;
+        orderFill.totalPrice = orderAmounts[j].times(orderData.price);
+        orderFill.save();
+
+        // Update order status
+        let order = Order.load(orderId.toHexString());
+        let amountLeft = orderData.amountOrdered.minus(orderData.amountFilled);
+        if (amountLeft == ZERO_BI) {
+            order.status = "Filled";
+            order.dateFilled = event.block.timestamp;
+        } else {
+            order.status = "PartiallyFilled";
+        }
+        order.amountFilled = order.amountFilled.plus(orderAmounts[j]);
+        order.save();
+
+        // Update volume done using the token
+        token.totalVolume = token.totalVolume.plus(orderFill.totalPrice);
+
+        // Add user volume to the buy and the seller
+        buyer.userVolume = buyer.userVolume.plus(orderFill.totalPrice);
+        let seller = Account.load(order.owner);
+        seller.userVolume = seller.userVolume.plus(orderFill.totalPrice);
+    }
+
+    // Add to asset volume
+    asset.assetVolumeTransacted = asset.assetVolumeTransacted.plus(event.params.amountOfAssetsSold);
+
+    asset.save();
+    token.save();
 }
 
 export function handleSellOrdersFilled(event: SellOrdersFilledEvent): void {
-    // Todo:
+    let seller = Account.load(event.params.from.toHexString());
+    if (seller == null) {
+        seller = createAccount(event.params.from);
+    }
+
+    // Check asset and token - must already exist
+    let assetId = getAssetId(event.params.asset.contentAddress.toHexString(), event.params.asset.tokenId.toString());
+    let asset = Asset.load(assetId);
+    let token = Token.load(event.params.token.toHexString());
+
+    // These should be the same lengths, checked by the smart contract
+    let orderIds = event.params.orderIds;
+    let orderAmounts = event.params.amounts;
+    for (let j = 0; j < orderIds.length; ++j) {
+        let orderId = orderIds[j];
+        
+        // create OrderFill object
+        let orderFillId = getOrderFillId(orderId.toHexString(), event.transaction.hash.toHexString());
+        let orderFill = createOrderFill(orderFillId, seller.id, orderId.toHexString(), token.id);
+
+        // get order data and update orderFill object
+        let exchange = ExchangeContract.bind(event.address);
+        let orderData = exchange.getOrder(orderId);
+        orderFill.amount = orderAmounts[j];
+        orderFill.pricePerItem = orderData.price;
+        orderFill.totalPrice = orderAmounts[j].times(orderData.price);
+        orderFill.save();
+
+        // Update order status
+        let order = Order.load(orderId.toHexString());
+        let amountLeft = orderData.amountOrdered.minus(orderData.amountFilled);
+        if (amountLeft == ZERO_BI) {
+            order.status = "Filled";
+            order.dateFilled = event.block.timestamp;
+        } else {
+            order.status = "PartiallyFilled";
+        }
+        order.amountFilled = order.amountFilled.plus(orderAmounts[j]);
+        order.save();
+
+        // Add to asset volume
+        asset.assetVolumeTransacted = asset.assetVolumeTransacted.plus(orderAmounts[j]);
+
+        // Add user volume to the buy and the seller
+        seller.userVolume = seller.userVolume.plus(orderFill.totalPrice);
+        let buyer = Account.load(order.owner);
+        buyer.userVolume = buyer.userVolume.plus(orderFill.totalPrice);
+    }
+
+    // Update volume done using the token
+    token.totalVolume = token.totalVolume.plus(event.params.amountPaid);
+
+    asset.save();
+    token.save();
 }
 
 export function handleOrdersDeleted(event: OrdersDeletedEvent): void {
-    // Todo:
+    let orderIds = event.params.orderIds;
+    for (let j = 0; j < orderIds.length; ++j) {
+        let orderId = orderIds[j];
+
+        // Update order status
+        let order = Order.load(orderId.toHexString());
+        order.status = "Cancelled";
+        order.dateCancelled = event.block.timestamp;
+        order.save();
+    }
 }
 
 export function handleOrdersClaimed(event: OrdersClaimedEvent): void {
-    // Todo:
+    let orderIds = event.params.orderIds;
+    for (let j = 0; j < orderIds.length; ++j) {
+        let orderId = orderIds[j];
+
+        // Update order status
+        let order = Order.load(orderId.toHexString());
+        
+        // Only set to 'Claimed' if the order is fully filled. If it is not, maintain PartiallyFilled 
+        // status. All the necessary checks are done on the smart contract so no need to verify incoming
+        // data.
+        if (order.status == "Filled") {
+            order.status = "Claimed";
+        }
+
+        // Update dateClaimed every time (even for partially filled orders)
+        order.dateClaimed = event.block.timestamp;
+        order.save();
+    }
 }
 
 export function handleClaimedRoyalties(event: ClaimedRoyaltiesEvent): void {
-    // Todo:
+    let user = event.params.owner;
+    let tokens = event.params.tokens;
+    let amounts = event.params.amounts;
+
+    for (let i = 0; i < tokens.length; ++i) {
+        let royaltyId = getUserRoyaltyId(tokens[i].toHexString(), user.toHexString());
+        let royalty = UserRoyalty.load(royaltyId);
+        if (royalty == null) {
+            royalty = createUserRoyalty(royaltyId, tokens[i].toHexString(), user.toHexString());
+        }
+        royalty.claimedAmount = royalty.claimedAmount.plus(amounts[i]);
+        royalty.save();
+    }
 }

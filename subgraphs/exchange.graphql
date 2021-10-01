@@ -28,12 +28,22 @@ type Account @entity {
   id: ID!
   address: Bytes!
   orders: [Order!]! @derivedFrom(field: "owner")
+  userVolume: BigInt!
+  claimedRoyalties: [UserRoyalty!] @derivedFrom(field: "user")
+}
+
+type UserRoyalty @entity {
+  id: ID!
+  user: Account!
+  token: Token!
+  claimedAmount: BigInt!
 }
 
 type Order @entity {
   id: ID!
   asset: Asset!
   owner: Account!
+  type: OrderType
   amountOrdered: BigInt
   amountFilled: BigInt
   status: OrderStatus
@@ -41,6 +51,22 @@ type Order @entity {
   dateFilled: BigInt
   dateCancelled: BigInt
   dateClaimed: BigInt
+  orderFills: [OrderFill!] @derivedFrom(field: "order")
+}
+
+type OrderFill @entity {
+  id: ID!
+  filler: Account!
+  order: Order!
+  amount: BigInt!
+  pricePerItem: BigInt!
+  totalPrice: BigInt!
+  token: Token!
+}
+
+enum OrderType {
+    Buy
+    Sell
 }
 
 enum OrderStatus {
@@ -57,4 +83,5 @@ type Asset @entity{
   tokenId: BigInt!
   parentContract: Bytes!
   orders: [Order!] @derivedFrom(field: "asset")
+  assetVolumeTransacted: BigInt
 }
