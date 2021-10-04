@@ -22,13 +22,20 @@ type Token @entity {
   address: Bytes!
   escrow: TokenEscrow!
   totalVolume: BigInt
+  dailyData: [TokenDayData!] @derivedFrom(field: "token")
 }
 
 type Account @entity {
   id: ID!
   address: Bytes!
   orders: [Order!]! @derivedFrom(field: "owner")
-  userVolume: BigInt!
+  numOfBuyOrders: BigInt!
+  numOfSellOrders: BigInt!
+  numOfFilledOrders: BigInt!
+  volume: BigInt!
+  volumeAsBuyer: BigInt!
+  volumeAsSeller: BigInt!
+  dailyData: [AccountDayData!] @derivedFrom(field: "account")
   claimedRoyalties: [UserRoyalty!] @derivedFrom(field: "user")
 }
 
@@ -79,7 +86,7 @@ enum OrderStatus {
 }
 
 
-type Asset @entity{
+type Asset @entity {
   id: ID!
   tokenId: BigInt!
   parentContract: Bytes!
@@ -87,9 +94,18 @@ type Asset @entity{
   assetVolumeTransacted: BigInt
 }
 
-type TokenDayData @entity{
+type TokenDayData @entity {
   id: ID!
-  parent: Exchange!
+  token: Token!
   volume: BigInt!
+  startTimestamp: Int!
+}
+
+type AccountDayData @entity {
+  id: ID!
+  account: Account!
+  volume: BigInt!
+  volumeAsBuyer: BigInt!
+  volumeAsSeller: BigInt!
   startTimestamp: Int!
 }

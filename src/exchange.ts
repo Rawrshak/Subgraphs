@@ -54,7 +54,7 @@ import {
     getUserRoyaltyId,
 } from "./exchange-helpers";
 
-import { updateTokenVolume } from "./exchange-volume";
+import { updateAccountDailyVolume, updateTokenVolume } from "./exchange-volume";
   
 export function handleAddressRegistered(event: AddressRegisteredEvent): void {
     let resolver = Resolver.load(event.address.toHexString());
@@ -105,6 +105,13 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
         ownerAcc = createAccount(event.params.order.owner);
     }
 
+    if (event.params.order.isBuyOrder) {
+        ownerAcc.numOfBuyOrders = ownerAcc.numOfBuyOrders.plus(ONE_BI);
+    } else {
+        ownerAcc.numOfSellOrders = ownerAcc.numOfSellOrders.plus(ONE_BI);
+    }
+    ownerAcc.save();
+
     // Create Order
     let order = createOrder(event.params.orderId, assetId, event.params.order.owner.toHexString());
     order.type = (event.params.order.isBuyOrder) ? "Buy" : "Sell";
@@ -138,6 +145,7 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
     // These should be the same lengths, checked by the smart contract
     let orderIds = event.params.orderIds;
     let orderAmounts = event.params.amounts;
+    let isBuyOrder = false;
     for (let j = 0; j < orderIds.length; ++j) {
         if (orderAmounts[j].equals(ZERO_BI)) {
             continue;
@@ -151,6 +159,7 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
 
         // Update order status
         let order = Order.load(orderId.toHexString());
+        isBuyOrder = order.type == "Buy" ? true : false;
 
         // get order data and update orderFill object
         orderFill.amount = orderAmounts[j];
@@ -158,23 +167,26 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
         orderFill.totalPrice = orderAmounts[j].times(order.price);
         orderFill.save();
 
+        // Add user volume to the buy and the orderFiller
+        let orderOwner = Account.load(order.owner);
+
         order.amountFilled = order.amountFilled.plus(orderAmounts[j]);
         let amountLeft = order.amountOrdered.minus(order.amountFilled);
         if (amountLeft == ZERO_BI) {
             order.status = "Filled";
             order.filledAtTimestamp = event.block.timestamp;
+            orderOwner.numOfFilledOrders = orderOwner.numOfFilledOrders.plus(ONE_BI);
         } else {
             order.status = "PartiallyFilled";
         }
         order.save();
-
-        // Add user volume to the buy and the orderFiller
-        let orderOwner = Account.load(order.owner);
-        orderOwner.userVolume = orderOwner.userVolume.plus(orderFill.totalPrice);
         orderOwner.save();
+
+        // Update daily volume for the order owner
+        updateAccountDailyVolume(event, orderOwner.address as Address, orderFill.totalPrice, isBuyOrder);
     }
 
-    orderFiller.userVolume = orderFiller.userVolume.plus(event.params.volume);
+    updateAccountDailyVolume(event, orderFiller.address as Address, event.params.volume, !isBuyOrder);
     orderFiller.save();
 
     // Add to asset volume

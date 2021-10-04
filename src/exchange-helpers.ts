@@ -11,6 +11,7 @@ import {
     OrderFill,
     UserRoyalty,
     TokenDayData,
+    AccountDayData
 } from "../generated/schema";
 
 import { ADDRESS_ZERO, ZERO_BI } from "./constants";
@@ -75,9 +76,25 @@ export function createAsset(id: string, parentContract: Address, tokenId: BigInt
 export function createAccount(owner: Address): Account {
     let account = new Account(owner.toHexString());
     account.address = owner;
-    account.userVolume = ZERO_BI;
+    account.volume = ZERO_BI;
+    account.volumeAsBuyer = ZERO_BI;
+    account.volumeAsSeller = ZERO_BI;
+    account.numOfBuyOrders = ZERO_BI;
+    account.numOfSellOrders = ZERO_BI;
+    account.numOfFilledOrders = ZERO_BI;
     account.save();
     return account;
+}
+
+export function createAccountDayData(accountId: string, dayId: i32): AccountDayData {
+    let accountDayData = new AccountDayData(getAccountDayDataId(accountId, dayId.toString()));
+    accountDayData.account = accountId;
+    accountDayData.volume = ZERO_BI;
+    accountDayData.volumeAsBuyer = ZERO_BI;
+    accountDayData.volumeAsSeller = ZERO_BI;
+    accountDayData.startTimestamp = dayId * 86400;
+    accountDayData.save();
+    return accountDayData;
 }
 
 export function createOrderFill(orderFillId: string, filler: string, orderId: string, token: string): OrderFill {
@@ -101,15 +118,18 @@ export function createUserRoyalty(id: string, token: string, account: string): U
     return royalty;
 }
 
-export function createTokenDayData(id: string, exchangeId: string): TokenDayData {
+export function createTokenDayData(id: string, tokenId: string): TokenDayData {
     let data = new TokenDayData(id);
-    data.parent = exchangeId;
+    data.token = tokenId;
     data.volume = ZERO_BI;
     data.startTimestamp = 0;
     data.save();
     return data;
 }
 
+export function getAccountDayDataId(account: string, dayId: string): string {
+    return concat(account, dayId);
+}
 
 export function getUserRoyaltyId(tokenId: string, accountId: string): string {
     return concat(tokenId, accountId);
