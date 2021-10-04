@@ -10,6 +10,7 @@ import {
     Account,
     OrderFill,
     UserRoyalty,
+    TokenDayData,
 } from "../generated/schema";
 
 import { ADDRESS_ZERO, ZERO_BI } from "./constants";
@@ -53,10 +54,11 @@ export function createOrder(id: BigInt, assetId: string, owner: string): Order {
     order.amountOrdered = ZERO_BI;
     order.amountFilled = ZERO_BI;
     order.status = "Ready";
-    order.dateCreated = ZERO_BI;
-    order.dateFilled = ZERO_BI;
-    order.dateCancelled = ZERO_BI;
-    order.dateClaimed = ZERO_BI;
+    order.price = ZERO_BI;
+    order.createdAtTimestamp = ZERO_BI;
+    order.filledAtTimestamp = ZERO_BI;
+    order.cancelledAtTimestamp = ZERO_BI;
+    order.lastClaimedAtTimestamp = ZERO_BI;
     order.save();
     return order;
 }
@@ -97,6 +99,15 @@ export function createUserRoyalty(id: string, token: string, account: string): U
     royalty.claimedAmount = ZERO_BI;
     royalty.save();
     return royalty;
+}
+
+export function createTokenDayData(id: string, exchangeId: string): TokenDayData {
+    let data = new TokenDayData(id);
+    data.parent = exchangeId;
+    data.volume = ZERO_BI;
+    data.startTimestamp = 0;
+    data.save();
+    return data;
 }
 
 

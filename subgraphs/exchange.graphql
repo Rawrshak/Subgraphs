@@ -44,13 +44,14 @@ type Order @entity {
   asset: Asset!
   owner: Account!
   type: OrderType
-  amountOrdered: BigInt
-  amountFilled: BigInt
+  price: BigInt!
+  amountOrdered: BigInt!
+  amountFilled: BigInt!
   status: OrderStatus
-  dateCreated: BigInt
-  dateFilled: BigInt
-  dateCancelled: BigInt
-  dateClaimed: BigInt
+  createdAtTimestamp: BigInt!
+  filledAtTimestamp: BigInt!
+  cancelledAtTimestamp: BigInt!
+  lastClaimedAtTimestamp: BigInt!
   orderFills: [OrderFill!] @derivedFrom(field: "order")
 }
 
@@ -84,4 +85,11 @@ type Asset @entity{
   parentContract: Bytes!
   orders: [Order!] @derivedFrom(field: "asset")
   assetVolumeTransacted: BigInt
+}
+
+type TokenDayData @entity{
+  id: ID!
+  parent: Exchange!
+  volume: BigInt!
+  startTimestamp: Int!
 }

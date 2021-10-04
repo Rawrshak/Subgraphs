@@ -20,8 +20,7 @@ import {
 
 import {
     OrderPlaced as OrderPlacedEvent,
-    BuyOrdersFilled as BuyOrdersFilledEvent,
-    SellOrdersFilled as SellOrdersFilledEvent,
+    OrdersFilled as OrdersFilledEvent,
     OrdersDeleted as OrdersDeletedEvent,
     OrdersClaimed as OrdersClaimedEvent
 } from "../generated/templates/Exchange/Exchange";
@@ -54,6 +53,8 @@ import {
     getOrderFillId,
     getUserRoyaltyId,
 } from "./exchange-helpers";
+
+import { updateTokenVolume } from "./exchange-volume";
   
 export function handleAddressRegistered(event: AddressRegisteredEvent): void {
     let resolver = Resolver.load(event.address.toHexString());
@@ -107,7 +108,9 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
     // Create Order
     let order = createOrder(event.params.orderId, assetId, event.params.order.owner.toHexString());
     order.type = (event.params.order.isBuyOrder) ? "Buy" : "Sell";
-    order.dateCreated = event.block.timestamp;
+    order.createdAtTimestamp = event.block.timestamp;
+    order.price = event.params.order.price;
+    order.amountOrdered = event.params.order.amount;
     order.save();
     
     // Update exchange data
@@ -121,10 +124,10 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
     exchange.save();
 }
 
-export function handleBuyOrdersFilled(event: BuyOrdersFilledEvent): void {
-    let seller = Account.load(event.params.from.toHexString());
-    if (seller == null) {
-        seller = createAccount(event.params.from);
+export function handleOrdersFilled(event: OrdersFilledEvent): void {
+    let orderFiller = Account.load(event.params.from.toHexString());
+    if (orderFiller == null) {
+        orderFiller = createAccount(event.params.from);
     }
 
     // Check asset and token - must already exist
@@ -144,108 +147,41 @@ export function handleBuyOrdersFilled(event: BuyOrdersFilledEvent): void {
         
         // create OrderFill object
         let orderFillId = getOrderFillId(orderId.toHexString(), event.transaction.hash.toHexString());
-        let orderFill = createOrderFill(orderFillId, seller.id, orderId.toHexString(), token.id);
-
-        // get order data and update orderFill object
-        let exchange = ExchangeContract.bind(event.address);
-        let orderData = exchange.getOrder(orderId);
-        orderFill.amount = orderAmounts[j];
-        orderFill.pricePerItem = orderData.price;
-        orderFill.totalPrice = orderAmounts[j].times(orderData.price);
-        orderFill.save();
+        let orderFill = createOrderFill(orderFillId, orderFiller.id, orderId.toHexString(), token.id);
 
         // Update order status
         let order = Order.load(orderId.toHexString());
-        let amountLeft = orderData.amountOrdered.minus(orderData.amountFilled);
-        if (amountLeft == ZERO_BI) {
-            order.status = "Filled";
-            order.dateFilled = event.block.timestamp;
-        } else {
-            order.status = "PartiallyFilled";
-        }
-        order.amountFilled = order.amountFilled.plus(orderAmounts[j]);
-        order.save();
-
-        // Add user volume to the buy and the seller
-        let buyer = Account.load(order.owner);
-        buyer.userVolume = buyer.userVolume.plus(orderFill.totalPrice);
-        buyer.save();
-    }
-
-    seller.userVolume = seller.userVolume.plus(event.params.volume);
-    seller.save();
-
-    // Add to asset volume
-    asset.assetVolumeTransacted = asset.assetVolumeTransacted.plus(event.params.amountOfAssetsSold);
-    asset.save();
-    
-    // Update volume done using the token
-    token.totalVolume = token.totalVolume.plus(event.params.volume);
-    token.save();
-}
-
-export function handleSellOrdersFilled(event: SellOrdersFilledEvent): void {
-    let buyer = Account.load(event.params.from.toHexString());
-    if (buyer == null) {
-        buyer = createAccount(event.params.from);
-    }
-
-    // Check asset and token - must already exist
-    let assetId = getAssetId(event.params.asset.contentAddress.toHexString(), event.params.asset.tokenId.toString());
-    let asset = Asset.load(assetId);
-    let token = Token.load(event.params.token.toHexString());
-
-    // These should be the same lengths, checked by the smart contract
-    let orderIds = event.params.orderIds;
-    let orderAmounts = event.params.amounts;
-    for (let j = 0; j < orderIds.length; ++j) {
-        if (orderAmounts[j].equals(ZERO_BI)) {
-            continue;
-        }
-
-        let orderId = orderIds[j];
-        
-        // create OrderFill object
-        let orderFillId = getOrderFillId(orderId.toHexString(), event.transaction.hash.toHexString());
-        let orderFill = createOrderFill(orderFillId, buyer.id, orderId.toHexString(), token.id);
 
         // get order data and update orderFill object
-        let exchange = ExchangeContract.bind(event.address);
-        let orderData = exchange.getOrder(orderId);
         orderFill.amount = orderAmounts[j];
-        orderFill.pricePerItem = orderData.price;
-        orderFill.totalPrice = orderAmounts[j].times(orderData.price);
+        orderFill.pricePerItem = order.price;
+        orderFill.totalPrice = orderAmounts[j].times(order.price);
         orderFill.save();
 
-        // Update order status
-        let order = Order.load(orderId.toHexString());
-        let amountLeft = orderData.amountOrdered.minus(orderData.amountFilled);
+        order.amountFilled = order.amountFilled.plus(orderAmounts[j]);
+        let amountLeft = order.amountOrdered.minus(order.amountFilled);
         if (amountLeft == ZERO_BI) {
             order.status = "Filled";
-            order.dateFilled = event.block.timestamp;
+            order.filledAtTimestamp = event.block.timestamp;
         } else {
             order.status = "PartiallyFilled";
         }
-        order.amountFilled = order.amountFilled.plus(orderAmounts[j]);
         order.save();
 
-        // Add user volume to the buy 
-        let seller = Account.load(order.owner);
-        seller.userVolume = seller.userVolume.plus(orderFill.totalPrice);
-        seller.save();
+        // Add user volume to the buy and the orderFiller
+        let orderOwner = Account.load(order.owner);
+        orderOwner.userVolume = orderOwner.userVolume.plus(orderFill.totalPrice);
+        orderOwner.save();
     }
 
-    // add volume to the seller
-    buyer.userVolume = buyer.userVolume.plus(event.params.volume);
-    buyer.save();
+    orderFiller.userVolume = orderFiller.userVolume.plus(event.params.volume);
+    orderFiller.save();
 
     // Add to asset volume
-    asset.assetVolumeTransacted = asset.assetVolumeTransacted.plus(event.params.amountOfAssetsBought);
+    asset.assetVolumeTransacted = asset.assetVolumeTransacted.plus(event.params.totalAssetsAmount);
     asset.save();
 
-    // Update volume done using the token
-    token.totalVolume = token.totalVolume.plus(event.params.volume);
-    token.save();
+    updateTokenVolume(event);
 }
 
 export function handleOrdersDeleted(event: OrdersDeletedEvent): void {
@@ -256,7 +192,7 @@ export function handleOrdersDeleted(event: OrdersDeletedEvent): void {
         // Update order status
         let order = Order.load(orderId.toHexString());
         order.status = "Cancelled";
-        order.dateCancelled = event.block.timestamp;
+        order.cancelledAtTimestamp = event.block.timestamp;
         order.save();
     }
 }
@@ -276,8 +212,8 @@ export function handleOrdersClaimed(event: OrdersClaimedEvent): void {
             order.status = "Claimed";
         }
 
-        // Update dateClaimed every time (even for partially filled orders)
-        order.dateClaimed = event.block.timestamp;
+        // Update lastClaimedAtTimestamp every time (even for partially filled orders)
+        order.lastClaimedAtTimestamp = event.block.timestamp;
         order.save();
     }
 }
