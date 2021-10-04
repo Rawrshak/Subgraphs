@@ -48,9 +48,9 @@ templates:
       eventHandlers:
         - event: OrderPlaced(indexed address,indexed uint256,((address,uint256),address,address,uint256,uint256,bool))
           handler: handleOrderPlaced
-        - event: BuyOrdersFilled(indexed address,uint256[],uint256[],(address,uint256),address,uint256)
+        - event: BuyOrdersFilled(indexed address,uint256[],uint256[],(address,uint256),address,uint256,uint256)
           handler: handleBuyOrdersFilled
-        - event: SellOrdersFilled(indexed address,uint256[],uint256[],(address,uint256),address,uint256)
+        - event: SellOrdersFilled(indexed address,uint256[],uint256[],(address,uint256),address,uint256,uint256)
           handler: handleSellOrdersFilled
         - event: OrdersDeleted(indexed address,uint256[])
           handler: handleOrdersDeleted
