@@ -104,6 +104,7 @@ type TokenDayData @entity {
 type AccountDayData @entity {
   id: ID!
   account: Account!
+  token: Token!
   volume: BigInt!
   volumeAsBuyer: BigInt!
   volumeAsSeller: BigInt!

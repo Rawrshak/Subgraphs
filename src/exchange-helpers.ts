@@ -86,9 +86,10 @@ export function createAccount(owner: Address): Account {
     return account;
 }
 
-export function createAccountDayData(accountId: string, dayId: i32): AccountDayData {
-    let accountDayData = new AccountDayData(getAccountDayDataId(accountId, dayId.toString()));
+export function createAccountDayData(accountId: string, tokenId: string, dayId: i32): AccountDayData {
+    let accountDayData = new AccountDayData(getAccountDayDataId(accountId, tokenId, dayId.toString()));
     accountDayData.account = accountId;
+    accountDayData.token = tokenId;
     accountDayData.volume = ZERO_BI;
     accountDayData.volumeAsBuyer = ZERO_BI;
     accountDayData.volumeAsSeller = ZERO_BI;
@@ -127,8 +128,8 @@ export function createTokenDayData(id: string, tokenId: string): TokenDayData {
     return data;
 }
 
-export function getAccountDayDataId(account: string, dayId: string): string {
-    return concat(account, dayId);
+export function getAccountDayDataId(account: string, tokenId: string, dayId: string): string {
+    return concat2(account, tokenId, dayId);
 }
 
 export function getUserRoyaltyId(tokenId: string, accountId: string): string {

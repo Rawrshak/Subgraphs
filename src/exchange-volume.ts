@@ -39,13 +39,12 @@ export function updateTokenVolume(event: OrdersFilledEvent): TokenDayData {
     return dayData as TokenDayData;
 }
 
-// Todo: Create AccountDailyVolume for token specific rewards
 export function updateAccountDailyVolume(event: OrdersFilledEvent, accountId: Address, volume: BigInt, isAccountBuyer: boolean): AccountDayData {
     let timestamp = event.block.timestamp.toI32();
     let dayId = timestamp / 86400;
-    let dayData = AccountDayData.load(getAccountDayDataId(accountId.toHexString(), dayId.toString()));
+    let dayData = AccountDayData.load(getAccountDayDataId(accountId.toHexString(), event.params.token.toHexString(), dayId.toString()));
     if (dayData == null) {
-        dayData = createAccountDayData(accountId.toHexString(), dayId);
+        dayData = createAccountDayData(accountId.toHexString(), event.params.token.toHexString(), dayId);
     }
 
     let account = Account.load(accountId.toHexString());
