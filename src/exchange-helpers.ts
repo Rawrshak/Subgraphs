@@ -79,9 +79,10 @@ export function createAccount(owner: Address): Account {
     account.volume = ZERO_BI;
     account.volumeAsBuyer = ZERO_BI;
     account.volumeAsSeller = ZERO_BI;
-    account.numOfBuyOrders = ZERO_BI;
-    account.numOfSellOrders = ZERO_BI;
+    account.numOfOpenBuyOrders = ZERO_BI;
+    account.numOfOpenSellOrders = ZERO_BI;
     account.numOfFilledOrders = ZERO_BI;
+    account.numOfCancelledOrders = ZERO_BI;
     account.save();
     return account;
 }

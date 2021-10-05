@@ -7,9 +7,9 @@ type AddressResolver @entity {
 type Exchange @entity {
   id: ID!
   orders: [Order!]
-  numOfOrders: BigInt
-  numOfBuyOrders: BigInt
-  numOfSellOrders: BigInt
+  numOfOrders: BigInt!
+  numOfBuyOrders: BigInt!
+  numOfSellOrders: BigInt!
 }
 
 type TokenEscrow @entity {
@@ -29,9 +29,10 @@ type Account @entity {
   id: ID!
   address: Bytes!
   orders: [Order!]! @derivedFrom(field: "owner")
-  numOfBuyOrders: BigInt!
-  numOfSellOrders: BigInt!
+  numOfOpenBuyOrders: BigInt!
+  numOfOpenSellOrders: BigInt!
   numOfFilledOrders: BigInt!
+  numOfCancelledOrders: BigInt!
   volume: BigInt!
   volumeAsBuyer: BigInt!
   volumeAsSeller: BigInt!

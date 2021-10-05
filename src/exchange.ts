@@ -105,10 +105,11 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
         ownerAcc = createAccount(event.params.order.owner);
     }
 
+    // todo: update to only open orders; subtract when filled or cancelled
     if (event.params.order.isBuyOrder) {
-        ownerAcc.numOfBuyOrders = ownerAcc.numOfBuyOrders.plus(ONE_BI);
+        ownerAcc.numOfOpenBuyOrders = ownerAcc.numOfOpenBuyOrders.plus(ONE_BI);
     } else {
-        ownerAcc.numOfSellOrders = ownerAcc.numOfSellOrders.plus(ONE_BI);
+        ownerAcc.numOfOpenSellOrders = ownerAcc.numOfOpenSellOrders.plus(ONE_BI);
     }
     ownerAcc.save();
 
@@ -176,6 +177,11 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
             order.status = "Filled";
             order.filledAtTimestamp = event.block.timestamp;
             orderOwner.numOfFilledOrders = orderOwner.numOfFilledOrders.plus(ONE_BI);
+            if (order.type == "Buy") {
+                orderOwner.numOfOpenBuyOrders = orderOwner.numOfOpenBuyOrders.minus(ONE_BI);
+            } else {
+                orderOwner.numOfOpenSellOrders = orderOwner.numOfOpenSellOrders.minus(ONE_BI);
+            }
         } else {
             order.status = "PartiallyFilled";
         }
@@ -206,6 +212,15 @@ export function handleOrdersDeleted(event: OrdersDeletedEvent): void {
         order.status = "Cancelled";
         order.cancelledAtTimestamp = event.block.timestamp;
         order.save();
+        
+        let orderOwner = Account.load(order.owner);
+        if (order.type == "Buy") {
+            orderOwner.numOfOpenBuyOrders = orderOwner.numOfOpenBuyOrders.minus(ONE_BI);
+        } else {
+            orderOwner.numOfOpenSellOrders = orderOwner.numOfOpenSellOrders.minus(ONE_BI);
+        }
+        orderOwner.numOfCancelledOrders = orderOwner.numOfCancelledOrders.plus(ONE_BI);
+        orderOwner.save();
     }
 }
 
