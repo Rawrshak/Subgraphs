@@ -122,7 +122,7 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
     order.save();
     
     // Update exchange data
-    let exchange = Exchange.load(event.address.toHexString());
+    let exchange = Exchange.load(event.address.toHexString())!;
     exchange.numOfOrders = exchange.numOfOrders.plus(ONE_BI);
     if (event.params.order.isBuyOrder) {
         exchange.numOfBuyOrders = exchange.numOfBuyOrders.plus(ONE_BI);
@@ -140,8 +140,8 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
 
     // Check asset and token - must already exist
     let assetId = getAssetId(event.params.asset.contentAddress.toHexString(), event.params.asset.tokenId.toString());
-    let asset = Asset.load(assetId);
-    let token = Token.load(event.params.token.toHexString());
+    let asset = Asset.load(assetId)!;
+    let token = Token.load(event.params.token.toHexString())!;
 
     // These should be the same lengths, checked by the smart contract
     let orderIds = event.params.orderIds;
@@ -159,7 +159,7 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
         let orderFill = createOrderFill(orderFillId, orderFiller.id, orderId.toHexString(), token.id);
 
         // Update order status
-        let order = Order.load(orderId.toHexString());
+        let order = Order.load(orderId.toHexString())!;
         isBuyOrder = order.type == "Buy" ? true : false;
 
         // get order data and update orderFill object
@@ -169,7 +169,7 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
         orderFill.save();
 
         // Add user volume to the buy and the orderFiller
-        let orderOwner = Account.load(order.owner);
+        let orderOwner = Account.load(order.owner)!;
 
         order.amountFilled = order.amountFilled.plus(orderAmounts[j]);
         let amountLeft = order.amountOrdered.minus(order.amountFilled);
@@ -208,12 +208,12 @@ export function handleOrdersDeleted(event: OrdersDeletedEvent): void {
         let orderId = orderIds[j];
 
         // Update order status
-        let order = Order.load(orderId.toHexString());
+        let order = Order.load(orderId.toHexString())!;
         order.status = "Cancelled";
         order.cancelledAtTimestamp = event.block.timestamp;
         order.save();
         
-        let orderOwner = Account.load(order.owner);
+        let orderOwner = Account.load(order.owner)!;
         if (order.type == "Buy") {
             orderOwner.numOfOpenBuyOrders = orderOwner.numOfOpenBuyOrders.minus(ONE_BI);
         } else {
@@ -230,7 +230,7 @@ export function handleOrdersClaimed(event: OrdersClaimedEvent): void {
         let orderId = orderIds[j];
 
         // Update order status
-        let order = Order.load(orderId.toHexString());
+        let order = Order.load(orderId.toHexString())!;
         
         // Only set to 'Claimed' if the order is fully filled. If it is not, maintain PartiallyFilled 
         // status. All the necessary checks are done on the smart contract so no need to verify incoming

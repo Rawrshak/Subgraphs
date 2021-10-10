@@ -23,7 +23,7 @@ import {
 
 export function updateTokenVolume(event: OrdersFilledEvent): TokenDayData {
     // Update volume done using the token
-    let token = Token.load(event.params.token.toHexString());
+    let token = Token.load(event.params.token.toHexString())!;
     token.totalVolume = token.totalVolume.plus(event.params.volume);
     token.save();
 

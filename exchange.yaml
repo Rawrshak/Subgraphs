@@ -14,18 +14,18 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
-      file: ../src/exchange.ts
+      file: ./src/exchange.ts
       entities:
         - AddressResolver
         - Exchange
         - Erc20Escrow
       abis:
         - name: AddressResolver
-          file: ../abis/AddressResolver.json
+          file: ./abis/AddressResolver.json
         - name: Exchange
-          file: ../abis/Exchange.json
+          file: ./abis/Exchange.json
         - name: Erc20Escrow
-          file: ../abis/Erc20Escrow.json
+          file: ./abis/Erc20Escrow.json
       eventHandlers:
         - event: AddressRegistered(indexed bytes4,indexed address)
           handler: handleAddressRegistered
@@ -39,12 +39,12 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
-      file: ../src/exchange.ts
+      file: ./src/exchange.ts
       entities:
         - Exchange
       abis:
         - name: Exchange
-          file: ../abis/Exchange.json
+          file: ./abis/Exchange.json
       eventHandlers:
         - event: OrderPlaced(indexed address,indexed uint256,((address,uint256),address,address,uint256,uint256,bool))
           handler: handleOrderPlaced
@@ -63,12 +63,12 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
-      file: ../src/exchange.ts
+      file: ./src/exchange.ts
       entities:
         - Erc20Escrow
       abis:
         - name: Erc20Escrow
-          file: ../abis/Erc20Escrow.json
+          file: ./abis/Erc20Escrow.json
       eventHandlers:
         - event: ClaimedRoyalties(indexed address,address[],uint256[])
           handler: handleClaimedRoyalties

@@ -21,7 +21,7 @@ type Token @entity {
   id: ID!
   address: Bytes!
   escrow: TokenEscrow!
-  totalVolume: BigInt
+  totalVolume: BigInt!
   dailyData: [TokenDayData!] @derivedFrom(field: "token")
 }
 
@@ -51,11 +51,11 @@ type Order @entity {
   id: ID!
   asset: Asset!
   owner: Account!
-  type: OrderType
+  type: OrderType!
   price: BigInt!
   amountOrdered: BigInt!
   amountFilled: BigInt!
-  status: OrderStatus
+  status: OrderStatus!
   createdAtTimestamp: BigInt!
   filledAtTimestamp: BigInt!
   cancelledAtTimestamp: BigInt!
@@ -92,7 +92,7 @@ type Asset @entity {
   tokenId: BigInt!
   parentContract: Bytes!
   orders: [Order!] @derivedFrom(field: "asset")
-  assetVolumeTransacted: BigInt
+  assetVolumeTransacted: BigInt!
 }
 
 type TokenDayData @entity {
