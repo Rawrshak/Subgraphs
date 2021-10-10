@@ -14,7 +14,7 @@ import {
     AccountDayData
 } from "../generated/schema";
 
-import { ADDRESS_ZERO, ZERO_BI } from "./constants";
+import { ADDRESS_ZERO, SECONDS_PER_DAY, ZERO_BI } from "./constants";
 
 export function createAddressResolver(id: Address): Resolver {
     let resolver = new Resolver(id.toHexString());
@@ -94,7 +94,7 @@ export function createAccountDayData(accountId: string, tokenId: string, dayId: 
     accountDayData.volume = ZERO_BI;
     accountDayData.volumeAsBuyer = ZERO_BI;
     accountDayData.volumeAsSeller = ZERO_BI;
-    accountDayData.startTimestamp = dayId * 86400;
+    accountDayData.startTimestamp = dayId * SECONDS_PER_DAY;
     accountDayData.save();
     return accountDayData;
 }

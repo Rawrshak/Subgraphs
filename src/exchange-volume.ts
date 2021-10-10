@@ -1,6 +1,6 @@
 import { log, ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts"
 
-import { ADDRESS_ZERO, ZERO_BI } from "./constants";
+import { ADDRESS_ZERO, SECONDS_PER_DAY, ZERO_BI } from "./constants";
 
 import {
     OrdersFilled as OrdersFilledEvent
@@ -28,11 +28,11 @@ export function updateTokenVolume(event: OrdersFilledEvent): TokenDayData {
     token.save();
 
     let timestamp = event.block.timestamp.toI32();
-    let dayId = timestamp / 86400;
+    let dayId = timestamp / SECONDS_PER_DAY;
     let dayData = TokenDayData.load(dayId.toString());
     if (dayData == null) {
         dayData = createTokenDayData(dayId.toString(), token.id);
-        dayData.startTimestamp = dayId * 86400;
+        dayData.startTimestamp = dayId * SECONDS_PER_DAY;
     }
     dayData.volume = dayData.volume.plus(event.params.volume);
     dayData.save();
@@ -41,7 +41,7 @@ export function updateTokenVolume(event: OrdersFilledEvent): TokenDayData {
 
 export function updateAccountDailyVolume(event: OrdersFilledEvent, accountId: Address, volume: BigInt, isAccountBuyer: boolean): AccountDayData {
     let timestamp = event.block.timestamp.toI32();
-    let dayId = timestamp / 86400;
+    let dayId = timestamp / SECONDS_PER_DAY;
     let dayData = AccountDayData.load(getAccountDayDataId(accountId.toHexString(), event.params.token.toHexString(), dayId.toString()));
     if (dayData == null) {
         dayData = createAccountDayData(accountId.toHexString(), event.params.token.toHexString(), dayId);
