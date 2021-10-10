@@ -1,82 +1,72 @@
-import { log, ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts"
+import { log, ByteArray, BigInt, Address, crypto, store } from "@graphprotocol/graph-ts"
 import {
-  ContentManagerRegistered
-} from "../generated/ContractRegistry/ContractRegistry";
+  ContractsDeployed as ContractsDeployedEvent
+} from "../generated/ContentFactory/ContentFactory";
 import {
-  Content as ContentContract,
   TransferBatch as TransferBatchEvent,
   TransferSingle as TransferSingleEvent,
   Mint as MintEvent,
-  Burn as BurnEvent
+  Burn as BurnEvent,
+  ApprovalForAll as ApprovalForAllEvent
 } from "../generated/templates/Content/Content";
-import {
-  ContentManager as ContentManagerContract
-} from "../generated/templates/ContentManager/ContentManager";
 import {
   ContentStorage as ContentStorageContract,
   AssetsAdded as AssetsAddedEvent,
-  ContractRoyaltiesUpdated as ContractRoyaltiesUpdatedEvent,
-  HiddenTokenUriUpdated as HiddenTokenUriUpdatedEvent,
-  PublicTokenUriUpdated as PublicTokenUriUpdatedEvent,
-  TokenRoyaltiesUpdated as TokenRoyaltiesUpdatedEvent
+  ContractRoyaltyUpdated as ContractRoyaltyUpdatedEvent,
+  HiddenUriUpdated as HiddenUriUpdatedEvent,
+  PublicUriUpdated as PublicUriUpdatedEvent,
+  TokenRoyaltyUpdated as TokenRoyaltyUpdatedEvent
 } from "../generated/templates/ContentStorage/ContentStorage";
 import {
-  SystemsRegistry as SystemsRegistryContract
-} from "../generated/templates/SystemsRegistry/SystemsRegistry";
-import {
-  UserApproved as UserApprovedEvent,
-  RegisteredSystemsUpdated as RegisteredSystemsUpdatedEvent
-} from "../generated/templates/SystemsRegistry/SystemsRegistry";
+  AccessControlManager as AccessControlManagerContract,
+  RoleGranted as RoleGrantedEvent,
+  RoleRevoked as RoleRevokedEvent
+} from "../generated/templates/AccessControlManager/AccessControlManager";
 import { 
-  ContractRegistry as Registry,
+  ContentFactory as Factory,
   ContentManager,
   Asset,
   AssetBalance,
   Content,
   Account,
-  AssetFee,
-  ContractFee,
-  UserApproval,
-  Operator
+  Approval,
+  Minter
 } from "../generated/schema";
 
 import {
+  createContentFactory,
   createContentManager,
+  createContent,
   createAccount,
   createAsset,
   createAssetBalance,
-  createAssetFees,
-  createContractFees,
-  createUserApproval,
-  createOperator,
+  createApproval,
   createTransaction,
-  createMintTransaction,
-  createBurnTransaction,
   getAssetId,
   getAssetBalanceId,
-  getAssetFeeId,
-  getContractFeeId,
-  getUserApprovalId,
-  getOperatorId,
-  getTransactionId,
-  createContractRegistry
+  getApprovalId,
+  getMinterId,
+  createMinter
 } from "./content-helpers";
 
 import { ADDRESS_ZERO, ONE_BI, ZERO_BI } from "./constants";
  
-export function handleContentManagerRegistered(event: ContentManagerRegistered): void {
-  // let owner = event.params.owner.toHexString();
-  let registry = Registry.load(event.address.toHexString());
-  if (registry == null) {
-    registry = createContractRegistry(event.address, event.params.owner);
+export function handleContractsDeployed(event: ContractsDeployedEvent): void {
+  let factory = Factory.load(event.address.toHexString());
+  if (factory == null) {
+    factory = createContentFactory(event.address);
+  }
+
+  let content = Content.load(event.params.content.toHexString());
+  // Create content object
+  if (content == null) {
+    content = createContent(event.params.content, factory.id);
   }
 
   let contentManager = ContentManager.load(event.params.contentManager.toHexString());
   if (contentManager == null) {
-    contentManager = createContentManager(event.params.contentManager, event.params.owner, registry.id);
+    contentManager = createContentManager(event.params.contentManager, factory.id);
   }
-
-  // Todo: set up content contract royalties
 }
 
 // Content Events
@@ -175,31 +165,41 @@ export function handleMint(event: MintEvent): void {
     return;
   }
 
-  let transaction = createTransaction(event.transaction.hash.toHexString());
+  // Add Account Mint Count
+  let receiver = Account.load(event.params.data.to.toHexString());
+  if (receiver == null) {
+    // Add new owner and increment token number of owners
+    receiver = createAccount(event.params.data.to);
+  }
+  receiver.mintCount = receiver.mintCount.plus(ONE_BI);
+  receiver.save();
+
+  let transaction = createTransaction(
+    event.transaction.hash.toHexString(),
+    event.params.operator.toHexString(),
+    event.params.data.to.toHexString(),
+    "Mint");
   transaction.blockNumber = event.block.number;
   transaction.timestamp = event.block.timestamp;
   transaction.gasUSed = event.transaction.gasUsed;
   transaction.gasPrice = event.transaction.gasPrice;
-  transaction.save();
 
   let assetIds = event.params.data.tokenIds;
   let amounts = event.params.data.amounts;
   for (let i = 0; i < assetIds.length; ++i) {
     let assetId = getAssetId(parent.id, assetIds[i].toString());
-    let mintId = getTransactionId(transaction.id, assetIds[i].toString());
-    let mintTransaction = createMintTransaction(
-      mintId,
-      transaction.id,
-      event.params.operator.toHexString(),
-      event.params.data.to.toHexString(),
-      assetId
-    );
 
+    // Add Asset Mint Count
     let asset = Asset.load(assetId);
     asset.mintCount = asset.mintCount.plus(ONE_BI);
     asset.currentSupply = asset.currentSupply.plus(amounts[i]);
     asset.save();
+    
+    // Update transaction
+    transaction.assets.push(assetId);
+    transaction.amounts.push(amounts[i]);
   }
+  transaction.save();
 }
 
 export function handleBurn(event: BurnEvent): void {
@@ -209,30 +209,57 @@ export function handleBurn(event: BurnEvent): void {
     return;
   }
 
-  let transaction = createTransaction(event.transaction.hash.toHexString());
+  // Add Account Burn Count; Cannot burn on an account that doesn't already exist
+  let account = Account.load(event.params.data.account.toHexString());
+  account.burnCount = account.burnCount.plus(ONE_BI);
+  account.save();
+
+  let transaction = createTransaction(
+    event.transaction.hash.toHexString(),
+    event.params.operator.toHexString(),
+    event.params.data.account.toHexString(),
+    "Burn");
   transaction.blockNumber = event.block.number;
   transaction.timestamp = event.block.timestamp;
   transaction.gasUSed = event.transaction.gasUsed;
   transaction.gasPrice = event.transaction.gasPrice;
-  transaction.save();
 
   let assetIds = event.params.data.tokenIds;
   let amounts = event.params.data.amounts;
   for (let i = 0; i < assetIds.length; ++i) {
     let assetId = getAssetId(parent.id, assetIds[i].toString());
-    let burnId = getTransactionId(transaction.id, assetIds[i].toString());
-    let burnTransaction = createBurnTransaction(
-      burnId,
-      transaction.id,
-      event.params.operator.toHexString(),
-      event.params.data.account.toHexString(),
-      assetId
-    );
 
+    // Add Asset Burn Count
     let asset = Asset.load(assetId);
     asset.burnCount = asset.burnCount.plus(ONE_BI);
     asset.currentSupply = asset.currentSupply.minus(amounts[i]);
     asset.save();
+    
+    // Update transaction
+    transaction.assets.push(assetId);
+    transaction.amounts.push(amounts[i]);
+  }
+  transaction.save();
+}
+// ApprovalForAll(address account, address operator, bool approved)
+export function handleApprovalForAll(event: ApprovalForAllEvent): void {
+  let approvalId = getApprovalId(
+    event.address.toHexString(),
+    event.params.account.toHexString(),
+    event.params.operator.toHexString());
+
+  // Get/Create approval
+  if (event.params.approved) {
+    let approval = Approval.load(approvalId);
+    if (approval == null) {
+      approval = createApproval(
+        approvalId, 
+        event.address.toHexString(),
+        event.params.account.toHexString(),
+        event.params.operator.toHexString());
+    }
+  } else {
+    store.remove('Approval', approvalId);
   }
 }
 
@@ -255,60 +282,25 @@ export function handleAssetsAdded(event: AssetsAddedEvent): void {
       asset = createAsset(assetId, parent.id, tokenId);
     }
     asset.maxSupply = newAsset.maxSupply;
-
-    // Note: we cannot iterate through 'derived' properties. Instead, we have to manually
-    // manage them. This is the case for asset royalties and contract royalties
-    let royaltyFeesLength = newAsset.fees.length;
-    let fees = newAsset.fees;
-    let royalties = asset.assetRoyalties;
-    for (let i = 0; i < royaltyFeesLength; ++i) {
-      let account = fees[i].account;
-      let feeId = getAssetFeeId(parent.id, account.toHexString(), tokenId.toString());
-      let fee = AssetFee.load(feeId);
-      if (fee == null) {
-        fee = createAssetFees(feeId, account, asset.id);
-        royalties.push(fee.id);
-      }
-      fee.rate = fees[i].rate;
-      fee.save();
-    }
-    asset.assetRoyalties = royalties;
+    asset.royaltyRate = newAsset.royaltyRate;
+    asset.royaltyReceiver = newAsset.royaltyReceiver.toHexString();
     asset.save();
   }
 }
  
-export function handleContractRoyaltiesUpdated(event: ContractRoyaltiesUpdatedEvent): void {
+export function handleContractRoyaltyUpdated(event: ContractRoyaltyUpdatedEvent): void {
   // createContractFees
   let parent = Content.load(event.params.parent.toHexString());
   if (parent == null) {
     return;
   }
-  
-  // Delete existing contract royalties
-  parent.contractRoyalties.forEach(currentFee => {
-    let fee = ContractFee.load(currentFee);
-    fee.rate = ZERO_BI;
-    fee.save();
-  });
 
-  // For every asset added, create a new asset object
-  let fees = event.params.fees;
-  let royalties = parent.contractRoyalties;
-  for (let i = 0; i < fees.length; ++i) {
-    let feeId = getContractFeeId(parent.id, fees[i].account.toHexString());
-    let fee = ContractFee.load(feeId);
-    if (fee == null) {
-      fee = createContractFees(feeId, fees[i].account, parent.id);
-      royalties.push(fee.id);
-    }
-    fee.rate = fees[i].rate;
-    fee.save();
-  }
-  parent.contractRoyalties = royalties;
+  parent.royaltyRate = event.params.rate;
+  parent.royaltyReceiver = event.params.receiver.toHexString();
   parent.save();
 }
  
-export function handleHiddenTokenUriUpdated(event: HiddenTokenUriUpdatedEvent): void {
+export function handleHiddenUriUpdated(event: HiddenUriUpdatedEvent): void {
   let parent = Content.load(event.params.parent.toHexString());
   if (parent == null) {
     return;
@@ -322,7 +314,7 @@ export function handleHiddenTokenUriUpdated(event: HiddenTokenUriUpdatedEvent): 
   }
 }
  
-export function handlePublicTokenUriUpdated(event: PublicTokenUriUpdatedEvent): void {
+export function handlePublicUriUpdated(event: PublicUriUpdatedEvent): void {
   let parent = Content.load(event.params.parent.toHexString());
   if (parent == null) {
     return;
@@ -336,7 +328,7 @@ export function handlePublicTokenUriUpdated(event: PublicTokenUriUpdatedEvent): 
   }
 }
  
-export function handleTokenRoyaltiesUpdated(event: TokenRoyaltiesUpdatedEvent): void {
+export function handleTokenRoyaltyUpdated(event: TokenRoyaltyUpdatedEvent): void {
   let parent = Content.load(event.params.parent.toHexString());
   if (parent == null) {
     return;
@@ -348,67 +340,39 @@ export function handleTokenRoyaltiesUpdated(event: TokenRoyaltiesUpdatedEvent): 
     return;
   }
 
-  asset.assetRoyalties.forEach(currentFeeId => {
-    let fee = AssetFee.load(currentFeeId);
-    fee.rate = ZERO_BI;
-    fee.save();
-  });
-
-  // Add/update new asset royalties
-  let fees = event.params.fees;
-  let royalties = asset.assetRoyalties;
-  for (let i = 0; i < fees.length; ++i) {
-    let assetFeeId = getAssetFeeId(parent.id, fees[i].account.toHexString(), asset.tokenId.toString());
-    let fee = AssetFee.load(assetFeeId);
-    if (fee == null) {
-      fee = createAssetFees(assetFeeId, fees[i].account, assetId);
-      royalties.push(fee.id);
-    }
-    fee.rate = fees[i].rate;
-    fee.save();
-  }
-  asset.assetRoyalties = royalties;
+  asset.royaltyReceiver = event.params.receiver.toHexString();
+  asset.royaltyRate = event.params.rate;
   asset.save();
 }
 
-// SystemsRegistry Events
-export function handleUserApproved(event: UserApprovedEvent): void {
-  let parent = Content.load(event.params.contentContract.toHexString());
-  if (parent == null) {
-    return;
+// AccessControlManager 
+export function handleRoleGranted(event: RoleGrantedEvent) : void {
+  // Get minter role and compare if it is the role that was granted
+  let accessControlManager = AccessControlManagerContract.bind(event.address);
+  if (event.params.role == accessControlManager.MINTER_ROLE()) {
+    let content = Content.load(accessControlManager.parent().toHexString());
+    if (content == null) {
+      return;
+    }
+    
+    let minterId = getMinterId(content.id, event.params.account.toHexString());
+    let minter = Minter.load(minterId);
+    if (minter == null) {
+      minter = createMinter(minterId, content.id, event.params.account.toHexString());
+    }
   }
-
-  let user = Account.load(event.params.user.toHexString());
-  if (user == null) {
-    user = createAccount(event.params.user);
-    user.save();
-  }
-
-  let approvalId = getUserApprovalId(parent.id, event.params.user.toHexString());
-  let approval = UserApproval.load(approvalId);
-  if (approval == null) {
-    approval = createUserApproval(approvalId, parent.id, user.id);
-  }
-  approval.approved = event.params.approved;
-  approval.save();
 }
 
-// Content 
-export function handleRegisteredSystemsUpdated(event: RegisteredSystemsUpdatedEvent): void {
-  let parent = Content.load(event.params.contentContract.toHexString());
-  if (parent == null) {
-    return;
-  }
-
-  let operatorPairs = event.params.operators;
-  for (let i = 0; i < operatorPairs.length; ++i) {
-    // let operatorPair = operatorPairs[i];
-    let operatorId = getOperatorId(parent.id, operatorPairs[i].operator.toHexString());
-    let operator = Operator.load(operatorId);
-    if (operator == null) {
-      operator = createOperator(operatorId, parent.id, operatorPairs[i].operator);
+export function handleRoleRevoked(event: RoleRevokedEvent) : void {
+  // Get minter role and compare if it is the role that was revoked
+  let accessControlManager = AccessControlManagerContract.bind(event.address);
+  if (event.params.role == accessControlManager.MINTER_ROLE()) {
+    let content = Content.load(accessControlManager.parent().toHexString());
+    if (content == null) {
+      return;
     }
-    operator.approved = operatorPairs[i].approved;
-    operator.save();
+    
+    let minterId = getMinterId(content.id, event.params.account.toHexString());
+    store.remove('Minter', minterId);
   }
 }

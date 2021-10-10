@@ -1,0 +1,17 @@
+{
+    "name": "The Finesse Title",
+    "description": "Defeat Didier, The Finesse.",
+    "image": "https://arweave.net/n0qwDqCCZQ-EZvw_9dX1FHkemXSJSTD9Vma8BN7yWhg",
+    "tags": [
+        "FightBuddy",
+        "Title",
+        "Fighting"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "The Finesse",
+        "description": "I have merely retreated for now! I shall return! - Didier, the Finesse"
+    }
+}

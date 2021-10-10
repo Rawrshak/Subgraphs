@@ -1,0 +1,21 @@
+{
+    "name": "Rawr Creator Title",
+    "description": "Rawrshak Ecosystem Content Creator",
+    "image": "https://arweave.net/n0qwDqCCZQ-EZvw_9dX1FHkemXSJSTD9Vma8BN7yWhg",
+    "tags": [
+        "Rawrshak",
+        "Title",
+        "Rawrshak Reward"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Rawr Creator",
+        "description": "Progenator of cool shit. Creator of pretty stuff. From their minds come the weirdest set of hot garbage for which we gladly offer ungodly sums of money."
+    },
+    "developer-properties":
+    {
+        "creatorComments": "Mmm, trash, I love trash, yum yum trash, I wanna eat trash!"
+    }
+}

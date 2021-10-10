@@ -1,0 +1,17 @@
+{
+    "name": "Rawr Disciple Title",
+    "description": "He's been here a while. Reward their loyalty!",
+    "image": "https://arweave.net/n0qwDqCCZQ-EZvw_9dX1FHkemXSJSTD9Vma8BN7yWhg",
+    "tags": [
+        "Rawrshak",
+        "Title",
+        "Rawrshak Reward"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Rawr Disciple",
+        "description": "This kid is going places."
+    }
+}

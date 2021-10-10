@@ -1,28 +1,14 @@
-type ContractRegistry @entity {
+type ContentFactory @entity {
   id: ID!
-  contentManagers: [ContentManager!] @derivedFrom(field: "registry")
+  contents: [Content!] @derivedFrom(field: "factory")
+  contentManagers: [ContentManager!] @derivedFrom(field: "factory")
 }
 
 type ContentManager @entity {
   id: ID!
+  factory: ContentFactory!
   content: Content!
-  contentStorage: ContentStorage!
-  systemRegistry: SystemRegistry!
-  creator: Bytes!
-  registry: ContractRegistry!
-}
-
-type SystemRegistry @entity {
-  id: ID!
-  content: Content!
-  operators: [Bytes!]
-  users: [Bytes!]
-}
-
-type ContentStorage @entity {
-  id: ID!
-  content: Content!
-  tokens: [Asset!]
+  owner: Account!
 }
 
 type Asset @entity{
@@ -32,11 +18,11 @@ type Asset @entity{
   currentSupply: BigInt!
   maxSupply: BigInt!
   balances: [AssetBalance!] @derivedFrom(field: "asset")
-  assetRoyalties: [AssetFee!]!
+  royaltyReceiver: Account!
+  royaltyRate: Int!
   latestHiddenUriVersion: BigInt!
   latestPublicUriVersion: BigInt!
-  mintTransactions: [MintTransaction!]! @derivedFrom(field: "asset")
-  burnTransactions: [BurnTransaction!]! @derivedFrom(field: "asset")
+  transactions: [Transaction!]! @derivedFrom(field: "assets")
   mintCount: BigInt!
   burnCount: BigInt!
 }
@@ -48,79 +34,57 @@ type AssetBalance @entity {
   amount: BigInt!
 }
 
-type AssetFee @entity {
-  id: ID!
-  asset: Asset!
-  creator: Bytes!
-  rate: BigInt!
-}
-
-type ContractFee @entity {
-  id: ID!
-  content: Content!
-  creator: Bytes!
-  rate: BigInt!
-}
-
 type Content @entity {
   id: ID!
+  factory: ContentFactory!
+  manager: ContentManager! @derivedFrom(field: "content")
   contractAddress: Bytes!
-  name: String!
-  symbol: String!
+  contractUri: String!
   assets: [Asset!]! @derivedFrom(field: "parentContract")
-  contractRoyalties: [ContractFee!]!
-  userApprovals: [UserApproval!]! @derivedFrom(field: "content")
-  operators: [Operator!]! @derivedFrom(field: "content")
+  royaltyReceiver: Account!
+  royaltyRate: Int!
+  minters: [Minter!] @derivedFrom(field: "content")
 }
 
 type Account @entity {
   id: ID!
   address: Bytes!
   assetBalances: [AssetBalance!]! @derivedFrom(field: "owner")
-  approvals: [UserApproval!]! @derivedFrom(field: "user")
-  mints: [MintTransaction!]! @derivedFrom(field: "receiver")
-  burns: [BurnTransaction!]! @derivedFrom(field: "burner")
+  transactions: [Transaction!]! @derivedFrom(field: "user")
+  transactionsAsOperator: [Transaction!]! @derivedFrom(field: "operator")
+  mintCount: BigInt!
+  burnCount: BigInt!
+  approvals: [Approval!] @derivedFrom(field: "user")
+  minters: [Minter!] @derivedFrom(field: "operator")
 }
 
-type UserApproval @entity {
+type Approval @entity {
   id: ID!
   content: Content!
+  operator: Account!
   user: Account!
-  approved: Boolean!
 }
 
-type Operator @entity {
-  id: ID!
-  address: Bytes!
-  content: Content!
-  approved: Boolean!
+enum TransactionType {
+  Mint
+  Burn
 }
 
 type Transaction @entity {
   id: ID!
+  operator: Account!
+  user: Account!
+  transactionType: TransactionType!
+  assets: [Asset!]! 
+  amounts: [BigInt!]!
   blockNumber: BigInt!
   timestamp: BigInt!
   gasUSed: BigInt!
   gasPrice: BigInt!
-  #derived values
-  mints: [MintTransaction]! @derivedFrom(field: "transaction")
-  burns: [BurnTransaction]! @derivedFrom(field: "transaction")
 }
 
-type MintTransaction @entity {
+type Minter @entity {
   id: ID!
+  content: Content!
   operator: Account!
-  receiver: Account!
-  transaction: Transaction!
-  asset: Asset! 
-  amount: BigInt!
-}
-
-type BurnTransaction @entity {
-  id: ID!
-  operator: Account!
-  burner: Account!
-  transaction: Transaction!
-  asset: Asset! 
-  amount: BigInt!
 }

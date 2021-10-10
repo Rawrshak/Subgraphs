@@ -1,0 +1,17 @@
+{
+    "name": "Casper the Ghost Title",
+    "description": "He... uh... Wasn't so friendly.",
+    "image": "https://arweave.net/n0qwDqCCZQ-EZvw_9dX1FHkemXSJSTD9Vma8BN7yWhg",
+    "tags": [
+        "SuperScaryHorrorGame",
+        "Title",
+        "Horror"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Casper the Ghost",
+        "description": "He's really bored, so he started messing with people."
+    }
+}

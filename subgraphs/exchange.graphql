@@ -1,0 +1,113 @@
+type AddressResolver @entity {
+  id: ID!
+  exchange: Exchange!
+  tokenEscrow: TokenEscrow!
+}
+
+type Exchange @entity {
+  id: ID!
+  orders: [Order!]
+  numOfOrders: BigInt!
+  numOfBuyOrders: BigInt!
+  numOfSellOrders: BigInt!
+}
+
+type TokenEscrow @entity {
+  id: ID!
+  supportedTokens: [Token!] @derivedFrom(field: "escrow")
+}
+
+type Token @entity {
+  id: ID!
+  address: Bytes!
+  escrow: TokenEscrow!
+  totalVolume: BigInt
+  dailyData: [TokenDayData!] @derivedFrom(field: "token")
+}
+
+type Account @entity {
+  id: ID!
+  address: Bytes!
+  orders: [Order!]! @derivedFrom(field: "owner")
+  numOfOpenBuyOrders: BigInt!
+  numOfOpenSellOrders: BigInt!
+  numOfFilledOrders: BigInt!
+  numOfCancelledOrders: BigInt!
+  volume: BigInt!
+  volumeAsBuyer: BigInt!
+  volumeAsSeller: BigInt!
+  dailyData: [AccountDayData!] @derivedFrom(field: "account")
+  claimedRoyalties: [UserRoyalty!] @derivedFrom(field: "user")
+}
+
+type UserRoyalty @entity {
+  id: ID!
+  user: Account!
+  token: Token!
+  claimedAmount: BigInt!
+}
+
+type Order @entity {
+  id: ID!
+  asset: Asset!
+  owner: Account!
+  type: OrderType
+  price: BigInt!
+  amountOrdered: BigInt!
+  amountFilled: BigInt!
+  status: OrderStatus
+  createdAtTimestamp: BigInt!
+  filledAtTimestamp: BigInt!
+  cancelledAtTimestamp: BigInt!
+  lastClaimedAtTimestamp: BigInt!
+  orderFills: [OrderFill!] @derivedFrom(field: "order")
+}
+
+type OrderFill @entity {
+  id: ID!
+  filler: Account!
+  order: Order!
+  amount: BigInt!
+  pricePerItem: BigInt!
+  totalPrice: BigInt!
+  token: Token!
+}
+
+enum OrderType {
+    Buy
+    Sell
+}
+
+enum OrderStatus {
+  Ready
+  PartiallyFilled
+  Filled
+  Cancelled
+  Claimed
+}
+
+
+type Asset @entity {
+  id: ID!
+  tokenId: BigInt!
+  parentContract: Bytes!
+  orders: [Order!] @derivedFrom(field: "asset")
+  assetVolumeTransacted: BigInt
+}
+
+type TokenDayData @entity {
+  id: ID!
+  token: Token!
+  volume: BigInt!
+  startTimestamp: Int!
+}
+
+type AccountDayData @entity {
+  id: ID!
+  account: Account!
+  token: Token!
+  volume: BigInt!
+  volumeAsBuyer: BigInt!
+  volumeAsSeller: BigInt!
+  startTimestamp: Int!
+}

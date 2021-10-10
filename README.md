@@ -1,16 +1,15 @@
-# Rawrshak Graph Node 
-The Rawrshak Graph Node repo contains the Rawrshak Subgraph code for The Graph. The Graph is an indexing protocol for querying networks like Ethereum and IPFS. We will be publishing this subgraph so that others may develop their own front-end applications and access Rawrshak smart contract information for their own games. 
+# Rawrshak Subgraph 
+The Rawrshak Subgraph repo contains the Rawrshak Subgraph code for The Graph. The Graph is an indexing protocol for querying networks like Ethereum and IPFS. We will be publishing this subgraph so that others may develop their own front-end applications and access Rawrshak smart contract information for their own games. 
 
 # Quick-start Guide
 
 ## Quick Yarn commands
     yarn codegen
-    yarn codegen:rawrtoken
-    yarn build
-    yarn deploy
-    yarn create-local
-    yarn remove-local
-    yarn deploy-local
+    yarn codegen:contents
+    yarn build:contents
+    yarn create-local:contents
+    yarn remove-local:contents
+    yarn deploy-local:contents
 
 ## To run a Deterministic Ganache ethereum blockchain
     1. Open a new powershell/command prompt
@@ -20,8 +19,14 @@ The Rawrshak Graph Node repo contains the Rawrshak Subgraph code for The Graph. 
         the addresses in the graph node. Addresses need to be updated if you decide to use a different set of seed
         words.
     
+
+## To run a Deterministic Local Hardhat node
+    1. Open a new powershell/command prompt
+    2. cd to Rawrshak smart contract folder
+    3. run: npx hardhat node
+
 ## To set up the local graph node:
-    1. open a new terminal/powershell/command prompt and run the deterministic Ganache instruction above
+    1. open a new terminal/powershell/command prompt and run the deterministic Ganache instruction above or hardhat node
     2. open a new terminal/powershell/command prompt and "yarn docker-up:clean". This deletes any data folders in the docker and starts a docker instance
         - make sure docker is installed
         - delete **docker\data** folder if it exists before running "docker-compose up"
@@ -41,3 +46,10 @@ The Rawrshak Graph Node repo contains the Rawrshak Subgraph code for The Graph. 
         - the powershell running the ganache and docker service should be doing stuff
     11. confirm that the ethereum data is being parsed properly
         http://localhost:8000/subgraphs/name/<github_account>/<subgraph>/
+
+# Subgraphs
+## Contents
+This subgraph indexes information about the Content contracts, each gaming NFT asset, and user participating on the platform. This organizes data in a queryable manner from front end Dapps and game engines.
+
+## Exchange
+This subgraph indexes information about the Rawrshak Marketplace and all the transactions. It aggregates and creates interesting relationships queryable from front end Dapps. Data may also be accessible from game engines.

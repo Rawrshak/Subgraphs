@@ -1,0 +1,17 @@
+{
+    "name": "Headless Canadian Title",
+    "description": "Finished the game with a Canadian IP address",
+    "image": "https://arweave.net/n0qwDqCCZQ-EZvw_9dX1FHkemXSJSTD9Vma8BN7yWhg",
+    "tags": [
+        "SuperScaryHorrorGame",
+        "Title",
+        "Horror"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Headless Canadian",
+        "description": "He didn't say Sorry properly, which is punishable by death! "
+    }
+}

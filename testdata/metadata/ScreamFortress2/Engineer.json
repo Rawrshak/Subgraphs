@@ -1,0 +1,17 @@
+{
+    "name": "Engineer Title",
+    "description": "American Engineer",
+    "image": "https://arweave.net/n0qwDqCCZQ-EZvw_9dX1FHkemXSJSTD9Vma8BN7yWhg",
+    "tags": [
+        "BlackBox FPS",
+        "Title",
+        "FPS"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Engineer",
+        "description": "Hey look buddy, I'm an engineer. And that means, I solve problems."
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "name": "Medic Title",
+    "description": "German Medic guy",
+    "image": "https://arweave.net/n0qwDqCCZQ-EZvw_9dX1FHkemXSJSTD9Vma8BN7yWhg",
+    "tags": [
+        "BlackBox FPS",
+        "Title",
+        "FPS"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Medic",
+        "description": "Would you like a second opinion? YOU ARE ALSO UGLY!"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "name": "Sniper Title",
+    "description": "Australian Sniper",
+    "image": "https://arweave.net/n0qwDqCCZQ-EZvw_9dX1FHkemXSJSTD9Vma8BN7yWhg",
+    "tags": [
+        "BlackBox FPS",
+        "Title",
+        "FPS"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Sniper",
+        "description": "Oh my God, you've been shot. Did you get a look at the handsome rogue who did it?"
+    }
+}

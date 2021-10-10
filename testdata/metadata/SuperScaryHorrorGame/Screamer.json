@@ -1,0 +1,17 @@
+{
+    "name": "Screamer Title",
+    "description": "I scream at everything. Wear hadphones.",
+    "image": "https://arweave.net/n0qwDqCCZQ-EZvw_9dX1FHkemXSJSTD9Vma8BN7yWhg",
+    "tags": [
+        "SuperScaryHorrorGame",
+        "Title",
+        "Horror"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Aaahhh1!!!1!!",
+        "description": "Damn, Ghost! You scary!"
+    }
+}

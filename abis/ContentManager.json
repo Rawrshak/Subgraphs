@@ -1,424 +1,348 @@
 [
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "content",
-    "outputs": [
-      {
-        "internalType": "contract IContent",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "contentStorage",
-    "outputs": [
-      {
-        "internalType": "contract IContentStorage",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "systemsRegistry",
-    "outputs": [
-      {
-        "internalType": "contract ISystemsRegistry",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_content",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_contentStorage",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_systemsRegistry",
-        "type": "address"
-      }
-    ],
-    "name": "__ContentManager_init",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "publicDataUri",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "hiddenDataUri",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxSupply",
-            "type": "uint256"
-          },
-          {
-            "components": [
-              {
-                "internalType": "address payable",
-                "name": "account",
-                "type": "address"
-              },
-              {
-                "internalType": "uint256",
-                "name": "rate",
-                "type": "uint256"
-              }
-            ],
-            "internalType": "struct LibRoyalties.Fees[]",
-            "name": "fees",
-            "type": "tuple[]"
-          }
-        ],
-        "internalType": "struct LibAsset.CreateData[]",
-        "name": "_assets",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "addAssetBatch",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
+    {
+        "anonymous": false,
+        "inputs": [
+        {
+            "indexed": true,
             "internalType": "address",
-            "name": "operator",
+            "name": "previousOwner",
             "type": "address"
-          },
-          {
+        },
+        {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+        }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "accessControlManager",
+        "outputs": [
+        {
+            "internalType": "contract IAccessControlManager",
+            "name": "",
+            "type": "address"
+        }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "components": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "publicDataUri",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "hiddenDataUri",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "maxSupply",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "royaltyReceiver",
+                "type": "address"
+            },
+            {
+                "internalType": "uint24",
+                "name": "royaltyRate",
+                "type": "uint24"
+            }
+            ],
+            "internalType": "struct LibAsset.CreateData[]",
+            "name": "_assets",
+            "type": "tuple[]"
+        }
+        ],
+        "name": "addAssetBatch",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "content",
+        "outputs": [
+        {
+            "internalType": "contract IContent",
+            "name": "",
+            "type": "address"
+        }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "contentStorage",
+        "outputs": [
+        {
+            "internalType": "contract IContentStorage",
+            "name": "",
+            "type": "address"
+        }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "internalType": "address",
+            "name": "_content",
+            "type": "address"
+        },
+        {
+            "internalType": "address",
+            "name": "_contentStorage",
+            "type": "address"
+        },
+        {
+            "internalType": "address",
+            "name": "_accessControlManager",
+            "type": "address"
+        }
+        ],
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "components": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "uint256",
+                "name": "nonce",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "signer",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "signature",
+                "type": "bytes"
+            }
+            ],
+            "internalType": "struct LibAsset.MintData",
+            "name": "_data",
+            "type": "tuple"
+        }
+        ],
+        "name": "mintBatch",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+        {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+        }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "components": [
+            {
+                "internalType": "address",
+                "name": "operator",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "approved",
+                "type": "bool"
+            }
+            ],
+            "internalType": "struct LibAsset.SystemApprovalPair[]",
+            "name": "_operators",
+            "type": "tuple[]"
+        }
+        ],
+        "name": "registerOperators",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "internalType": "address",
+            "name": "_receiver",
+            "type": "address"
+        },
+        {
+            "internalType": "uint24",
+            "name": "_rate",
+            "type": "uint24"
+        }
+        ],
+        "name": "setContractRoyalty",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "components": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "uri",
+                "type": "string"
+            }
+            ],
+            "internalType": "struct LibAsset.AssetUri[]",
+            "name": "_assets",
+            "type": "tuple[]"
+        }
+        ],
+        "name": "setHiddenUriBatch",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "components": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "uri",
+                "type": "string"
+            }
+            ],
+            "internalType": "struct LibAsset.AssetUri[]",
+            "name": "_assets",
+            "type": "tuple[]"
+        }
+        ],
+        "name": "setPublicUriBatch",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "components": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "royaltyReceiver",
+                "type": "address"
+            },
+            {
+                "internalType": "uint24",
+                "name": "royaltyRate",
+                "type": "uint24"
+            }
+            ],
+            "internalType": "struct LibAsset.AssetRoyalties[]",
+            "name": "_assets",
+            "type": "tuple[]"
+        }
+        ],
+        "name": "setTokenRoyaltiesBatch",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "internalType": "bytes4",
+            "name": "interfaceId",
+            "type": "bytes4"
+        }
+        ],
+        "name": "supportsInterface",
+        "outputs": [
+        {
             "internalType": "bool",
-            "name": "approved",
+            "name": "",
             "type": "bool"
-          }
+        }
         ],
-        "internalType": "struct LibAsset.SystemApprovalPair[]",
-        "name": "_operators",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "registerSystem",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "uri",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct LibAsset.AssetUri[]",
-        "name": "_assets",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "setHiddenTokenUriBatch",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "uri",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct LibAsset.AssetUri[]",
-        "name": "_assets",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "setPublicTokenUriBatch",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "address payable",
-            "name": "account",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "rate",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct LibRoyalties.Fees[]",
-        "name": "_fee",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "setContractRoyalties",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "components": [
-              {
-                "internalType": "address payable",
-                "name": "account",
-                "type": "address"
-              },
-              {
-                "internalType": "uint256",
-                "name": "rate",
-                "type": "uint256"
-              }
-            ],
-            "internalType": "struct LibRoyalties.Fees[]",
-            "name": "fees",
-            "type": "tuple[]"
-          }
-        ],
-        "internalType": "struct LibAsset.AssetRoyalties[]",
-        "name": "_assets",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "setTokenRoyaltiesBatch",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes4",
-        "name": "interfaceId",
-        "type": "bytes4"
-      }
-    ],
-    "name": "supportsInterface",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
             "internalType": "address",
-            "name": "to",
+            "name": "newOwner",
             "type": "address"
-          },
-          {
-            "internalType": "uint256[]",
-            "name": "tokenIds",
-            "type": "uint256[]"
-          },
-          {
-            "internalType": "uint256[]",
-            "name": "amounts",
-            "type": "uint256[]"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "signer",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes",
-            "name": "signature",
-            "type": "bytes"
-          }
+        }
         ],
-        "internalType": "struct LibAsset.MintData",
-        "name": "_data",
-        "type": "tuple"
-      }
-    ],
-    "name": "mintBatch",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256[]",
-            "name": "tokenIds",
-            "type": "uint256[]"
-          },
-          {
-            "internalType": "uint256[]",
-            "name": "amounts",
-            "type": "uint256[]"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "signer",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes",
-            "name": "signature",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct LibAsset.MintData",
-        "name": "_data",
-        "type": "tuple"
-      },
-      {
-        "internalType": "address",
-        "name": "_uniqueContentContract",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      }
-    ],
-    "name": "mintUnique",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
 ]
