@@ -25,6 +25,12 @@ The Rawrshak Subgraph repo contains the Rawrshak Subgraph code for The Graph. Th
     2. cd to Rawrshak smart contract folder
     3. run: npx hardhat node
 
+## IPFS
+You'll need to have an ipfs node running. The metadata pinned on IPFS should work, but since it's non-detrministic, it may fail because of timeout. In this case, install a local ipfs node and add the testdata\metadata folder (and pin it).
+
+If necessary, you can upgrade the graph-node version in the docker-compose.yml config file. 
+The docker image should be set up for IPFS usage with GRAPH_ALLOW_NON_DETERMINISTIC_IPFS set to 1.
+
 ## To set up the local graph node:
     1. open a new terminal/powershell/command prompt and run the deterministic Ganache instruction above or hardhat node
     2. open a new terminal/powershell/command prompt and "yarn docker-up:clean". This deletes any data folders in the docker and starts a docker instance
@@ -47,9 +53,17 @@ The Rawrshak Subgraph repo contains the Rawrshak Subgraph code for The Graph. Th
     11. confirm that the ethereum data is being parsed properly
         http://localhost:8000/subgraphs/name/<github_account>/<subgraph>/
 
+## Versions
+graph-node: v0.24.2
+graph-ts: 0.22.1
+graph-cli: 0.22.2
+
+
+
 # Subgraphs
 ## Contents
 This subgraph indexes information about the Content contracts, each gaming NFT asset, and user participating on the platform. This organizes data in a queryable manner from front end Dapps and game engines.
 
 ## Exchange
 This subgraph indexes information about the Rawrshak Marketplace and all the transactions. It aggregates and creates interesting relationships queryable from front end Dapps. Data may also be accessible from game engines.
+
