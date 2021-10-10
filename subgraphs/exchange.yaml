@@ -12,7 +12,7 @@ dataSources:
       abi: AddressResolver
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ../src/exchange.ts
       entities:
@@ -37,7 +37,7 @@ templates:
       abi: Exchange
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ../src/exchange.ts
       entities:
@@ -61,7 +61,7 @@ templates:
       abi: Erc20Escrow
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ../src/exchange.ts
       entities:

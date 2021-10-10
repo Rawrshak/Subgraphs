@@ -107,10 +107,16 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
     if (event.params.from.toHex() != ADDRESS_ZERO) {
       // sender exists
       let sender = Account.load(event.params.from.toHexString());
+      if (sender == null) {
+        sender = createAccount(event.params.from);
+      }
       
       // get/create account balance
       let assetBalanceId = getAssetBalanceId(content.id, sender.id, ids[i].toString());
       let balance = AssetBalance.load(assetBalanceId);
+      if (balance == null) {
+        balance = createAssetBalance(assetBalanceId, assetId, sender.id);
+      }
       
       balance.amount = balance.amount.minus(amounts[i]);
       balance.save();
@@ -148,10 +154,16 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
   if (event.params.from.toHex() != ADDRESS_ZERO) {
     // sender exists
     let sender = Account.load(event.params.from.toHexString());
+    if (sender == null) {
+      sender = createAccount(event.params.from);
+    }
     
     // get/create account balance
     let assetBalanceId = getAssetBalanceId(content.id, sender.id, event.params.id.toString());
     let balance = AssetBalance.load(assetBalanceId);
+    if (balance == null) {
+      balance = createAssetBalance(assetBalanceId, assetId, sender.id);
+    }
     
     balance.amount = balance.amount.minus(amount);
     balance.save();
@@ -181,7 +193,7 @@ export function handleMint(event: MintEvent): void {
     "Mint");
   transaction.blockNumber = event.block.number;
   transaction.timestamp = event.block.timestamp;
-  transaction.gasUSed = event.transaction.gasUsed;
+  transaction.gasUSed = event.block.gasUsed;
   transaction.gasPrice = event.transaction.gasPrice;
 
   let assetIds = event.params.data.tokenIds;
@@ -191,6 +203,9 @@ export function handleMint(event: MintEvent): void {
 
     // Add Asset Mint Count
     let asset = Asset.load(assetId);
+    if (asset == null) {
+        asset = createAsset(assetId, parent.id, assetIds[i]);
+    }
     asset.mintCount = asset.mintCount.plus(ONE_BI);
     asset.currentSupply = asset.currentSupply.plus(amounts[i]);
     asset.save();
@@ -211,6 +226,9 @@ export function handleBurn(event: BurnEvent): void {
 
   // Add Account Burn Count; Cannot burn on an account that doesn't already exist
   let account = Account.load(event.params.data.account.toHexString());
+  if (account == null) {
+      account = createAccount(event.params.data.account);
+  }
   account.burnCount = account.burnCount.plus(ONE_BI);
   account.save();
 
@@ -221,7 +239,7 @@ export function handleBurn(event: BurnEvent): void {
     "Burn");
   transaction.blockNumber = event.block.number;
   transaction.timestamp = event.block.timestamp;
-  transaction.gasUSed = event.transaction.gasUsed;
+  transaction.gasUSed = event.block.gasUsed;
   transaction.gasPrice = event.transaction.gasPrice;
 
   let assetIds = event.params.data.tokenIds;
@@ -231,6 +249,9 @@ export function handleBurn(event: BurnEvent): void {
 
     // Add Asset Burn Count
     let asset = Asset.load(assetId);
+    if (asset == null) {
+        asset = createAsset(assetId, parent.id, assetIds[i]);
+    }
     asset.burnCount = asset.burnCount.plus(ONE_BI);
     asset.currentSupply = asset.currentSupply.minus(amounts[i]);
     asset.save();

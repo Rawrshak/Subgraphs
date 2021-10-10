@@ -25,6 +25,10 @@ type Asset @entity{
   transactions: [Transaction!]! @derivedFrom(field: "assets")
   mintCount: BigInt!
   burnCount: BigInt!
+  name: String
+  type: String
+  subtype: String
+  tags: [Tag!]!
 }
 
 type AssetBalance @entity {
@@ -44,6 +48,17 @@ type Content @entity {
   royaltyReceiver: Account!
   royaltyRate: Int!
   minters: [Minter!] @derivedFrom(field: "content")
+  name: String
+  game: String
+  creator: String
+  owner: String
+  tags: [Tag!]!
+}
+
+type Tag @entity {
+    id: ID!
+    contents: [Content!] @derivedFrom(field: "tags")
+    assets: [Asset!] @derivedFrom(field: "tags")
 }
 
 type Account @entity {

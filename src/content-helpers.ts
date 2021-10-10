@@ -1,4 +1,4 @@
-import { log, ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts"
+import { log, ByteArray, BigInt, Address, crypto, ipfs, Bytes, json, JSONValue, JSONValueKind, Value } from "@graphprotocol/graph-ts"
 
 import {
   Content as ContentContract
@@ -16,7 +16,8 @@ import {
   Account,
   Approval,
   Transaction,
-  Minter
+  Minter,
+  Tag
 } from "../generated/schema";
 
 import {
@@ -62,11 +63,30 @@ export function createContent(id: Address, factory: string): Content {
   // Get Contract URI
   let contentContract = ContentContract.bind(id);
   let royalties = contentContract.contractRoyalty();
-  // Todo: update the return names so this isn't value0 and value1
   content.royaltyReceiver = royalties.value0.toHexString();
   content.royaltyRate = royalties.value1;
   content.contractUri = contentContract.contractUri();
   content.factory = factory;
+  content.tags = [];
+
+  // get URI metadata
+  // log.info('-------- LOG: contract: {}, Uri CID: {}', [content.id, hash]);
+
+  let metadata = ipfs.cat(content.contractUri);
+  if (metadata) {
+    let tryData = json.try_fromBytes(metadata as Bytes);
+    if (tryData.isOk) {
+      let data = tryData.value.toObject();
+        
+      content.name = jsonToString(data.get("name"));
+      content.game = jsonToString(data.get("game"));
+      content.creator = jsonToString(data.get("creator"));
+      content.owner = jsonToString(data.get("owner"));
+
+      let tagsArray = jsonToArray(data.get("tags"));
+      content.tags = createTags(content.tags, tagsArray);
+    }
+  }
   content.save();
   return content;
 }
@@ -92,6 +112,26 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
   asset.royaltyRate = 0;
   asset.mintCount = ZERO_BI;
   asset.burnCount = ZERO_BI;
+  asset.tags = [];
+
+  let contentContract = ContentContract.bind(Address.fromString(parent));
+  let hash = contentContract.uri(tokenId);
+
+  let metadata = ipfs.cat(hash);
+  if (metadata) {
+    let tryData = json.try_fromBytes(metadata as Bytes);
+    if (tryData.isOk) {
+      let data = tryData.value.toObject();
+        
+      asset.name = jsonToString(data.get("name"));
+      asset.type = jsonToString(data.get("type"));
+      asset.subtype = jsonToString(data.get("subtype"));
+
+      let tagsArray = jsonToArray(data.get("tags"));
+      asset.tags = createTags(asset.tags, tagsArray);
+    }
+  }
+
   asset.save();
   return asset;
 }
@@ -137,6 +177,26 @@ export function createTransaction(id: string, operator: string, user: string, tr
   return transaction;
 }
 
+function createTags(array: string[], tags: JSONValue[]) : string[] {
+  let tagsArray = array;
+  for (let i = 0; i < tags.length; ++i) {
+    // log.info('-------- LOG: contract: {}, Tag: {}', [content.id, tagEntity.id]);
+    // Clear an array: this.array = [] as CustomType[];
+    let tagStr = jsonToString(tags[i]);
+    let tagEntity = Tag.load(tagStr);
+    if (tagEntity == null) {
+      tagEntity = new Tag(tagStr);
+      tagEntity.save();
+    }
+    tagsArray.push(tagEntity.id);
+  }
+  return tagsArray;
+}
+
+export function createTag(tagString: string) : Tag {
+    return new Tag(tagString);
+}
+
 export function getAssetId(content: string, tokenId: string): string {
   return concat(content, tokenId);
 }
@@ -171,4 +231,18 @@ function concat(str1: string, str2: string): string {
 
 function concat2(str1: string, str2: string, str3: string): string {
   return str1 + '-' + str2 + '-' + str3;
+}
+
+export function jsonToString(val: JSONValue | null): string {
+    if (val != null && val.kind === JSONValueKind.STRING) {
+      return val.toString()
+    }
+    return ''
+}
+
+export function jsonToArray(val: JSONValue | null): JSONValue[] {
+    if (val != null && val.kind === JSONValueKind.ARRAY) {
+      return val.toArray();
+    }
+    return [];
 }
