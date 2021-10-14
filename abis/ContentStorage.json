@@ -277,51 +277,6 @@
         "type": "function"
     },
     {
-        "inputs": [
-        {
-            "components": [
-            {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "string",
-                "name": "publicDataUri",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "hiddenDataUri",
-                "type": "string"
-            },
-            {
-                "internalType": "uint256",
-                "name": "maxSupply",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "royaltyReceiver",
-                "type": "address"
-            },
-            {
-                "internalType": "uint24",
-                "name": "royaltyRate",
-                "type": "uint24"
-            }
-            ],
-            "internalType": "struct LibAsset.CreateData[]",
-            "name": "_assets",
-            "type": "tuple[]"
-        }
-        ],
-        "name": "addAssetBatch",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
         "inputs": [],
         "name": "contractUri",
         "outputs": [
@@ -329,48 +284,6 @@
             "internalType": "string",
             "name": "",
             "type": "string"
-        }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "getContractRoyalty",
-        "outputs": [
-        {
-            "internalType": "address",
-            "name": "receiver",
-            "type": "address"
-        },
-        {
-            "internalType": "uint24",
-            "name": "rate",
-            "type": "uint24"
-        }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-        {
-            "internalType": "uint256",
-            "name": "_tokenId",
-            "type": "uint256"
-        },
-        {
-            "internalType": "bool",
-            "name": "_isPublic",
-            "type": "bool"
-        }
-        ],
-        "name": "getLatestUriVersion",
-        "outputs": [
-        {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
         }
         ],
         "stateMutability": "view",
@@ -390,30 +303,6 @@
             "internalType": "bytes32",
             "name": "",
             "type": "bytes32"
-        }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-        {
-            "internalType": "uint256",
-            "name": "_tokenId",
-            "type": "uint256"
-        }
-        ],
-        "name": "getRoyalty",
-        "outputs": [
-        {
-            "internalType": "address",
-            "name": "receiver",
-            "type": "address"
-        },
-        {
-            "internalType": "uint24",
-            "name": "rate",
-            "type": "uint24"
         }
         ],
         "stateMutability": "view",
@@ -465,30 +354,6 @@
         "inputs": [
         {
             "internalType": "uint256",
-            "name": "_tokenId",
-            "type": "uint256"
-        },
-        {
-            "internalType": "uint256",
-            "name": "_version",
-            "type": "uint256"
-        }
-        ],
-        "name": "hiddenUri",
-        "outputs": [
-        {
-            "internalType": "string",
-            "name": "",
-            "type": "string"
-        }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-        {
-            "internalType": "uint256",
             "name": "",
             "type": "uint256"
         }
@@ -502,29 +367,6 @@
         }
         ],
         "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-        {
-            "internalType": "address",
-            "name": "_receiver",
-            "type": "address"
-        },
-        {
-            "internalType": "uint24",
-            "name": "_rate",
-            "type": "uint24"
-        },
-        {
-            "internalType": "string",
-            "name": "_contractUri",
-            "type": "string"
-        }
-        ],
-        "name": "initialize",
-        "outputs": [],
-        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -598,6 +440,25 @@
     {
         "inputs": [
         {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+        }
+        ],
+        "name": "supply",
+        "outputs": [
+        {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+        }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
             "internalType": "address",
             "name": "_receiver",
             "type": "address"
@@ -606,9 +467,90 @@
             "internalType": "uint24",
             "name": "_rate",
             "type": "uint24"
+        },
+        {
+            "internalType": "string",
+            "name": "_contractUri",
+            "type": "string"
         }
         ],
-        "name": "setContractRoyalty",
+        "name": "__ContentStorage_init",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "internalType": "address",
+            "name": "_contentParent",
+            "type": "address"
+        }
+        ],
+        "name": "setParent",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "components": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "publicDataUri",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "hiddenDataUri",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "maxSupply",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "royaltyReceiver",
+                "type": "address"
+            },
+            {
+                "internalType": "uint24",
+                "name": "royaltyRate",
+                "type": "uint24"
+            }
+            ],
+            "internalType": "struct LibAsset.CreateData[]",
+            "name": "_assets",
+            "type": "tuple[]"
+        }
+        ],
+        "name": "addAssetBatch",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "internalType": "uint256",
+            "name": "_tokenId",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "_supply",
+            "type": "uint256"
+        }
+        ],
+        "name": "updateSupply",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -641,19 +583,6 @@
     {
         "inputs": [
         {
-            "internalType": "address",
-            "name": "_contentParent",
-            "type": "address"
-        }
-        ],
-        "name": "setParent",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-        {
             "components": [
             {
                 "internalType": "uint256",
@@ -672,6 +601,24 @@
         }
         ],
         "name": "setPublicUriBatch",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "internalType": "address",
+            "name": "_receiver",
+            "type": "address"
+        },
+        {
+            "internalType": "uint24",
+            "name": "_rate",
+            "type": "uint24"
+        }
+        ],
+        "name": "setContractRoyalty",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -710,11 +657,106 @@
         "inputs": [
         {
             "internalType": "uint256",
-            "name": "",
+            "name": "_tokenId",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "_version",
             "type": "uint256"
         }
         ],
-        "name": "supply",
+        "name": "uri",
+        "outputs": [
+        {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+        }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "internalType": "uint256",
+            "name": "_tokenId",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "_version",
+            "type": "uint256"
+        }
+        ],
+        "name": "hiddenUri",
+        "outputs": [
+        {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+        }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getContractRoyalty",
+        "outputs": [
+        {
+            "internalType": "address",
+            "name": "receiver",
+            "type": "address"
+        },
+        {
+            "internalType": "uint24",
+            "name": "rate",
+            "type": "uint24"
+        }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "internalType": "uint256",
+            "name": "_tokenId",
+            "type": "uint256"
+        }
+        ],
+        "name": "getRoyalty",
+        "outputs": [
+        {
+            "internalType": "address",
+            "name": "receiver",
+            "type": "address"
+        },
+        {
+            "internalType": "uint24",
+            "name": "rate",
+            "type": "uint24"
+        }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+        {
+            "internalType": "uint256",
+            "name": "_tokenId",
+            "type": "uint256"
+        },
+        {
+            "internalType": "bool",
+            "name": "_isPublic",
+            "type": "bool"
+        }
+        ],
+        "name": "getLatestUriVersion",
         "outputs": [
         {
             "internalType": "uint256",
@@ -739,48 +781,6 @@
             "internalType": "bool",
             "name": "",
             "type": "bool"
-        }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-        {
-            "internalType": "uint256",
-            "name": "_tokenId",
-            "type": "uint256"
-        },
-        {
-            "internalType": "uint256",
-            "name": "_supply",
-            "type": "uint256"
-        }
-        ],
-        "name": "updateSupply",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-        {
-            "internalType": "uint256",
-            "name": "_tokenId",
-            "type": "uint256"
-        },
-        {
-            "internalType": "uint256",
-            "name": "_version",
-            "type": "uint256"
-        }
-        ],
-        "name": "uri",
-        "outputs": [
-        {
-            "internalType": "string",
-            "name": "",
-            "type": "string"
         }
         ],
         "stateMutability": "view",

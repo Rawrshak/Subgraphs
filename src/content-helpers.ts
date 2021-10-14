@@ -26,10 +26,12 @@ import {
   Content as ContentTemplate
 } from '../generated/templates';
 
-import { ADDRESS_ZERO, ZERO_BI } from "./constants";
+import { ADDRESS_ZERO, ONE_BI, ZERO_BI } from "./constants";
 
 export function createContentFactory(id: Address): Factory {
   let contentFactory = new Factory(id.toHexString());
+  contentFactory.contentsCount = ZERO_BI;
+  contentFactory.contentManagersCount = ZERO_BI;
   contentFactory.save();
   return contentFactory;
 }
@@ -51,7 +53,6 @@ export function createContentManager(id: Address, factory: string): ContentManag
   contentManager.owner = contentManagerContract.owner().toHexString();
   contentManager.factory = factory;
   contentManager.save();
-  
   return contentManager;
 }
   
@@ -68,7 +69,7 @@ export function createContent(id: Address, factory: string): Content {
   content.contractUri = contentContract.contractUri();
   content.factory = factory;
   content.tags = [];
-  content.assetsCount = 0;
+  content.assetsCount = ZERO_BI;
   content.mintersCount = 0;
   content.tagsCount = 0;
 
@@ -101,6 +102,8 @@ export function createAccount(address: Address): Account {
   account.mintCount = ZERO_BI;
   account.burnCount = ZERO_BI;
   account.uniqueAssetCount = ZERO_BI;
+  account.transactionsCount = ZERO_BI;
+  account.transactionsAsOperatorCount = ZERO_BI;
   account.save();
   return account;
 }
@@ -117,7 +120,10 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
   asset.royaltyRate = 0;
   asset.mintCount = ZERO_BI;
   asset.burnCount = ZERO_BI;
+  asset.ownersCount = ZERO_BI;
+  asset.transactionsCount = ZERO_BI;
   asset.tags = [];
+  asset.tagsCount = 0;
 
   let contentContract = ContentContract.bind(Address.fromString(parent));
   let hash = contentContract.uri(tokenId);
@@ -134,6 +140,7 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
 
       let tagsArray = jsonToArray(data.get("tags"));
       asset.tags = createTags(asset.tags, tagsArray);
+      asset.tagsCount = tagsArray.length;
     }
   }
 
@@ -141,7 +148,7 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
 
   // Update Content asset count
   let content = Content.load(parent)!;
-  content.assetsCount += 1;
+  content.assetsCount = content.assetsCount.plus(ONE_BI);
   content.save();
 
   return asset;
@@ -182,11 +189,11 @@ export function createTransaction(id: string, operator: string, user: string, tr
   transaction.operator = operator;
   transaction.user = user;
   transaction.assets = [];
-  transaction.amounts = [];
+  transaction.assetAmounts = [];
   transaction.transactionType = transactionType;
   transaction.blockNumber = ZERO_BI;
   transaction.timestamp = ZERO_BI;
-  transaction.gasUSed = ZERO_BI;
+  transaction.gasUsed = ZERO_BI;
   transaction.gasPrice = ZERO_BI;
   transaction.save();
   return transaction;
@@ -240,11 +247,11 @@ export function getTransactionId(transactionId: string, tokenId: string): string
   return concat(transactionId, tokenId);
 }
 
-function concat(str1: string, str2: string): string {
+export function concat(str1: string, str2: string): string {
   return str1 + '-' + str2;
 }
 
-function concat2(str1: string, str2: string, str3: string): string {
+export function concat2(str1: string, str2: string, str3: string): string {
   return str1 + '-' + str2 + '-' + str3;
 }
 

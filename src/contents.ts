@@ -30,7 +30,8 @@ import {
   Content,
   Account,
   Approval,
-  Minter
+  Minter,
+  TransactionAssetAmount
 } from "../generated/schema";
 
 import {
@@ -46,7 +47,8 @@ import {
   getAssetBalanceId,
   getApprovalId,
   getMinterId,
-  createMinter
+  createMinter,
+  concat
 } from "./content-helpers";
 
 import { ADDRESS_ZERO, ONE_BI, ZERO_BI } from "./constants";
@@ -67,6 +69,10 @@ export function handleContractsDeployed(event: ContractsDeployedEvent): void {
   if (contentManager == null) {
     contentManager = createContentManager(event.params.contentManager, factory.id);
   }
+  
+  factory.contentManagersCount = factory.contentManagersCount.plus(ONE_BI);
+  factory.contentsCount = factory.contentsCount.plus(ONE_BI);
+  factory.save();
 }
 
 // Content Events
@@ -101,6 +107,10 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
       if (balance.amount == ZERO_BI) {
         receiver.uniqueAssetCount = receiver.uniqueAssetCount.plus(ONE_BI);
         receiver.save();
+
+        let asset = Asset.load(assetId)!;
+        asset.ownersCount = asset.ownersCount.plus(ONE_BI);
+        asset.save();
       }
 
       balance.amount = balance.amount.plus(amounts[i]);
@@ -122,6 +132,10 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
       if (balance.amount == ZERO_BI) {
         sender.uniqueAssetCount = sender.uniqueAssetCount.minus(ONE_BI);
         sender.save();
+
+        let asset = Asset.load(assetId)!;
+        asset.ownersCount = asset.ownersCount.minus(ONE_BI);
+        asset.save();
       }
     }
   }
@@ -152,6 +166,10 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
     if (balance.amount == ZERO_BI) {
       receiver.uniqueAssetCount = receiver.uniqueAssetCount.plus(ONE_BI);
       receiver.save();
+
+      let asset = Asset.load(assetId)!;
+      asset.ownersCount = asset.ownersCount.plus(ONE_BI);
+      asset.save();
     }
 
     balance.amount = balance.amount.plus(amount);
@@ -171,8 +189,12 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
 
     // if balance drops to 0, decrement unique asset count
     if (balance.amount == ZERO_BI) {
-    sender.uniqueAssetCount = sender.uniqueAssetCount.minus(ONE_BI);
-    sender.save();
+      sender.uniqueAssetCount = sender.uniqueAssetCount.minus(ONE_BI);
+      sender.save();
+
+      let asset = Asset.load(assetId)!;
+      asset.ownersCount = asset.ownersCount.minus(ONE_BI);
+      asset.save();
     }
   }
 }
@@ -188,7 +210,12 @@ export function handleMint(event: MintEvent): void {
     receiver = createAccount(event.params.data.to);
   }
   receiver.mintCount = receiver.mintCount.plus(ONE_BI);
+  receiver.transactionsCount = receiver.transactionsCount.plus(ONE_BI);
   receiver.save();
+
+  let operator = Account.load(event.params.operator.toHexString())!;
+  operator.transactionsAsOperatorCount = operator.transactionsAsOperatorCount.plus(ONE_BI);
+  operator.save();
 
   let transaction = createTransaction(
     event.transaction.hash.toHexString(),
@@ -197,11 +224,14 @@ export function handleMint(event: MintEvent): void {
     "Mint");
   transaction.blockNumber = event.block.number;
   transaction.timestamp = event.block.timestamp;
-  transaction.gasUSed = event.block.gasUsed;
+  transaction.gasUsed = event.block.gasUsed;
   transaction.gasPrice = event.transaction.gasPrice;
 
   let assetIds = event.params.data.tokenIds;
   let amounts = event.params.data.amounts;
+  let assetAmounts = transaction.assetAmounts;
+  let assets = transaction.assets;
+
   for (let i = 0; i < assetIds.length; ++i) {
     let assetId = getAssetId(parent.id, assetIds[i].toString());
 
@@ -209,12 +239,21 @@ export function handleMint(event: MintEvent): void {
     let asset = Asset.load(assetId)!;
     asset.mintCount = asset.mintCount.plus(ONE_BI);
     asset.currentSupply = asset.currentSupply.plus(amounts[i]);
+    asset.transactionsCount = asset.transactionsCount.plus(ONE_BI);
     asset.save();
-    
-    // Update transaction
-    transaction.assets.push(assetId);
-    transaction.amounts.push(amounts[i]);
+
+    let assetAmount = new TransactionAssetAmount(concat(event.transaction.hash.toHexString(), assetId));
+    assetAmount.asset = assetId;
+    assetAmount.amount = amounts[i];
+    assetAmount.save();
+
+    // Update transaction arrays
+    assets.push(assetId);
+    assetAmounts.push(assetAmount.id);
   }
+
+  transaction.assets = assets;
+  transaction.assetAmounts = assetAmounts;
   transaction.save();
 }
 
@@ -225,7 +264,12 @@ export function handleBurn(event: BurnEvent): void {
   // Add Account Burn Count; Cannot burn on an account that doesn't already exist
   let account = Account.load(event.params.data.account.toHexString())!;
   account.burnCount = account.burnCount.plus(ONE_BI);
+  account.transactionsCount = account.transactionsCount.plus(ONE_BI);
   account.save();
+
+  let operator = Account.load(event.params.operator.toHexString())!;
+  operator.transactionsAsOperatorCount = operator.transactionsAsOperatorCount.plus(ONE_BI);
+  operator.save();
 
   let transaction = createTransaction(
     event.transaction.hash.toHexString(),
@@ -234,11 +278,14 @@ export function handleBurn(event: BurnEvent): void {
     "Burn");
   transaction.blockNumber = event.block.number;
   transaction.timestamp = event.block.timestamp;
-  transaction.gasUSed = event.block.gasUsed;
+  transaction.gasUsed = event.block.gasUsed;
   transaction.gasPrice = event.transaction.gasPrice;
 
   let assetIds = event.params.data.tokenIds;
   let amounts = event.params.data.amounts;
+  let assetAmounts = transaction.assetAmounts;
+  let assets = transaction.assets;
+
   for (let i = 0; i < assetIds.length; ++i) {
     let assetId = getAssetId(parent.id, assetIds[i].toString());
 
@@ -246,12 +293,21 @@ export function handleBurn(event: BurnEvent): void {
     let asset = Asset.load(assetId)!;
     asset.burnCount = asset.burnCount.plus(ONE_BI);
     asset.currentSupply = asset.currentSupply.minus(amounts[i]);
+    asset.transactionsCount = asset.transactionsCount.plus(ONE_BI);
     asset.save();
     
-    // Update transaction
-    transaction.assets.push(assetId);
-    transaction.amounts.push(amounts[i]);
+    let assetAmount = new TransactionAssetAmount(concat(event.transaction.hash.toHexString(), assetId));
+    assetAmount.asset = assetId;
+    assetAmount.amount = amounts[i];
+    assetAmount.save();
+
+    // Update transaction arrays
+    assets.push(assetId);
+    assetAmounts.push(assetAmount.id);
   }
+
+  transaction.assets = assets;
+  transaction.assetAmounts = assetAmounts;
   transaction.save();
 }
 // ApprovalForAll(address account, address operator, bool approved)
@@ -309,7 +365,10 @@ export function handleContractRoyaltyUpdated(event: ContractRoyaltyUpdatedEvent)
 export function handleHiddenUriUpdated(event: HiddenUriUpdatedEvent): void {
   let parent = Content.load(event.params.parent.toHexString())!;
   let assetId = getAssetId(parent.id, event.params.id.toString());
-  let asset = Asset.load(assetId)!;
+  let asset = Asset.load(assetId);
+  if (asset == null) {
+    asset = createAsset(assetId, parent.id, event.params.id);
+  }
   asset.latestHiddenUriVersion = event.params.version;
   asset.save();
 }
@@ -317,7 +376,10 @@ export function handleHiddenUriUpdated(event: HiddenUriUpdatedEvent): void {
 export function handlePublicUriUpdated(event: PublicUriUpdatedEvent): void {
   let parent = Content.load(event.params.parent.toHexString())!;
   let assetId = getAssetId(parent.id, event.params.id.toString());
-  let asset = Asset.load(assetId)!;
+  let asset = Asset.load(assetId);
+  if (asset == null) {
+    asset = createAsset(assetId, parent.id, event.params.id);
+  }
   asset.latestPublicUriVersion = event.params.version;
   asset.save();
 }
@@ -326,7 +388,10 @@ export function handleTokenRoyaltyUpdated(event: TokenRoyaltyUpdatedEvent): void
   let parent = Content.load(event.params.parent.toHexString())!;
   // Delete all asset royalties first
   let assetId = getAssetId(parent.id, event.params.tokenId.toString());
-  let asset = Asset.load(assetId)!;
+  let asset = Asset.load(assetId);
+  if (asset == null) {
+    asset = createAsset(assetId, parent.id, event.params.tokenId);
+  }
   asset.royaltyReceiver = event.params.receiver.toHexString();
   asset.royaltyRate = event.params.rate;
   asset.save();
