@@ -68,6 +68,9 @@ export function createContent(id: Address, factory: string): Content {
   content.contractUri = contentContract.contractUri();
   content.factory = factory;
   content.tags = [];
+  content.assetsCount = 0;
+  content.mintersCount = 0;
+  content.tagsCount = 0;
 
   // get URI metadata
   // log.info('-------- LOG: contract: {}, Uri CID: {}', [content.id, hash]);
@@ -85,6 +88,7 @@ export function createContent(id: Address, factory: string): Content {
 
       let tagsArray = jsonToArray(data.get("tags"));
       content.tags = createTags(content.tags, tagsArray);
+      content.tagsCount = tagsArray.length;
     }
   }
   content.save();
@@ -96,6 +100,7 @@ export function createAccount(address: Address): Account {
   account.address = address;
   account.mintCount = ZERO_BI;
   account.burnCount = ZERO_BI;
+  account.uniqueAssetCount = ZERO_BI;
   account.save();
   return account;
 }
@@ -133,14 +138,24 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
   }
 
   asset.save();
+
+  // Update Content asset count
+  let content = Content.load(parent)!;
+  content.assetsCount += 1;
+  content.save();
+
   return asset;
 }
   
-export function createAssetBalance(id: string, asset: string, owner: string): AssetBalance {
+export function createAssetBalance(id: string, assetId: string, owner: string): AssetBalance {
+  let asset = Asset.load(assetId)!;
   let balance = new AssetBalance(id);
-  balance.asset = asset;
+  balance.asset = assetId;
   balance.owner = owner;
+  balance.parentContract = asset.parentContract;
   balance.amount = ZERO_BI;
+  balance.type = asset.type;
+  balance.subtype = asset.subtype;
   balance.save();
   return balance;
 }

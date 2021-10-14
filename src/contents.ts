@@ -73,10 +73,7 @@ export function handleContractsDeployed(event: ContractsDeployedEvent): void {
 export function handleTransferBatch(event: TransferBatchEvent): void {
   //TransferBatch(address operator, address from, address to, uint256[] ids, u as TransferSingleEventint256[] values)
   // transfer multiple assets
-  let content = Content.load(event.address.toHexString());
-  if (content == null) {
-    return;
-  }
+  let content = Content.load(event.address.toHexString())!;
   //   log.info('-------- LOG: content address: {}, ID: {}', [event.address.toHexString(), content.id])
 
   let ids = event.params.ids;
@@ -100,35 +97,39 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
         balance = createAssetBalance(assetBalanceId, assetId, receiver.id);
       }
 
+      // if balance is new or was at zero again previously, increment unique asset count
+      if (balance.amount == ZERO_BI) {
+        receiver.uniqueAssetCount = receiver.uniqueAssetCount.plus(ONE_BI);
+        receiver.save();
+      }
+
       balance.amount = balance.amount.plus(amounts[i]);
       balance.save();
     }
 
     if (event.params.from.toHex() != ADDRESS_ZERO) {
       // sender exists
-      let sender = Account.load(event.params.from.toHexString());
-      if (sender == null) {
-        sender = createAccount(event.params.from);
-      }
+      let sender = Account.load(event.params.from.toHexString())!;
       
       // get/create account balance
       let assetBalanceId = getAssetBalanceId(content.id, sender.id, ids[i].toString());
-      let balance = AssetBalance.load(assetBalanceId);
-      if (balance == null) {
-        balance = createAssetBalance(assetBalanceId, assetId, sender.id);
-      }
+      let balance = AssetBalance.load(assetBalanceId)!;
       
       balance.amount = balance.amount.minus(amounts[i]);
       balance.save();
+
+      // if balance drops to 0, decrement unique asset count
+      if (balance.amount == ZERO_BI) {
+        sender.uniqueAssetCount = sender.uniqueAssetCount.minus(ONE_BI);
+        sender.save();
+      }
     }
   }
 }
  
 export function handleTransferSingle(event: TransferSingleEvent): void {
-  let content = Content.load(event.address.toHexString());
-  if (content == null) {
-    return;
-  }
+  let content = Content.load(event.address.toHexString())!;
+  
   // get asset
   let assetId = getAssetId(content.id, event.params.id.toString());
   let amount = event.params.value;
@@ -147,35 +148,38 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
       balance = createAssetBalance(assetBalanceId, assetId, receiver.id);
     }
 
+    // if balance is new or was at zero again previously, increment unique asset count
+    if (balance.amount == ZERO_BI) {
+      receiver.uniqueAssetCount = receiver.uniqueAssetCount.plus(ONE_BI);
+      receiver.save();
+    }
+
     balance.amount = balance.amount.plus(amount);
     balance.save();
   } 
 
   if (event.params.from.toHex() != ADDRESS_ZERO) {
     // sender exists
-    let sender = Account.load(event.params.from.toHexString());
-    if (sender == null) {
-      sender = createAccount(event.params.from);
-    }
-    
+    let sender = Account.load(event.params.from.toHexString())!;
+
     // get/create account balance
     let assetBalanceId = getAssetBalanceId(content.id, sender.id, event.params.id.toString());
-    let balance = AssetBalance.load(assetBalanceId);
-    if (balance == null) {
-      balance = createAssetBalance(assetBalanceId, assetId, sender.id);
-    }
+    let balance = AssetBalance.load(assetBalanceId)!;
     
     balance.amount = balance.amount.minus(amount);
     balance.save();
+
+    // if balance drops to 0, decrement unique asset count
+    if (balance.amount == ZERO_BI) {
+    sender.uniqueAssetCount = sender.uniqueAssetCount.minus(ONE_BI);
+    sender.save();
+    }
   }
 }
 
 export function handleMint(event: MintEvent): void {
   // make sure parent content contract has been loaded
-  let parent = Content.load(event.address.toHexString());
-  if (parent == null) {
-    return;
-  }
+  let parent = Content.load(event.address.toHexString())!;
 
   // Add Account Mint Count
   let receiver = Account.load(event.params.data.to.toHexString());
@@ -202,10 +206,7 @@ export function handleMint(event: MintEvent): void {
     let assetId = getAssetId(parent.id, assetIds[i].toString());
 
     // Add Asset Mint Count
-    let asset = Asset.load(assetId);
-    if (asset == null) {
-        asset = createAsset(assetId, parent.id, assetIds[i]);
-    }
+    let asset = Asset.load(assetId)!;
     asset.mintCount = asset.mintCount.plus(ONE_BI);
     asset.currentSupply = asset.currentSupply.plus(amounts[i]);
     asset.save();
@@ -219,16 +220,10 @@ export function handleMint(event: MintEvent): void {
 
 export function handleBurn(event: BurnEvent): void {
   // make sure parent content contract has been loaded
-  let parent = Content.load(event.address.toHexString());
-  if (parent == null) {
-    return;
-  }
+  let parent = Content.load(event.address.toHexString())!;
 
   // Add Account Burn Count; Cannot burn on an account that doesn't already exist
-  let account = Account.load(event.params.data.account.toHexString());
-  if (account == null) {
-      account = createAccount(event.params.data.account);
-  }
+  let account = Account.load(event.params.data.account.toHexString())!;
   account.burnCount = account.burnCount.plus(ONE_BI);
   account.save();
 
@@ -248,10 +243,7 @@ export function handleBurn(event: BurnEvent): void {
     let assetId = getAssetId(parent.id, assetIds[i].toString());
 
     // Add Asset Burn Count
-    let asset = Asset.load(assetId);
-    if (asset == null) {
-        asset = createAsset(assetId, parent.id, assetIds[i]);
-    }
+    let asset = Asset.load(assetId)!;
     asset.burnCount = asset.burnCount.plus(ONE_BI);
     asset.currentSupply = asset.currentSupply.minus(amounts[i]);
     asset.save();
@@ -287,10 +279,7 @@ export function handleApprovalForAll(event: ApprovalForAllEvent): void {
 // ContentStorage Events
 export function handleAssetsAdded(event: AssetsAddedEvent): void {
   // make sure parent content contract has been loaded
-  let parent = Content.load(event.params.parent.toHexString());
-  if (parent == null) {
-    return;
-  }
+  let parent = Content.load(event.params.parent.toHexString())!;
   let assets = event.params.assets;
 
   // For every asset added, create a new asset object
@@ -311,56 +300,33 @@ export function handleAssetsAdded(event: AssetsAddedEvent): void {
  
 export function handleContractRoyaltyUpdated(event: ContractRoyaltyUpdatedEvent): void {
   // createContractFees
-  let parent = Content.load(event.params.parent.toHexString());
-  if (parent == null) {
-    return;
-  }
-
+  let parent = Content.load(event.params.parent.toHexString())!;
   parent.royaltyRate = event.params.rate;
   parent.royaltyReceiver = event.params.receiver.toHexString();
   parent.save();
 }
  
 export function handleHiddenUriUpdated(event: HiddenUriUpdatedEvent): void {
-  let parent = Content.load(event.params.parent.toHexString());
-  if (parent == null) {
-    return;
-  }
-  
+  let parent = Content.load(event.params.parent.toHexString())!;
   let assetId = getAssetId(parent.id, event.params.id.toString());
-  let asset = Asset.load(assetId);
-  if (asset != null) {
-    asset.latestHiddenUriVersion = event.params.version;
-    asset.save();
-  }
+  let asset = Asset.load(assetId)!;
+  asset.latestHiddenUriVersion = event.params.version;
+  asset.save();
 }
  
 export function handlePublicUriUpdated(event: PublicUriUpdatedEvent): void {
-  let parent = Content.load(event.params.parent.toHexString());
-  if (parent == null) {
-    return;
-  }
-  
+  let parent = Content.load(event.params.parent.toHexString())!;
   let assetId = getAssetId(parent.id, event.params.id.toString());
-  let asset = Asset.load(assetId);
-  if (asset != null) {
-    asset.latestPublicUriVersion = event.params.version;
-    asset.save();
-  }
+  let asset = Asset.load(assetId)!;
+  asset.latestPublicUriVersion = event.params.version;
+  asset.save();
 }
  
 export function handleTokenRoyaltyUpdated(event: TokenRoyaltyUpdatedEvent): void {
-  let parent = Content.load(event.params.parent.toHexString());
-  if (parent == null) {
-    return;
-  }
+  let parent = Content.load(event.params.parent.toHexString())!;
   // Delete all asset royalties first
   let assetId = getAssetId(parent.id, event.params.tokenId.toString());
-  let asset = Asset.load(assetId);
-  if (asset == null) {
-    return;
-  }
-
+  let asset = Asset.load(assetId)!;
   asset.royaltyReceiver = event.params.receiver.toHexString();
   asset.royaltyRate = event.params.rate;
   asset.save();
@@ -371,15 +337,13 @@ export function handleRoleGranted(event: RoleGrantedEvent) : void {
   // Get minter role and compare if it is the role that was granted
   let accessControlManager = AccessControlManagerContract.bind(event.address);
   if (event.params.role == accessControlManager.MINTER_ROLE()) {
-    let content = Content.load(accessControlManager.parent().toHexString());
-    if (content == null) {
-      return;
-    }
-    
+    let content = Content.load(accessControlManager.parent().toHexString())!;    
     let minterId = getMinterId(content.id, event.params.account.toHexString());
     let minter = Minter.load(minterId);
     if (minter == null) {
       minter = createMinter(minterId, content.id, event.params.account.toHexString());
+      content.mintersCount += 1;
+      content.save();
     }
   }
 }
@@ -388,12 +352,10 @@ export function handleRoleRevoked(event: RoleRevokedEvent) : void {
   // Get minter role and compare if it is the role that was revoked
   let accessControlManager = AccessControlManagerContract.bind(event.address);
   if (event.params.role == accessControlManager.MINTER_ROLE()) {
-    let content = Content.load(accessControlManager.parent().toHexString());
-    if (content == null) {
-      return;
-    }
-    
+    let content = Content.load(accessControlManager.parent().toHexString())!;    
     let minterId = getMinterId(content.id, event.params.account.toHexString());
     store.remove('Minter', minterId);
+    content.mintersCount -= 1;
+    content.save();
   }
 }
