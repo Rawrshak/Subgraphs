@@ -62,21 +62,25 @@ export function handleAddressRegistered(event: AddressRegisteredEvent): void {
       resolver = createAddressResolver(event.address);
     }
     
-    if (event.params.id.toString() == "0xeef64103") {
+    if (event.params.id.toHexString() == "0xeef64103") {
         // Exchange Hash = 0xeef64103
         // Start Listening for Exchange Events and create Exchange entity
         ExchangeTemplate.create(event.params.contractAddress);
         let exchange = Exchange.load(event.params.contractAddress.toHexString());
         if (exchange == null) {
             exchange = createExchange(event.params.contractAddress);
+            resolver.exchange = exchange.id;
+            resolver.save();
         }
-    } else if (event.params.id.toString() == "0x29a264aa") {
+    } else if (event.params.id.toHexString() == "0x29a264aa") {
         // ERC20 Escrow Hash = 0x29a264aa
         // Start Listening for ERC20Escrow Events and create token escrow entity
         Erc20EscrowTemplate.create(event.params.contractAddress);
         let tokenEscrow = TokenEscrow.load(event.params.contractAddress.toHexString());
         if (tokenEscrow == null) {
             tokenEscrow = createTokenEscrow(event.params.contractAddress);
+            resolver.tokenEscrow = tokenEscrow.id;
+            resolver.save();
         }
     } else {
         log.info('-------- LOG: Resolver - Ignoring registered address: {}', [event.params.id.toHexString()]);
@@ -112,9 +116,11 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
         ownerAcc.numOfOpenSellOrders = ownerAcc.numOfOpenSellOrders.plus(ONE_BI);
     }
     ownerAcc.save();
+    
+    let exchange = Exchange.load(event.address.toHexString())!;
 
     // Create Order
-    let order = createOrder(event.params.orderId, assetId, event.params.order.owner.toHexString());
+    let order = createOrder(event.params.orderId, assetId, event.params.order.owner.toHexString(), exchange.id);
     order.type = (event.params.order.isBuyOrder) ? "Buy" : "Sell";
     order.createdAtTimestamp = event.block.timestamp;
     order.price = event.params.order.price;
@@ -122,7 +128,6 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
     order.save();
     
     // Update exchange data
-    let exchange = Exchange.load(event.address.toHexString())!;
     exchange.numOfOrders = exchange.numOfOrders.plus(ONE_BI);
     if (event.params.order.isBuyOrder) {
         exchange.numOfBuyOrders = exchange.numOfBuyOrders.plus(ONE_BI);
@@ -139,7 +144,7 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
     }
 
     // Check asset and token - must already exist
-    let assetId = getAssetId(event.params.asset.contentAddress.toHexString(), event.params.asset.tokenId.toString());
+    let assetId = getAssetId(event.params.asset.contentAddress.toHexString(), event.params.asset.tokenId.toHexString());
     let asset = Asset.load(assetId)!;
     let token = Token.load(event.params.token.toHexString())!;
 
@@ -188,12 +193,13 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
         order.save();
         orderOwner.save();
 
+        // Note: changetype is for downcasting from Bytes to Address
         // Update daily volume for the order owner
-        updateAccountDailyVolume(event, orderOwner.address as Address, orderFill.totalPrice, isBuyOrder);
+        updateAccountDailyVolume(event, changetype<Address>(orderOwner.address), orderFill.totalPrice, isBuyOrder);
     }
 
-    updateAccountDailyVolume(event, orderFiller.address as Address, event.params.volume, !isBuyOrder);
-    orderFiller.save();
+    // Note: changetype is for downcasting from Bytes to Address
+    updateAccountDailyVolume(event, changetype<Address>(orderFiller.address), event.params.volume, !isBuyOrder);
 
     // Add to asset volume
     asset.assetVolumeTransacted = asset.assetVolumeTransacted.plus(event.params.totalAssetsAmount);
@@ -246,15 +252,20 @@ export function handleOrdersClaimed(event: OrdersClaimedEvent): void {
 }
 
 export function handleClaimedRoyalties(event: ClaimedRoyaltiesEvent): void {
-    let user = event.params.owner;
     let tokens = event.params.tokens;
     let amounts = event.params.amounts;
 
+    // If user doesn't exist 
+    let account = Account.load(event.params.owner.toHexString());
+    if (account == null) {
+        account = createAccount(event.params.owner);
+    }
+
     for (let i = 0; i < tokens.length; ++i) {
-        let royaltyId = getUserRoyaltyId(tokens[i].toHexString(), user.toHexString());
+        let royaltyId = getUserRoyaltyId(tokens[i].toHexString(), account.id);
         let royalty = UserRoyalty.load(royaltyId);
         if (royalty == null) {
-            royalty = createUserRoyalty(royaltyId, tokens[i].toHexString(), user.toHexString());
+            royalty = createUserRoyalty(royaltyId, tokens[i].toHexString(), account.id);
         }
         royalty.claimedAmount = royalty.claimedAmount.plus(amounts[i]);
         royalty.save();

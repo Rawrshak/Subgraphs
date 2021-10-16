@@ -6,7 +6,7 @@ type AddressResolver @entity {
 
 type Exchange @entity {
   id: ID!
-  orders: [Order!]
+  orders: [Order!]! @derivedFrom(field: "exchange")
   numOfOrders: BigInt!
   numOfBuyOrders: BigInt!
   numOfSellOrders: BigInt!
@@ -49,6 +49,7 @@ type UserRoyalty @entity {
 
 type Order @entity {
   id: ID!
+  exchange: Exchange!
   asset: Asset!
   owner: Account!
   type: OrderType!

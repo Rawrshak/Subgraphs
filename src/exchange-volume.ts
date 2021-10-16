@@ -63,5 +63,7 @@ export function updateAccountDailyVolume(event: OrdersFilledEvent, accountId: Ad
     }
 
     dayData.save();
+    account.save();
+    
     return dayData as AccountDayData;
 }
