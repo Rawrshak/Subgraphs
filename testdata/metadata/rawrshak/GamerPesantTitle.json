@@ -1,0 +1,22 @@
+{
+    "name": "Gamer Peasant Title",
+    "description": "Gamer starter pack title",
+    "image": "https://arweave.net/n0qwDqCCZQ-EZvw_9dX1FHkemXSJSTD9Vma8BN7yWhg",
+    "tags": [
+        "Rawrshak",
+        "Title",
+        "Rawrshak Reward",
+        "Starter Pack"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "assetProperties": 
+    {
+        "title": "Gamer Peasant",
+        "description": "Here's a freebie, you filthy peasant."
+    },
+    "developer-properties":
+    {
+        "creatorComments": "Haha, is jork! - some crazy rabbit"
+    }
+}
