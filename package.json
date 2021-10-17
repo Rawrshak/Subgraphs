@@ -6,11 +6,11 @@
     "docker-up": "cd docker && docker-compose up",
     "docker-up:clean": "cd docker && rmdir /S data && docker-compose up",
     "codegen": "graph codegen",
-    "codegen:contents": "npm run codegen -- subgraphs/contents.yaml",
-    "codegen:exchange": "npm run codegen -- subgraphs/exchange.yaml",
+    "codegen:contents": "npm run codegen -- contents.yaml",
+    "codegen:exchange": "npm run codegen -- exchange.yaml",
     "build": "graph build",
-    "build:contents": "graph build subgraphs/contents.yaml",
-    "build:exchange": "graph build subgraphs/exchange.yaml",
+    "build:contents": "graph build contents.yaml",
+    "build:exchange": "graph build exchange.yaml",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ gcbsumid/rawrshak",
     "create-local": "graph create --node http://localhost:8020/ gcbsumid/rawrshak",
     "create-local:contents": "graph create --node http://localhost:8020/ gcbsumid/contents",
@@ -19,11 +19,13 @@
     "remove-local:contents": "graph remove --node http://localhost:8020/ gcbsumid/contents",
     "remove-local:exchange": "graph remove --node http://localhost:8020/ gcbsumid/exchange",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/rawrshak",
-    "deploy-local:contents": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/contents subgraphs/contents.yaml",
-    "deploy-local:exchange": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/exchange subgraphs/exchange.yaml"
+    "deploy-local:contents": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/contents contents.yaml",
+    "deploy-local:exchange": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/exchange exchange.yaml"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.20.0",
-    "@graphprotocol/graph-ts": "0.20.0"
+    "@graphprotocol/graph-ts": "^0.22.1"
+  },
+  "devDependencies": {
+    "@graphprotocol/graph-cli": "^0.22.2"
   }
 }

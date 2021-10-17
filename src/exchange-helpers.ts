@@ -24,7 +24,6 @@ export function createAddressResolver(id: Address): Resolver {
 
 export function createExchange(address: Address): Exchange {
     let exchange = new Exchange(address.toHexString());
-    exchange.orders = [];
     exchange.numOfOrders = ZERO_BI;
     exchange.numOfBuyOrders = ZERO_BI;
     exchange.numOfSellOrders = ZERO_BI;
@@ -34,7 +33,6 @@ export function createExchange(address: Address): Exchange {
   
 export function createTokenEscrow(address: Address): TokenEscrow {
     let tokenEscrow = new TokenEscrow(address.toHexString());
-    tokenEscrow.supportedTokens = [];
     tokenEscrow.save();
     return tokenEscrow;
 }
@@ -48,9 +46,10 @@ export function createToken(address: Address, escrow: Address): Token {
     return token;
 }
 
-export function createOrder(id: BigInt, assetId: string, owner: string): Order {
+export function createOrder(id: BigInt, assetId: string, owner: string, exchangeId: string): Order {
     let order = new Order(id.toHexString());
     order.asset = assetId;
+    order.exchange = exchangeId;
     order.owner = owner;
     order.amountOrdered = ZERO_BI;
     order.amountFilled = ZERO_BI;

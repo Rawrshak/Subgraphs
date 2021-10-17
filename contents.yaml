@@ -12,24 +12,24 @@ dataSources:
       abi: ContentFactory
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
-      file: ../src/contents.ts
+      file: ./src/contents.ts
       entities:
         - Content
         - ContentManager
         - ContentStorage
       abis:
         - name: ContentFactory
-          file: ../abis/ContentFactory.json
+          file: ./abis/ContentFactory.json
         - name: ContentManager
-          file: ../abis/ContentManager.json
+          file: ./abis/ContentManager.json
         - name: Content
-          file: ../abis/Content.json
+          file: ./abis/Content.json
         - name: ContentStorage
-          file: ../abis/ContentStorage.json
+          file: ./abis/ContentStorage.json
         - name: AccessControlManager
-          file: ../abis/AccessControlManager.json
+          file: ./abis/AccessControlManager.json
       eventHandlers:
         - event: ContractsDeployed(indexed address,indexed address)
           handler: handleContractsDeployed
@@ -41,14 +41,14 @@ templates:
       abi: Content
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
-      file: ../src/Contents.ts
+      file: ./src/contents.ts
       entities:
         - Content
       abis:
         - name: Content
-          file: ../abis/Content.json
+          file: ./abis/Content.json
       eventHandlers:
         - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
           handler: handleTransferBatch
@@ -67,17 +67,17 @@ templates:
       abi: ContentStorage
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
-      file: ../src/Contents.ts
+      file: ./src/contents.ts
       entities:
         - Content
         - ContentStorage
       abis:
         - name: ContentStorage
-          file: ../abis/ContentStorage.json
+          file: ./abis/ContentStorage.json
         - name: Content
-          file: ../abis/Content.json
+          file: ./abis/Content.json
       eventHandlers:
         - event: AssetsAdded(indexed address,(uint256,string,string,uint256,address,uint24)[])
           handler: handleAssetsAdded
@@ -96,14 +96,14 @@ templates:
       abi: AccessControlManager
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
-      file: ../src/Contents.ts
+      file: ./src/contents.ts
       entities:
         - AccessControlManager
       abis:
         - name: AccessControlManager
-          file: ../abis/AccessControlManager.json
+          file: ./abis/AccessControlManager.json
       eventHandlers:
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted

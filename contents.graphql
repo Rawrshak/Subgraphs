@@ -1,7 +1,9 @@
 type ContentFactory @entity {
   id: ID!
   contents: [Content!] @derivedFrom(field: "factory")
+  contentsCount: BigInt!
   contentManagers: [ContentManager!] @derivedFrom(field: "factory")
+  contentManagersCount: BigInt!
 }
 
 type ContentManager @entity {
@@ -18,13 +20,20 @@ type Asset @entity{
   currentSupply: BigInt!
   maxSupply: BigInt!
   balances: [AssetBalance!] @derivedFrom(field: "asset")
-  royaltyReceiver: Account!
+  ownersCount: BigInt!
+  royaltyReceiver: Account
   royaltyRate: Int!
   latestHiddenUriVersion: BigInt!
   latestPublicUriVersion: BigInt!
   transactions: [Transaction!]! @derivedFrom(field: "assets")
+  transactionsCount: BigInt!
   mintCount: BigInt!
   burnCount: BigInt!
+  name: String
+  type: String
+  subtype: String
+  tags: [Tag!]!
+  tagsCount: Int!
 }
 
 type AssetBalance @entity {
@@ -32,6 +41,9 @@ type AssetBalance @entity {
   asset: Asset!
   owner: Account!
   amount: BigInt!
+  parentContract: Content!
+  type: String
+  subtype: String
 }
 
 type Content @entity {
@@ -41,9 +53,23 @@ type Content @entity {
   contractAddress: Bytes!
   contractUri: String!
   assets: [Asset!]! @derivedFrom(field: "parentContract")
+  assetsCount: BigInt!
   royaltyReceiver: Account!
   royaltyRate: Int!
   minters: [Minter!] @derivedFrom(field: "content")
+  mintersCount: Int!
+  name: String
+  game: String
+  creator: String
+  owner: String
+  tags: [Tag!]!
+  tagsCount: Int!
+}
+
+type Tag @entity {
+    id: ID!
+    contents: [Content!] @derivedFrom(field: "tags")
+    assets: [Asset!] @derivedFrom(field: "tags")
 }
 
 type Account @entity {
@@ -51,9 +77,12 @@ type Account @entity {
   address: Bytes!
   assetBalances: [AssetBalance!]! @derivedFrom(field: "owner")
   transactions: [Transaction!]! @derivedFrom(field: "user")
+  transactionsCount: BigInt!
   transactionsAsOperator: [Transaction!]! @derivedFrom(field: "operator")
+  transactionsAsOperatorCount: BigInt!
   mintCount: BigInt!
   burnCount: BigInt!
+  uniqueAssetCount: BigInt!
   approvals: [Approval!] @derivedFrom(field: "user")
   minters: [Minter!] @derivedFrom(field: "operator")
 }
@@ -76,11 +105,17 @@ type Transaction @entity {
   user: Account!
   transactionType: TransactionType!
   assets: [Asset!]! 
-  amounts: [BigInt!]!
+  assetAmounts: [TransactionAssetAmount!]!
   blockNumber: BigInt!
   timestamp: BigInt!
-  gasUSed: BigInt!
+  gasUsed: BigInt!
   gasPrice: BigInt!
+}
+
+type TransactionAssetAmount @entity {
+    id: ID!
+    asset: Asset!
+    amount: BigInt!
 }
 
 type Minter @entity {
