@@ -137,6 +137,7 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
       asset.name = jsonToString(data.get("name"));
       asset.type = jsonToString(data.get("type"));
       asset.subtype = jsonToString(data.get("subtype"));
+      asset.imageUri = jsonToString(data.get("image"));
 
       let tagsArray = jsonToArray(data.get("tags"));
       asset.tags = createTags(asset.tags, tagsArray);

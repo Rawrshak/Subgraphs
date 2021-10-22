@@ -95,7 +95,7 @@ export function handleAddedTokenSupport(event: AddedTokenSupportEvent): void {
 }
 
 export function handleOrderPlaced(event: OrderPlacedEvent): void {
-    let assetId = getAssetId(event.params.order.asset.contentAddress.toHexString(), event.params.order.asset.tokenId.toHexString());
+    let assetId = getAssetId(event.params.order.asset.contentAddress.toHexString(), event.params.order.asset.tokenId.toString());
 
     // Create asset object if it doesn't already exist
     let asset = Asset.load(assetId);
@@ -144,7 +144,7 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
     }
 
     // Check asset and token - must already exist
-    let assetId = getAssetId(event.params.asset.contentAddress.toHexString(), event.params.asset.tokenId.toHexString());
+    let assetId = getAssetId(event.params.asset.contentAddress.toHexString(), event.params.asset.tokenId.toString());
     let asset = Asset.load(assetId)!;
     let token = Token.load(event.params.token.toHexString())!;
 

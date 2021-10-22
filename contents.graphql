@@ -34,6 +34,7 @@ type Asset @entity{
   subtype: String
   tags: [Tag!]!
   tagsCount: Int!
+  imageUri: String
 }
 
 type AssetBalance @entity {
