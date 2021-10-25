@@ -6,9 +6,9 @@ schema:
 dataSources:
   - name: AddressResolver
     kind: ethereum/contract
-    network: optimism-kovan
+    network: {{network}}
     source:
-      address: '0xdE156176f1f20FF7485FE2bFE84c64541A8639D1'
+      address: '{{address-resolver-address}}'
       abi: AddressResolver
     mapping:
       kind: ethereum/events
@@ -32,7 +32,7 @@ dataSources:
 templates:
   - name: Exchange
     kind: ethereum/contract
-    network: optimism-kovan
+    network: {{network}}
     source:
       abi: Exchange
     mapping:
@@ -56,7 +56,7 @@ templates:
           handler: handleOrdersClaimed
   - name: Erc20Escrow
     kind: ethereum/contract
-    network: optimism-kovan
+    network: {{network}}
     source:
       abi: Erc20Escrow
     mapping:
