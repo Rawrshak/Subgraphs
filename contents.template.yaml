@@ -6,9 +6,9 @@ schema:
 dataSources:
   - name: ContentFactory
     kind: ethereum/contract
-    network: optimism-kovan
+    network: {{network}}
     source:
-      address: '0x2385547DAd794d7cddc46ecF9ab8CCa803981FAf'
+      address: '{{content-factory-address}}'
       abi: ContentFactory
     mapping:
       kind: ethereum/events
@@ -36,7 +36,7 @@ dataSources:
 templates:
   - name: Content
     kind: ethereum/contract
-    network: optimism-kovan
+    network: {{network}}
     source:
       abi: Content
     mapping:
@@ -62,7 +62,7 @@ templates:
           handler: handleApprovalForAll
   - name: ContentStorage
     kind: ethereum/contract
-    network: optimism-kovan
+    network: {{network}}
     source:
       abi: ContentStorage
     mapping:
@@ -91,7 +91,7 @@ templates:
           handler: handleTokenRoyaltyUpdated
   - name: AccessControlManager
     kind: ethereum/contract
-    network: optimism-kovan
+    network: {{network}}
     source:
       abi: AccessControlManager
     mapping:

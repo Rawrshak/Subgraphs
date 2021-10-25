@@ -5,20 +5,24 @@
   "scripts": {
     "docker-up": "cd docker && docker-compose up",
     "docker-up:clean": "cd docker && rmdir /S data && docker-compose up",
+    "prepare:contents:local": "mustache config/local.json contents.template.yaml > contents.yaml",
+    "prepare:exchange:local": "mustache config/local.json exchange.template.yaml > exchange.yaml",
+    "prepare:contents:optimism-kovan": "mustache config/optimism-kovan.json contents.template.yaml > contents.yaml",
+    "prepare:exchange:optimism-kovan": "mustache config/optimism-kovan.json exchange.template.yaml > exchange.yaml",
     "codegen": "graph codegen",
     "codegen:contents": "npm run codegen -- contents.yaml",
     "codegen:exchange": "npm run codegen -- exchange.yaml",
     "build": "graph build",
     "build:contents": "graph build contents.yaml",
     "build:exchange": "graph build exchange.yaml",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ gcbsumid/rawrshak",
-    "create-local": "graph create --node http://localhost:8020/ gcbsumid/rawrshak",
+    "create:contents": "graph create gcbsumid/contents --node https://api.thegraph.com/deploy/",
+    "deploy:contents": "graph deploy gcbsumid/contents contents.yaml --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
+    "create:exchange": "graph create gcbsumid/exchange --node https://api.thegraph.com/deploy/",
+    "deploy:exchange": "graph deploy gcbsumid/exchange exchange.yaml --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
     "create-local:contents": "graph create --node http://localhost:8020/ gcbsumid/contents",
     "create-local:exchange": "graph create --node http://localhost:8020/ gcbsumid/exchange",
-    "remove-local": "graph remove --node http://localhost:8020/ gcbsumid/rawrshak",
     "remove-local:contents": "graph remove --node http://localhost:8020/ gcbsumid/contents",
     "remove-local:exchange": "graph remove --node http://localhost:8020/ gcbsumid/exchange",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/rawrshak",
     "deploy-local:contents": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/contents contents.yaml",
     "deploy-local:exchange": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/exchange exchange.yaml"
   },
@@ -26,6 +30,7 @@
     "@graphprotocol/graph-ts": "^0.22.1"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.22.2"
+    "@graphprotocol/graph-cli": "^0.22.2",
+    "mustache": "^4.2.0"
   }
 }
