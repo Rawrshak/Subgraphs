@@ -13,6 +13,27 @@ type ContentManager @entity {
   owner: Account!
 }
 
+type Content @entity {
+  id: ID!
+  factory: ContentFactory!
+  manager: ContentManager! @derivedFrom(field: "content")
+  contractAddress: Bytes!
+  contractUri: String!
+  assets: [Asset!]! @derivedFrom(field: "parentContract")
+  assetsCount: BigInt!
+  royaltyReceiver: Account!
+  royaltyRate: Int!
+  minters: [Minter!] @derivedFrom(field: "content")
+  mintersCount: Int!
+  name: String
+  game: String
+  creator: String
+  creatorAddress: String
+  owner: Account!
+  tags: [Tag!]!
+  tagsCount: Int!
+}
+
 type Asset @entity{
   id: ID!
   tokenId: BigInt!
@@ -47,26 +68,6 @@ type AssetBalance @entity {
   subtype: String
 }
 
-type Content @entity {
-  id: ID!
-  factory: ContentFactory!
-  manager: ContentManager! @derivedFrom(field: "content")
-  contractAddress: Bytes!
-  contractUri: String!
-  assets: [Asset!]! @derivedFrom(field: "parentContract")
-  assetsCount: BigInt!
-  royaltyReceiver: Account!
-  royaltyRate: Int!
-  minters: [Minter!] @derivedFrom(field: "content")
-  mintersCount: Int!
-  name: String
-  game: String
-  creator: String
-  owner: String
-  tags: [Tag!]!
-  tagsCount: Int!
-}
-
 type Tag @entity {
     id: ID!
     contents: [Content!] @derivedFrom(field: "tags")
@@ -86,6 +87,8 @@ type Account @entity {
   uniqueAssetCount: BigInt!
   approvals: [Approval!] @derivedFrom(field: "user")
   minters: [Minter!] @derivedFrom(field: "operator")
+  contentManagers: [ContentManager!] @derivedFrom(field: "owner")
+  contents: [Content!] @derivedFrom(field: "owner")
 }
 
 type Approval @entity {

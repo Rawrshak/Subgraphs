@@ -109,3 +109,21 @@ templates:
           handler: handleRoleGranted
         - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
           handler: handleRoleRevoked
+  - name: ContentManager
+    kind: ethereum/contract
+    network: {{network}}
+    source:
+      abi: ContentManager
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/contents.ts
+      entities:
+        - ContentManager
+      abis:
+        - name: ContentManager
+          file: ./abis/ContentManager.json
+      eventHandlers:
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred

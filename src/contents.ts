@@ -18,6 +18,10 @@ import {
   TokenRoyaltyUpdated as TokenRoyaltyUpdatedEvent
 } from "../generated/templates/ContentStorage/ContentStorage";
 import {
+  ContentManager as ContentManagerContract,
+  OwnershipTransferred as OwnershipTransferredEvent
+} from "../generated/templates/ContentManager/ContentManager";
+import {
   AccessControlManager as AccessControlManagerContract,
   RoleGranted as RoleGrantedEvent,
   RoleRevoked as RoleRevokedEvent
@@ -69,6 +73,11 @@ export function handleContractsDeployed(event: ContractsDeployedEvent): void {
   if (contentManager == null) {
     contentManager = createContentManager(event.params.contentManager, factory.id);
   }
+
+  // set the Content Creator Address to the current ContentManager owner
+  content.creatorAddress = contentManager.owner;
+  content.owner = contentManager.owner;
+  content.save();
   
   factory.contentManagersCount = factory.contentManagersCount.plus(ONE_BI);
   factory.contentsCount = factory.contentsCount.plus(ONE_BI);
@@ -374,6 +383,7 @@ export function handleHiddenUriUpdated(event: HiddenUriUpdatedEvent): void {
 }
  
 export function handlePublicUriUpdated(event: PublicUriUpdatedEvent): void {
+  // Todo: When Public Uri is updated, we also need to update the asset info to pull in that new information
   let parent = Content.load(event.params.parent.toHexString())!;
   let assetId = getAssetId(parent.id, event.params.id.toString());
   let asset = Asset.load(assetId);
@@ -423,4 +433,23 @@ export function handleRoleRevoked(event: RoleRevokedEvent) : void {
     content.mintersCount -= 1;
     content.save();
   }
+}
+
+export function handleOwnershipTransferred(event: OwnershipTransferredEvent) : void {
+  // Note: the ContentManager and Content objects must already exist at this point
+  let contentManager = ContentManager.load(event.address.toHexString())!;
+  let content = Content.load(contentManager.content)!;
+  
+  // Create Account object for 'owner' if it doesn't exist
+  let owner = Account.load(event.params.newOwner.toHexString());
+  if (owner == null) {
+    // Create owner
+    owner = createAccount(event.params.newOwner);
+  }
+
+  contentManager.owner = owner.id;
+  contentManager.save();
+
+  content.owner = owner.id;
+  content.save();
 }

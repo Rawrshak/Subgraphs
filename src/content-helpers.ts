@@ -50,7 +50,15 @@ export function createContentManager(id: Address, factory: string): ContentManag
 
   // Set the rest of the content manager data
   contentManager.content = contentAddress.toHexString();
-  contentManager.owner = contentManagerContract.owner().toHexString();
+
+  // Create Account object for 'owner' if it doesn't exist
+  let owner = Account.load(contentManagerContract.owner().toHexString());
+  if (owner == null) {
+    // Create owner
+    owner = createAccount(contentManagerContract.owner());
+  }
+
+  contentManager.owner = owner.id;
   contentManager.factory = factory;
   contentManager.save();
   return contentManager;
@@ -85,7 +93,6 @@ export function createContent(id: Address, factory: string): Content {
       content.name = jsonToString(data.get("name"));
       content.game = jsonToString(data.get("game"));
       content.creator = jsonToString(data.get("creator"));
-      content.owner = jsonToString(data.get("owner"));
 
       let tagsArray = jsonToArray(data.get("tags"));
       content.tags = createTags(content.tags, tagsArray);
