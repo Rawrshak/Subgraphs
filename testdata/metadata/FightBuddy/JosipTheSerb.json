@@ -9,9 +9,15 @@
     ],
     "type": "text",
     "subtype": "title",
+    "nsfw": "false",
     "assetProperties": 
     {
         "title": "The Serb",
         "description": "To my enemies, * ***** ********! - Josip, the Serb"
+    },
+    "devProperties": {
+        "Strength" : 80,
+        "Agility": 50,
+        "Intelligence": 60 
     }
 }

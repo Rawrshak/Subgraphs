@@ -9,9 +9,15 @@
     ],
     "type": "text",
     "subtype": "title",
+    "nsfw": "false",
     "assetProperties": 
     {
         "title": "The Finesse",
         "description": "I have merely retreated for now! I shall return! - Didier, the Finesse"
+    },
+    "devProperties": {
+        "Strength" : 50,
+        "Agility": 50,
+        "Intelligence": 85 
     }
 }

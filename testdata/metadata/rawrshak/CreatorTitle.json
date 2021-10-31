@@ -9,12 +9,13 @@
     ],
     "type": "text",
     "subtype": "title",
+    "nsfw": "false",
     "assetProperties": 
     {
         "title": "Rawr Creator",
         "description": "Progenator of cool shit. Creator of pretty stuff. From their minds come the weirdest set of hot garbage for which we gladly offer ungodly sums of money."
     },
-    "developer-properties":
+    "devProperties":
     {
         "creatorComments": "Mmm, trash, I love trash, yum yum trash, I wanna eat trash!"
     }

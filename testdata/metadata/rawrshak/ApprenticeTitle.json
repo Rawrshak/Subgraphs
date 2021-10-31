@@ -10,9 +10,11 @@
     ],
     "type": "text",
     "subtype": "title",
+    "nsfw": "false",
     "assetProperties": 
     {
         "title": "Rawr Apprentice",
         "description": "This guy right here, he brought some milkshakes to the yard."
-    }
+    },
+    "devProperties": {}
 }
