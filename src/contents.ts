@@ -3,6 +3,7 @@ import {
   ContractsDeployed as ContractsDeployedEvent
 } from "../generated/ContentFactory/ContentFactory";
 import {
+  Content as ContentContract,
   TransferBatch as TransferBatchEvent,
   TransferSingle as TransferSingleEvent,
   Mint as MintEvent,
@@ -52,7 +53,8 @@ import {
   getApprovalId,
   getMinterId,
   createMinter,
-  concat
+  concat,
+  updateAssetPublicUri
 } from "./content-helpers";
 
 import { ADDRESS_ZERO, ONE_BI, ZERO_BI } from "./constants";
@@ -383,7 +385,6 @@ export function handleHiddenUriUpdated(event: HiddenUriUpdatedEvent): void {
 }
  
 export function handlePublicUriUpdated(event: PublicUriUpdatedEvent): void {
-  // Todo: When Public Uri is updated, we also need to update the asset info to pull in that new information
   let parent = Content.load(event.params.parent.toHexString())!;
   let assetId = getAssetId(parent.id, event.params.id.toString());
   let asset = Asset.load(assetId);
@@ -392,6 +393,11 @@ export function handlePublicUriUpdated(event: PublicUriUpdatedEvent): void {
   }
   asset.latestPublicUriVersion = event.params.version;
   asset.save();
+  
+  // Set Information from the Asset's public uri
+  let content = ContentContract.bind(Address.fromString(parent.id));
+  let hash = content.uri(event.params.id);
+  updateAssetPublicUri(assetId, hash);
 }
  
 export function handleTokenRoyaltyUpdated(event: TokenRoyaltyUpdatedEvent): void {

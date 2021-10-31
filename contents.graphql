@@ -46,6 +46,7 @@ type Asset @entity{
   royaltyRate: Int!
   latestHiddenUriVersion: BigInt!
   latestPublicUriVersion: BigInt!
+  latestPublicUri: String
   transactions: [Transaction!]! @derivedFrom(field: "assets")
   transactionsCount: BigInt!
   mintCount: BigInt!

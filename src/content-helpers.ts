@@ -131,10 +131,25 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
   asset.transactionsCount = ZERO_BI;
   asset.tags = [];
   asset.tagsCount = 0;
+  asset.save();
 
+  // Set Information from the Asset's public uri
   let contentContract = ContentContract.bind(Address.fromString(parent));
   let hash = contentContract.uri(tokenId);
+  updateAssetPublicUri(id, hash);
 
+  // Update Content asset count
+  let content = Content.load(parent)!;
+  content.assetsCount = content.assetsCount.plus(ONE_BI);
+  content.save();
+
+  return asset;
+}
+
+export function updateAssetPublicUri(assetId: string, hash: string) : void {
+  let asset = Asset.load(assetId)!;
+  
+  asset.latestPublicUri = hash;
   let metadata = ipfs.cat(hash);
   if (metadata) {
     let tryData = json.try_fromBytes(metadata as Bytes);
@@ -151,15 +166,7 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
       asset.tagsCount = tagsArray.length;
     }
   }
-
   asset.save();
-
-  // Update Content asset count
-  let content = Content.load(parent)!;
-  content.assetsCount = content.assetsCount.plus(ONE_BI);
-  content.save();
-
-  return asset;
 }
   
 export function createAssetBalance(id: string, assetId: string, owner: string): AssetBalance {
