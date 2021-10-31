@@ -109,7 +109,6 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
         ownerAcc = createAccount(event.params.order.owner);
     }
 
-    // todo: update to only open orders; subtract when filled or cancelled
     if (event.params.order.isBuyOrder) {
         ownerAcc.numOfOpenBuyOrders = ownerAcc.numOfOpenBuyOrders.plus(ONE_BI);
     } else {
