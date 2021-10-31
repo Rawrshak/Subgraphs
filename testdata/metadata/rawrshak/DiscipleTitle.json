@@ -9,9 +9,11 @@
     ],
     "type": "text",
     "subtype": "title",
+    "nsfw": "false",
     "assetProperties": 
     {
         "title": "Rawr Disciple",
         "description": "This kid is going places."
-    }
+    },
+    "devProperties": {}
 }

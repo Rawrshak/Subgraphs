@@ -13,3 +13,7 @@ docker/data
 
 # error logs
 yarn-error.log
+
+# generated yaml files
+contents.yaml
+exchange.yaml

@@ -4,6 +4,8 @@ The Rawrshak Subgraph repo contains the Rawrshak Subgraph code for The Graph. Th
 # Quick-start Guide
 
 ## Quick Yarn commands
+    yarn prepare:contents:local
+    yarn prepare:exchange:local
     yarn codegen
     yarn codegen:contents
     yarn build:contents
@@ -11,19 +13,11 @@ The Rawrshak Subgraph repo contains the Rawrshak Subgraph code for The Graph. Th
     yarn remove-local:contents
     yarn deploy-local:contents
 
-## To run a Deterministic Ganache ethereum blockchain
-    1. Open a new powershell/command prompt
-    2. run:
-        ganache-cli -h 0.0.0.0 -m "violin couple forest beyond despair spray wide badge buddy thunder menu same"
-        The seed phrase above is a test seed phrase that I use to make the first deployed contract addresses match
-        the addresses in the graph node. Addresses need to be updated if you decide to use a different set of seed
-        words.
-    
 
 ## To run a Deterministic Local Hardhat node
     1. Open a new powershell/command prompt
     2. cd to Rawrshak smart contract folder
-    3. run: npx hardhat node
+    3. run: "npx hardhat node" or "yarn server"
 
 ## IPFS
 You'll need to have an ipfs node running. The metadata pinned on IPFS should work, but since it's non-detrministic, it may fail because of timeout. In this case, install a local ipfs node and add the testdata\metadata folder (and pin it).
@@ -32,24 +26,28 @@ If necessary, you can upgrade the graph-node version in the docker-compose.yml c
 The docker image should be set up for IPFS usage with GRAPH_ALLOW_NON_DETERMINISTIC_IPFS set to 1.
 
 ## To set up the local graph node:
-    1. open a new terminal/powershell/command prompt and run the deterministic Ganache instruction above or hardhat node
+    1. open a new terminal/powershell/command prompt and run the deterministic hardhat node
     2. open a new terminal/powershell/command prompt and "yarn docker-up:clean". This deletes any data folders in the docker and starts a docker instance
         - make sure docker is installed
         - delete **docker\data** folder if it exists before running "docker-compose up"
-    3. After installing the graph-cli (instructions above), make sure you've created an account on [the graph](https://thegraph.com/)
+    3. run "yarn install" to get all the packages necessary
+    4. After installing the graph-cli (instructions above), make sure you've created an account on [the graph](https://thegraph.com/)
        using your github account
-    4. graph init --from-example <github_username>/rawrshak
-    5. truffle compile && truffle migrate --reset
+    5. Open a new terminal/powershell and go to the rawrshak contracts folder. run the following:
+        "yarn deploy:local"
+        "yarn demo:local"
+        "yarn "exchange:local"
         Note: make sure the addresses that the smart contracts were deployed to correspond correctly to the addresses in 
-        rawrshak\subgraph.yaml (and rawrshak\src\game.ts).
+        config\local.json files
     6. copy the updated ABIs from build\contracts\ to rawrshak\abis if these smart contracts were updated after 
         compiling
-    7. run "yarn install" to download packages
+    7. run "yarn prepare:<subgraph>:local" to create the "subgraph.yaml" file 
     8. run "yarn codegen:<subgraph>" where "subgraph" is replaced with the specific subgraph you're building
     9. run "yarn create-local:<subgraph>" after starting docker to create the subgraph (if it hasn't already been created)
         - run 'yarn remove-local' if necessary
     10. run "yarn deploy-local:<subgraph>" to deploy subgraph 
         - the powershell running the ganache and docker service should be doing stuff
+        - to redeploy an updated version, just increment the version when running "yarn deploy-local:<subgraph>"
     11. confirm that the ethereum data is being parsed properly
         http://localhost:8000/subgraphs/name/<github_account>/<subgraph>/
 
@@ -57,7 +55,6 @@ The docker image should be set up for IPFS usage with GRAPH_ALLOW_NON_DETERMINIS
 graph-node: v0.24.2
 graph-ts: 0.22.1
 graph-cli: 0.22.2
-
 
 
 # Subgraphs

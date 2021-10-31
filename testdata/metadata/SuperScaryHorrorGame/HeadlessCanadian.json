@@ -9,6 +9,7 @@
     ],
     "type": "text",
     "subtype": "title",
+    "nsfw": "true",
     "assetProperties": 
     {
         "title": "Headless Canadian",

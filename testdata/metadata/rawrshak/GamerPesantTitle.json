@@ -10,13 +10,14 @@
     ],
     "type": "text",
     "subtype": "title",
+    "nsfw": "false",
     "assetProperties": 
     {
         "title": "Gamer Peasant",
         "description": "Here's a freebie, you filthy peasant."
     },
-    "developer-properties":
+    "devProperties":
     {
-        "creatorComments": "Haha, is jork! - some crazy rabbit"
+        "creatorComments": "Haha, is jork!"
     }
 }

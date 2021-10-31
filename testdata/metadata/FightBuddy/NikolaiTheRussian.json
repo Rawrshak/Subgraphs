@@ -9,9 +9,15 @@
     ],
     "type": "text",
     "subtype": "title",
+    "nsfw": "false",
     "assetProperties": 
     {
         "title": "The Strongk",
         "description": "I am not ashamed by defeat. Now we drink! - Nikolai, the Stronk"
+    },
+    "devProperties": {
+        "Strength" : 80,
+        "Agility": 40,
+        "Intelligence": 75
     }
 }

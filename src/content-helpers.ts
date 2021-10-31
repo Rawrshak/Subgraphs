@@ -50,7 +50,15 @@ export function createContentManager(id: Address, factory: string): ContentManag
 
   // Set the rest of the content manager data
   contentManager.content = contentAddress.toHexString();
-  contentManager.owner = contentManagerContract.owner().toHexString();
+
+  // Create Account object for 'owner' if it doesn't exist
+  let owner = Account.load(contentManagerContract.owner().toHexString());
+  if (owner == null) {
+    // Create owner
+    owner = createAccount(contentManagerContract.owner());
+  }
+
+  contentManager.owner = owner.id;
   contentManager.factory = factory;
   contentManager.save();
   return contentManager;
@@ -85,7 +93,6 @@ export function createContent(id: Address, factory: string): Content {
       content.name = jsonToString(data.get("name"));
       content.game = jsonToString(data.get("game"));
       content.creator = jsonToString(data.get("creator"));
-      content.owner = jsonToString(data.get("owner"));
 
       let tagsArray = jsonToArray(data.get("tags"));
       content.tags = createTags(content.tags, tagsArray);
@@ -124,10 +131,25 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
   asset.transactionsCount = ZERO_BI;
   asset.tags = [];
   asset.tagsCount = 0;
+  asset.save();
 
+  // Set Information from the Asset's public uri
   let contentContract = ContentContract.bind(Address.fromString(parent));
   let hash = contentContract.uri(tokenId);
+  updateAssetPublicUri(id, hash);
 
+  // Update Content asset count
+  let content = Content.load(parent)!;
+  content.assetsCount = content.assetsCount.plus(ONE_BI);
+  content.save();
+
+  return asset;
+}
+
+export function updateAssetPublicUri(assetId: string, hash: string) : void {
+  let asset = Asset.load(assetId)!;
+  
+  asset.latestPublicUri = hash;
   let metadata = ipfs.cat(hash);
   if (metadata) {
     let tryData = json.try_fromBytes(metadata as Bytes);
@@ -144,15 +166,7 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
       asset.tagsCount = tagsArray.length;
     }
   }
-
   asset.save();
-
-  // Update Content asset count
-  let content = Content.load(parent)!;
-  content.assetsCount = content.assetsCount.plus(ONE_BI);
-  content.save();
-
-  return asset;
 }
   
 export function createAssetBalance(id: string, assetId: string, owner: string): AssetBalance {

@@ -9,9 +9,15 @@
     ],
     "type": "text",
     "subtype": "title",
+    "nsfw": "false",
     "assetProperties": 
     {
         "title": "The Jungle Asian",
         "description": "I ****ing hate open areas! - Glenn, the Jungle Asian"
+    },
+    "devProperties": {
+        "Strength" : 75,
+        "Agility": 70,
+        "Intelligence": 60 
     }
 }

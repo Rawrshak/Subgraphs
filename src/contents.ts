@@ -3,6 +3,7 @@ import {
   ContractsDeployed as ContractsDeployedEvent
 } from "../generated/ContentFactory/ContentFactory";
 import {
+  Content as ContentContract,
   TransferBatch as TransferBatchEvent,
   TransferSingle as TransferSingleEvent,
   Mint as MintEvent,
@@ -17,6 +18,10 @@ import {
   PublicUriUpdated as PublicUriUpdatedEvent,
   TokenRoyaltyUpdated as TokenRoyaltyUpdatedEvent
 } from "../generated/templates/ContentStorage/ContentStorage";
+import {
+  ContentManager as ContentManagerContract,
+  OwnershipTransferred as OwnershipTransferredEvent
+} from "../generated/templates/ContentManager/ContentManager";
 import {
   AccessControlManager as AccessControlManagerContract,
   RoleGranted as RoleGrantedEvent,
@@ -48,7 +53,8 @@ import {
   getApprovalId,
   getMinterId,
   createMinter,
-  concat
+  concat,
+  updateAssetPublicUri
 } from "./content-helpers";
 
 import { ADDRESS_ZERO, ONE_BI, ZERO_BI } from "./constants";
@@ -69,6 +75,11 @@ export function handleContractsDeployed(event: ContractsDeployedEvent): void {
   if (contentManager == null) {
     contentManager = createContentManager(event.params.contentManager, factory.id);
   }
+
+  // set the Content Creator Address to the current ContentManager owner
+  content.creatorAddress = contentManager.owner;
+  content.owner = contentManager.owner;
+  content.save();
   
   factory.contentManagersCount = factory.contentManagersCount.plus(ONE_BI);
   factory.contentsCount = factory.contentsCount.plus(ONE_BI);
@@ -382,6 +393,11 @@ export function handlePublicUriUpdated(event: PublicUriUpdatedEvent): void {
   }
   asset.latestPublicUriVersion = event.params.version;
   asset.save();
+  
+  // Set Information from the Asset's public uri
+  let content = ContentContract.bind(Address.fromString(parent.id));
+  let hash = content.uri(event.params.id);
+  updateAssetPublicUri(assetId, hash);
 }
  
 export function handleTokenRoyaltyUpdated(event: TokenRoyaltyUpdatedEvent): void {
@@ -423,4 +439,23 @@ export function handleRoleRevoked(event: RoleRevokedEvent) : void {
     content.mintersCount -= 1;
     content.save();
   }
+}
+
+export function handleOwnershipTransferred(event: OwnershipTransferredEvent) : void {
+  // Note: the ContentManager and Content objects must already exist at this point
+  let contentManager = ContentManager.load(event.address.toHexString())!;
+  let content = Content.load(contentManager.content)!;
+  
+  // Create Account object for 'owner' if it doesn't exist
+  let owner = Account.load(event.params.newOwner.toHexString());
+  if (owner == null) {
+    // Create owner
+    owner = createAccount(event.params.newOwner);
+  }
+
+  contentManager.owner = owner.id;
+  contentManager.save();
+
+  content.owner = owner.id;
+  content.save();
 }

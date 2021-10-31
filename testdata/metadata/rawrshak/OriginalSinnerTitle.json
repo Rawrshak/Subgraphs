@@ -10,12 +10,13 @@
     ],
     "type": "text",
     "subtype": "title",
+    "nsfw": "false",
     "assetProperties": 
     {
         "title": "Rawrshak Original Sinner",
-        "description": "The earliest of Rawrshak believers. The one's willing to listen to an odd voice somewhere in the depths of the crypto space. These unique individuals supported the creation of the next reality during the depths of a world crisis."
+        "description": "The earliest of Rawrshak believers. The one's willing to listen to an odd voice somewhere in the depths of the crypto space."
     },
-    "developer-properties":
+    "devProperties":
     {
         "creatorComments": "These guys seriously believed in Rawrshak when no one else did. Reward them, I say!"
     }
