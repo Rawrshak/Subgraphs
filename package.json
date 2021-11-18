@@ -15,16 +15,16 @@
     "build": "graph build",
     "build:contents": "graph build contents.yaml",
     "build:exchange": "graph build exchange.yaml",
-    "create:contents": "graph create gcbsumid/contents --node https://api.thegraph.com/deploy/",
-    "deploy:contents": "graph deploy gcbsumid/contents contents.yaml --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
-    "create:exchange": "graph create gcbsumid/exchange --node https://api.thegraph.com/deploy/",
-    "deploy:exchange": "graph deploy gcbsumid/exchange exchange.yaml --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
-    "create-local:contents": "graph create --node http://localhost:8020/ gcbsumid/contents",
-    "create-local:exchange": "graph create --node http://localhost:8020/ gcbsumid/exchange",
-    "remove-local:contents": "graph remove --node http://localhost:8020/ gcbsumid/contents",
-    "remove-local:exchange": "graph remove --node http://localhost:8020/ gcbsumid/exchange",
-    "deploy-local:contents": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/contents contents.yaml",
-    "deploy-local:exchange": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/exchange exchange.yaml"
+    "create:contents": "graph create gcbsumid/contents-optimistic-kovan --node https://api.thegraph.com/deploy/",
+    "deploy:contents": "graph deploy gcbsumid/contents-optimistic-kovan contents.yaml --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
+    "create:exchange": "graph create gcbsumid/exchange-optimistic-kovan --node https://api.thegraph.com/deploy/",
+    "deploy:exchange": "graph deploy gcbsumid/exchange-optimistic-kovan exchange.yaml --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
+    "create-local:contents": "graph create --node http://localhost:8020/ gcbsumid/contents-optimistic-kovan",
+    "create-local:exchange": "graph create --node http://localhost:8020/ gcbsumid/exchange-optimistic-kovan",
+    "remove-local:contents": "graph remove --node http://localhost:8020/ gcbsumid/contents-optimistic-kovan",
+    "remove-local:exchange": "graph remove --node http://localhost:8020/ gcbsumid/exchange-optimistic-kovan",
+    "deploy-local:contents": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/contents-optimistic-kovan contents.yaml",
+    "deploy-local:exchange": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gcbsumid/exchange-optimistic-kovan exchange.yaml"
   },
   "dependencies": {
     "@graphprotocol/graph-ts": "^0.22.1"
