@@ -1,0 +1,27 @@
+{
+    "name": "Smol Ina",
+    "description": "Irish Demolitions expert",
+    "image": "https://arweave.net/dI_5bBKqfDwLUHhQXu_ubnnBi5f3DcpHQ_oHmIky1QU",
+    "tags": [
+        "Rawrshak",
+        "Arweave",
+        "Demo Day",
+        "Demo Asset",
+        "Not For Sale"
+    ],
+    "type": "static3dobject",
+    "subtype": "trophy",
+    "nsfw": "false",
+    "assetProperties": 
+    [
+        {
+            "name": "assets/rawrshak/sample/demo/regular/ina/smol_ina.prefab",
+            "engine": "unity",
+            "renderPipeline": "brp",
+            "platform": "windows",
+            "fidelity": "low",
+            "shape": "small",
+            "uri": "https://arweave.net/yIu_zPYJdJJ6OCX3j4gRphncT1PmVLqia3E217ifmCM"
+        }
+    ]
+}

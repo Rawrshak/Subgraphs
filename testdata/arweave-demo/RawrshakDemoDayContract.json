@@ -1,0 +1,18 @@
+{
+    "name": "Rawrshak Demo Day",
+    "description": "In commemoration of Rawrshak's Arweave Demo Day presentation!",
+    "image": "https://arweave.net/dI_5bBKqfDwLUHhQXu_ubnnBi5f3DcpHQ_oHmIky1QU",
+    "creator": "Rawrshak Developer Team",
+    "game": "Rawrshak Demo",
+    "tags": [
+        "Rawrshak",
+        "Arweave",
+        "Demo Day"
+    ],
+    "properties": {
+        "hidden_secrets": {
+            "description": "Congrats! You were part of the few that saw Rawrshak's Arweave Demo Day! Here's a reward! Head on over to our discord and post you a Rawrshak NFT both on Optimism L2 Testnet. You have until a week from 9 AM PST Thursday, December 2nd to 9 AM PST December 9, 2021. Wallets that own this Rawrshak NFT will receive an L1 equivalent and more when Rawrshak launches on Mainnet. We're going to take over the next world so get hyped!",
+            "discord_link": "https://discord.gg/cn7a8uTfcN"
+        }
+    }
+}

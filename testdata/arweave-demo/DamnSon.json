@@ -1,0 +1,37 @@
+{
+    "name": "Damn Son, where'd you find this?! meme",
+    "description": "A meme character line",
+    "image": "https://arweave.net/eAnYl_kEpDtYQA8240b0naau5PP4czOFP1qGg4zazQQ",
+    "tags": [
+        "Rawrshak",
+        "Arweave",
+        "Demo Day",
+        "Demo Asset",
+        "Memes"
+    ],
+    "type": "audio",
+    "subtype": "character-line",
+    "assetProperties": 
+    [
+        {
+            "name": "DamnSonWheredYouFindThisSoundEffect.mp3",
+            "engine": "none",
+            "compression": "raw",
+            "uri": "https://arweave.net/k1sxsg4xJtz58deSwQTkpKCDRHIMedXLH6GKSR_BMWI",
+            "contentType": "audio/mp3",
+            "duration": 3056,
+            "channelCount": 2,
+            "sampleRate": 44100
+        },
+        {
+            "name": "assets/rawrshak/sample/demo/audio/buzzquote.mp3",
+            "engine": "unity",
+            "compression": "compressed",
+            "uri": "https://arweave.net/uWCilCor8E6jYlrK5B-H51qtSEU9s--01Lt5E67fFiA",
+            "contentType": "audio/mp3",
+            "duration": 3109,
+            "channelCount": 2,
+            "sampleRate": 44100
+        }
+    ]
+}

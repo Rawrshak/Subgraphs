@@ -1,0 +1,19 @@
+{
+    "name": "Arweave Demo Day Player Title",
+    "description": "Arweave Demo Day Participant",
+    "image": "https://arweave.net/TsBCV3HyMssIZQk0S7MqZht_zR3e9pBXDWUo0VYAXW4",
+    "tags": [
+        "Rawrshak",
+        "Arweave",
+        "Demo Day",
+        "Demo Asset"
+    ],
+    "type": "text",
+    "subtype": "title",
+    "nsfw": "false",
+    "assetProperties": 
+    {
+        "title": "Arweave Demo Day Player",
+        "description": "An Arweave Stalwart who participates in Arweave's Demo Day events."
+    }
+}

@@ -1,0 +1,33 @@
+{
+    "name": "Rawrshak Guild Emblem Decal",
+    "description": "Rawrshak Guild Emblem decal usable as a spray, emblem, or decal",
+    "image": "https://arweave.net/2BmDysofcccaTUbjKJHgr9_0ImlFadE00yAS_3E9M00",
+    "tags": [
+        "Rawrshak",
+        "Arweave",
+        "Demo Day",
+        "Emblem",
+        "Decal"
+    ],
+    "type": "image",
+    "subtype": "square",
+    "assetProperties": 
+    [
+        {
+            "uri": "https://arweave.net/vCl13k-7MYImYzvr8IUt4AvvzTVR4-cKuxpBhTrgwl4",
+            "height": 256,
+            "width": 256,
+            "contentType": "image/png"
+        },
+        {
+            "uri": "https://arweave.net/XsuBjvzXscegaiIuEK7S1QLf7GV7yM_MYhHYFTFKIVM",
+            "height": 512,
+            "width": 512,
+            "contentType": "image/png"
+        }
+    ],
+    "devProperties":
+    {
+        "creatorComments": "Rawrshak Guild Represent!"
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "name": "To Infinty and Beyond!",
+    "description": "Buzz Lightyear Catchphrase",
+    "image": "https://arweave.net/eAnYl_kEpDtYQA8240b0naau5PP4czOFP1qGg4zazQQ",
+    "tags": [
+        "Rawrshak",
+        "Arweave",
+        "Demo Day",
+        "Demo Asset",
+        "Buzz Lightyear"
+    ],
+    "type": "audio",
+    "subtype": "character-line",
+    "assetProperties": 
+    [
+        {
+            "name": "BuzzQuote.mp3",
+            "engine": "none",
+            "compression": "raw",
+            "uri": "https://arweave.net/_e1nmCs10AG8mqrPB86_39RQgh89RJEFkO3oZ02wGuY",
+            "contentType": "audio/mp3",
+            "duration": 3056,
+            "channelCount": 2,
+            "sampleRate": 44100
+        },
+        {
+            "name": "Assets/Rawrshak/Sample/Demo/Audio/BuzzQuote.mp3",
+            "engine": "unity",
+            "compression": "compressed",
+            "uri": "https://arweave.net/UCwSOxlDl5DA7Krpn4zkHgqbJHjZK_eQoS-qRpPqUS4",
+            "contentType": "audio/mp3",
+            "duration": 3056,
+            "channelCount": 2,
+            "sampleRate": 44100
+        }
+    ]
+}
