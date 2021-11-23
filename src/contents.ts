@@ -224,7 +224,11 @@ export function handleMint(event: MintEvent): void {
   receiver.transactionsCount = receiver.transactionsCount.plus(ONE_BI);
   receiver.save();
 
-  let operator = Account.load(event.params.operator.toHexString())!;
+  let operator = Account.load(event.params.operator.toHexString());
+  if (operator == null) {
+    // Add new operator
+    operator = createAccount(event.params.operator);
+  }
   operator.transactionsAsOperatorCount = operator.transactionsAsOperatorCount.plus(ONE_BI);
   operator.save();
 
