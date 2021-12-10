@@ -261,6 +261,11 @@
         "internalType": "uint256",
         "name": "amountToSell",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxSpend",
+        "type": "uint256"
       }
     ],
     "name": "fillBuyOrder",
@@ -278,6 +283,11 @@
       {
         "internalType": "uint256",
         "name": "amountToBuy",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxSpend",
         "type": "uint256"
       }
     ],

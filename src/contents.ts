@@ -351,12 +351,13 @@ export function handleApprovalForAll(event: ApprovalForAllEvent): void {
 export function handleAssetsAdded(event: AssetsAddedEvent): void {
   // make sure parent content contract has been loaded
   let parent = Content.load(event.params.parent.toHexString())!;
+  let tokenIds = event.params.tokenIds;
   let assets = event.params.assets;
 
   // For every asset added, create a new asset object
   for (let j = 0; j < assets.length; ++j) {
     let newAsset = assets[j];
-    let tokenId = newAsset.tokenId;
+    let tokenId = tokenIds[j];
     let assetId = getAssetId(parent.id, tokenId.toString());
     let asset = Asset.load(assetId);
     if (asset == null) {
