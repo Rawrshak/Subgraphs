@@ -1,0 +1,24 @@
+{
+    "name": "Arweave Logo Decal",
+    "description": "Arweave Logo decal usable as a spray, emblem, or decal",
+    "image": "https://arweave.net/UJnRf-WGVfbFuYyba59Bb5D8c1Zp_UICaMFJVYpmNVI",
+    "tags": [
+        "Rawrshak",
+        "Arweave",
+        "Demo Day",
+        "Demo Asset",
+        "Emblem",
+        "Decal"
+    ],
+    "type": "image",
+    "subtype": "square",
+    "assetProperties": 
+    [
+        {
+            "uri": "https://arweave.net/UJnRf-WGVfbFuYyba59Bb5D8c1Zp_UICaMFJVYpmNVI",
+            "height": 400,
+            "width": 400,
+            "contentType": "image/png"
+        }
+    ]
+}

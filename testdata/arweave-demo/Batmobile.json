@@ -1,13 +1,14 @@
 {
-    "name": "Smol Ina",
-    "description": "Hololive's Ina model",
+    "name": "Batmobile Trophy",
+    "description": "Low-poly Batmobile Trophy",
     "image": "https://arweave.net/dI_5bBKqfDwLUHhQXu_ubnnBi5f3DcpHQ_oHmIky1QU",
     "tags": [
         "Rawrshak",
         "Arweave",
         "Demo Day",
         "Demo Asset",
-        "Not For Sale"
+        "Not For Sale",
+        "Batman"
     ],
     "type": "static3dobject",
     "subtype": "trophy",
@@ -15,13 +16,13 @@
     "assetProperties": 
     [
         {
-            "name": "assets/rawrshak/sample/demo/regular/ina/smol_ina.prefab",
+            "name": "assets/rawrshak/sample/demo/regular/batmobile/batmobile.prefab",
             "engine": "unity",
             "renderPipeline": "brp",
             "platform": "windows",
             "fidelity": "low",
-            "shape": "small",
-            "uri": "https://arweave.net/yIu_zPYJdJJ6OCX3j4gRphncT1PmVLqia3E217ifmCM"
+            "shape": "horizontalz",
+            "uri": "https://arweave.net/ern-cKN3a9YL17LSKLeTTkr1bBptvhF-EZ7ElCQZ4YU"
         }
     ]
 }
