@@ -79,7 +79,7 @@ templates:
         - name: Content
           file: ./abis/Content.json
       eventHandlers:
-        - event: AssetsAdded(indexed address,(uint256,string,string,uint256,address,uint24)[])
+        - event: AssetsAdded(indexed address,uint256[],(string,string,uint256,address,uint24)[])
           handler: handleAssetsAdded
         - event: ContractRoyaltyUpdated(indexed address,address,uint24)
           handler: handleContractRoyaltyUpdated
