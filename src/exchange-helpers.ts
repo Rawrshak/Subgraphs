@@ -53,6 +53,7 @@ export function createOrder(id: BigInt, assetId: string, owner: string, exchange
     order.owner = owner;
     order.amountOrdered = ZERO_BI;
     order.amountFilled = ZERO_BI;
+    order.amountClaimed = ZERO_BI;
     order.status = "Ready";
     order.price = ZERO_BI;
     order.createdAtTimestamp = ZERO_BI;
