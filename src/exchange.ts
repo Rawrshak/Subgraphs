@@ -216,6 +216,7 @@ export function handleOrdersDeleted(event: OrdersDeletedEvent): void {
         let order = Order.load(orderId.toHexString())!;
         order.status = "Cancelled";
         order.cancelledAtTimestamp = event.block.timestamp;
+        order.amountClaimed = order.amountFilled;
         order.save();
         
         let orderOwner = Account.load(order.owner)!;
@@ -246,6 +247,7 @@ export function handleOrdersClaimed(event: OrdersClaimedEvent): void {
 
         // Update lastClaimedAtTimestamp every time (even for partially filled orders)
         order.lastClaimedAtTimestamp = event.block.timestamp;
+        order.amountClaimed = order.amountFilled;
         order.save();
     }
 }
