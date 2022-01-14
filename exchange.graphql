@@ -50,6 +50,7 @@ type UserRoyalty @entity {
 type Order @entity {
   id: ID!
   exchange: Exchange!
+  token: Token!
   asset: Asset!
   owner: Account!
   type: OrderType!
@@ -62,7 +63,16 @@ type Order @entity {
   filledAtTimestamp: BigInt!
   cancelledAtTimestamp: BigInt!
   lastClaimedAtTimestamp: BigInt!
+  claimOrderTransactions: [OrderClaimTransaction!] @derivedFrom(field: "order")
+  claimOrdersCount: BigInt!
   orderFills: [OrderFill!] @derivedFrom(field: "order")
+}
+
+type OrderClaimTransaction @entity {
+  id: ID!
+  order: Order!
+  amountClaimed: BigInt!
+  createdAtTimestamp: BigInt!
 }
 
 type OrderFill @entity {
@@ -73,6 +83,7 @@ type OrderFill @entity {
   pricePerItem: BigInt!
   totalPrice: BigInt!
   token: Token!
+  createdAtTimestamp: BigInt!
 }
 
 enum OrderType {

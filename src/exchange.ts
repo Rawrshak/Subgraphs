@@ -9,7 +9,7 @@ import {
     Token,
     Asset,
     Account,
-    OrderFill,
+    OrderClaimTransaction,
     UserRoyalty
 } from "../generated/schema";
 
@@ -49,6 +49,7 @@ import {
     createAccount,
     createOrderFill,
     createUserRoyalty,
+    concat,
     getAssetId,
     getOrderFillId,
     getUserRoyaltyId,
@@ -119,7 +120,7 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
     let exchange = Exchange.load(event.address.toHexString())!;
 
     // Create Order
-    let order = createOrder(event.params.orderId, assetId, event.params.order.owner.toHexString(), exchange.id);
+    let order = createOrder(event.params.orderId, assetId, event.params.order.token.toHexString(), event.params.order.owner.toHexString(), exchange.id);
     order.type = (event.params.order.isBuyOrder) ? "Buy" : "Sell";
     order.createdAtTimestamp = event.block.timestamp;
     order.price = event.params.order.price;
@@ -246,8 +247,17 @@ export function handleOrdersClaimed(event: OrdersClaimedEvent): void {
         }
 
         // Update lastClaimedAtTimestamp every time (even for partially filled orders)
-        order.lastClaimedAtTimestamp = event.block.timestamp;
-        order.amountClaimed = order.amountFilled;
+        if (order.amountFilled != order.amountClaimed) {          
+          let claimOrder = new OrderClaimTransaction(concat(orderId.toHexString(), order.claimOrdersCount.toHexString()));
+          claimOrder.order = order.id;
+          claimOrder.amountClaimed = order.amountFilled.minus(order.amountClaimed);
+          claimOrder.createdAtTimestamp = event.block.timestamp;
+          claimOrder.save();
+
+          order.lastClaimedAtTimestamp = event.block.timestamp;
+          order.amountClaimed = order.amountFilled;
+          order.claimOrdersCount = order.claimOrdersCount.plus(ONE_BI);
+        }
         order.save();
     }
 }

@@ -46,7 +46,7 @@ export function createToken(address: Address, escrow: Address): Token {
     return token;
 }
 
-export function createOrder(id: BigInt, assetId: string, owner: string, exchangeId: string): Order {
+export function createOrder(id: BigInt, assetId: string, tokenId: string, owner: string, exchangeId: string): Order {
     let order = new Order(id.toHexString());
     order.asset = assetId;
     order.exchange = exchangeId;
@@ -60,6 +60,8 @@ export function createOrder(id: BigInt, assetId: string, owner: string, exchange
     order.filledAtTimestamp = ZERO_BI;
     order.cancelledAtTimestamp = ZERO_BI;
     order.lastClaimedAtTimestamp = ZERO_BI;
+    order.token = tokenId;
+    order.claimOrdersCount = ZERO_BI;
     order.save();
     return order;
 }
@@ -107,6 +109,7 @@ export function createOrderFill(orderFillId: string, filler: string, orderId: st
     orderFill.pricePerItem = ZERO_BI;
     orderFill.totalPrice = ZERO_BI;
     orderFill.token = token;
+    orderFill.createdAtTimestamp = ZERO_BI;
     orderFill.save();
     return orderFill;
 }
@@ -145,7 +148,7 @@ export function getAssetId(content: string, tokenId: string): string {
     return concat(content, tokenId);
 }
 
-function concat(str1: string, str2: string): string {
+export function concat(str1: string, str2: string): string {
     return str1 + '-' + str2;
 }
 
