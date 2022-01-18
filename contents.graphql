@@ -78,9 +78,9 @@ type AssetBalance @entity {
 }
 
 type Tag @entity {
-    id: ID!
-    contents: [Content!] @derivedFrom(field: "tags")
-    assets: [Asset!] @derivedFrom(field: "tags")
+  id: ID!
+  contents: [Content!] @derivedFrom(field: "tags")
+  assets: [Asset!] @derivedFrom(field: "tags")
 }
 
 type Account @entity {
@@ -98,6 +98,7 @@ type Account @entity {
   minters: [Minter!] @derivedFrom(field: "operator")
   contentManagers: [ContentManager!] @derivedFrom(field: "owner")
   contents: [Content!] @derivedFrom(field: "owner")
+  contentsCount: BigInt!
   dateCreated: BigInt!
 }
 
@@ -127,9 +128,9 @@ type Transaction @entity {
 }
 
 type TransactionAssetAmount @entity {
-    id: ID!
-    asset: Asset!
-    amount: BigInt!
+  id: ID!
+  asset: Asset!
+  amount: BigInt!
 }
 
 type Minter @entity {

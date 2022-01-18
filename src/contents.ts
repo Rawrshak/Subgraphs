@@ -66,6 +66,15 @@ export function handleContractsDeployed(event: ContractsDeployedEvent): void {
   if (factory == null) {
     factory = createContentFactory(event.address);
   }
+  
+  let statsManager = StatisticsManager.load(factory.id);
+  if (statsManager == null) {
+    statsManager = createStatisticsManager(factory.id);
+  }
+  
+  statsManager.contentManagersCount = statsManager.contentManagersCount.plus(ONE_BI);
+  statsManager.contentsCount = statsManager.contentsCount.plus(ONE_BI);
+  statsManager.save();
 
   let content = Content.load(event.params.content.toHexString());
   // Create content object
@@ -82,15 +91,6 @@ export function handleContractsDeployed(event: ContractsDeployedEvent): void {
   content.creatorAddress = contentManager.owner;
   content.owner = contentManager.owner;
   content.save();
-  
-  let statsManager = StatisticsManager.load(factory.id);
-  if (statsManager == null) {
-    statsManager = createStatisticsManager(factory.id);
-  }
-  
-  statsManager.contentManagersCount = statsManager.contentManagersCount.plus(ONE_BI);
-  statsManager.contentsCount = statsManager.contentsCount.plus(ONE_BI);
-  statsManager.save();
   factory.save();
 }
 
@@ -112,11 +112,7 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
       let receiver = Account.load(event.params.to.toHexString());
       if (receiver == null) {
       // Add new owner and increment token number of owners
-        receiver = createAccount(event.params.to, event.block.timestamp);
-        
-        let statsManager = StatisticsManager.load(content.factory)!;
-        statsManager.accountsCount = statsManager.accountsCount.plus(ONE_BI);
-        statsManager.save();
+        receiver = createAccount(event.params.to, event.block.timestamp, content.factory);
       }
 
       // get/create account balance
@@ -175,11 +171,7 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
     let receiver = Account.load(event.params.to.toHexString());
     if (receiver == null) {
       // Add new owner and increment token number of owners
-      receiver = createAccount(event.params.to, event.block.timestamp);
-      
-      let statsManager = StatisticsManager.load(content.factory)!;
-      statsManager.accountsCount = statsManager.accountsCount.plus(ONE_BI);
-      statsManager.save();
+      receiver = createAccount(event.params.to, event.block.timestamp, content.factory);
     }
 
     // get/create account balance
@@ -229,16 +221,12 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
 export function handleMint(event: MintEvent): void {
   // make sure parent content contract has been loaded
   let parent = Content.load(event.address.toHexString())!;
-  let statsManager = StatisticsManager.load(parent.factory)!;
 
   // Add Account Mint Count
   let receiver = Account.load(event.params.data.to.toHexString());
   if (receiver == null) {
     // Add new owner and increment token number of owners
-    receiver = createAccount(event.params.data.to, event.block.timestamp);
-
-    statsManager.accountsCount = statsManager.accountsCount.plus(ONE_BI);
-    statsManager.save();
+    receiver = createAccount(event.params.data.to, event.block.timestamp, parent.factory);
   }
   receiver.mintCount = receiver.mintCount.plus(ONE_BI);
   receiver.transactionsCount = receiver.transactionsCount.plus(ONE_BI);
@@ -247,10 +235,7 @@ export function handleMint(event: MintEvent): void {
   let operator = Account.load(event.params.operator.toHexString());
   if (operator == null) {
     // Add new operator
-    operator = createAccount(event.params.operator, event.block.timestamp);
-
-    statsManager.accountsCount = statsManager.accountsCount.plus(ONE_BI);
-    statsManager.save();
+    operator = createAccount(event.params.operator, event.block.timestamp, parent.factory);
   }
   operator.transactionsAsOperatorCount = operator.transactionsAsOperatorCount.plus(ONE_BI);
   operator.save();
@@ -406,7 +391,10 @@ export function handleContractRoyaltyUpdated(event: ContractRoyaltyUpdatedEvent)
 export function handleHiddenUriUpdated(event: HiddenUriUpdatedEvent): void {
   let parent = Content.load(event.params.parent.toHexString())!;
   let assetId = getAssetId(parent.id, event.params.id.toString());
-  let asset = Asset.load(assetId)!;
+  let asset = Asset.load(assetId);
+  if (asset == null) {
+    asset = createAsset(assetId, parent.id, event.params.id, event.block.timestamp);
+  }
   asset.latestHiddenUriVersion = event.params.version;
   asset.save();
 }
@@ -414,7 +402,11 @@ export function handleHiddenUriUpdated(event: HiddenUriUpdatedEvent): void {
 export function handlePublicUriUpdated(event: PublicUriUpdatedEvent): void {
   let parent = Content.load(event.params.parent.toHexString())!;
   let assetId = getAssetId(parent.id, event.params.id.toString());
-  let asset = Asset.load(assetId)!;
+  let asset = Asset.load(assetId);
+  if (asset == null) {
+    asset = createAsset(assetId, parent.id, event.params.id, event.block.timestamp);
+  }
+
   asset.latestPublicUriVersion = event.params.version;
   asset.save();
   
@@ -428,7 +420,10 @@ export function handleTokenRoyaltyUpdated(event: TokenRoyaltyUpdatedEvent): void
   let parent = Content.load(event.params.parent.toHexString())!;
   // Delete all asset royalties first
   let assetId = getAssetId(parent.id, event.params.tokenId.toString());
-  let asset = Asset.load(assetId)!;
+  let asset = Asset.load(assetId);
+  if (asset == null) {
+    asset = createAsset(assetId, parent.id, event.params.tokenId, event.block.timestamp);
+  }
   asset.royaltyReceiver = event.params.receiver.toHexString();
   asset.royaltyRate = event.params.rate;
   asset.save();
@@ -463,19 +458,23 @@ export function handleRoleRevoked(event: RoleRevokedEvent) : void {
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferredEvent) : void {
+
   // Note: the ContentManager and Content objects must already exist at this point
-  let contentManager = ContentManager.load(event.address.toHexString())!;
-  let content = Content.load(contentManager.content)!;
+  // if content manager and content were not created yet (i.e. not yet deployed), return early
+  let contentManager = ContentManager.load(event.address.toHexString());
+  if (contentManager == null) {
+    return;
+  }
+  let content = Content.load(contentManager.content);
+  if (content == null) {
+    return;
+  }
   
   // Create Account object for 'owner' if it doesn't exist
   let owner = Account.load(event.params.newOwner.toHexString());
   if (owner == null) {
     // Create owner
-    owner = createAccount(event.params.newOwner, event.block.timestamp);
-    
-    let statsManager = StatisticsManager.load(content.factory)!;
-    statsManager.accountsCount = statsManager.accountsCount.plus(ONE_BI);
-    statsManager.save();
+    owner = createAccount(event.params.newOwner, event.block.timestamp, content.factory);
   }
 
   contentManager.owner = owner.id;

@@ -64,12 +64,11 @@ export function createContentManager(id: Address, factory: string, timestamp: Bi
   let owner = Account.load(contentManagerContract.owner().toHexString());
   if (owner == null) {
     // Create owner
-    owner = createAccount(contentManagerContract.owner(), timestamp);
-    
-    let statsManager = StatisticsManager.load(factory)!;
-    statsManager.accountsCount = statsManager.accountsCount.plus(ONE_BI);
-    statsManager.save();
+    owner = createAccount(contentManagerContract.owner(), timestamp, factory);
   }
+
+  owner.contentsCount = owner.contentsCount.plus(ONE_BI);
+  owner.save();
 
   contentManager.owner = owner.id;
   contentManager.factory = factory;
@@ -117,7 +116,7 @@ export function createContent(id: Address, factory: string, timestamp: BigInt): 
   return content;
 }
 
-export function createAccount(address: Address, timestamp: BigInt): Account {
+export function createAccount(address: Address, timestamp: BigInt, statsId: string): Account {
   let account = new Account(address.toHexString());
   account.address = address;
   account.mintCount = ZERO_BI;
@@ -125,8 +124,13 @@ export function createAccount(address: Address, timestamp: BigInt): Account {
   account.uniqueAssetCount = ZERO_BI;
   account.transactionsCount = ZERO_BI;
   account.transactionsAsOperatorCount = ZERO_BI;
+  account.contentsCount = ZERO_BI;
   account.dateCreated = timestamp;
   account.save();
+  
+  let statsManager = StatisticsManager.load(statsId)!;
+  statsManager.accountsCount = statsManager.accountsCount.plus(ONE_BI);
+  statsManager.save();
   return account;
 }
   
