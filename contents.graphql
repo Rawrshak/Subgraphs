@@ -1,9 +1,15 @@
 type ContentFactory @entity {
   id: ID!
   contents: [Content!] @derivedFrom(field: "factory")
-  contentsCount: BigInt!
   contentManagers: [ContentManager!] @derivedFrom(field: "factory")
+}
+
+type StatisticsManager @entity {
+  id: ID!
+  contentsCount: BigInt!
   contentManagersCount: BigInt!
+  assetsCount: BigInt!
+  accountsCount: BigInt!
 }
 
 type ContentManager @entity {
@@ -32,6 +38,7 @@ type Content @entity {
   owner: Account!
   tags: [Tag!]!
   tagsCount: Int!
+  dateCreated: BigInt!
 }
 
 type Asset @entity{
@@ -57,6 +64,7 @@ type Asset @entity{
   tags: [Tag!]!
   tagsCount: Int!
   imageUri: String
+  dateCreated: BigInt!
 }
 
 type AssetBalance @entity {
@@ -70,9 +78,9 @@ type AssetBalance @entity {
 }
 
 type Tag @entity {
-    id: ID!
-    contents: [Content!] @derivedFrom(field: "tags")
-    assets: [Asset!] @derivedFrom(field: "tags")
+  id: ID!
+  contents: [Content!] @derivedFrom(field: "tags")
+  assets: [Asset!] @derivedFrom(field: "tags")
 }
 
 type Account @entity {
@@ -90,6 +98,8 @@ type Account @entity {
   minters: [Minter!] @derivedFrom(field: "operator")
   contentManagers: [ContentManager!] @derivedFrom(field: "owner")
   contents: [Content!] @derivedFrom(field: "owner")
+  contentsCount: BigInt!
+  dateCreated: BigInt!
 }
 
 type Approval @entity {
@@ -118,9 +128,9 @@ type Transaction @entity {
 }
 
 type TransactionAssetAmount @entity {
-    id: ID!
-    asset: Asset!
-    amount: BigInt!
+  id: ID!
+  asset: Asset!
+  amount: BigInt!
 }
 
 type Minter @entity {

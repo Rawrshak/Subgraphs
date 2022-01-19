@@ -1,6 +1,6 @@
 import { log, ByteArray, BigInt, Address, crypto } from "@graphprotocol/graph-ts"
 
-import { ADDRESS_ZERO, SECONDS_PER_DAY, ZERO_BI } from "./constants";
+import { ONE_BI, SECONDS_PER_DAY } from "./constants";
 
 import {
     OrdersFilled as OrdersFilledEvent
@@ -43,13 +43,16 @@ export function updateAccountDailyVolume(event: OrdersFilledEvent, accountId: Ad
     let timestamp = event.block.timestamp.toI32();
     let dayId = timestamp / SECONDS_PER_DAY;
     let dayData = AccountDayData.load(getAccountDayDataId(accountId.toHexString(), event.params.token.toHexString(), dayId.toString()));
-    if (dayData == null) {
-        dayData = createAccountDayData(accountId.toHexString(), event.params.token.toHexString(), dayId);
-    }
-
+    
     let account = Account.load(accountId.toHexString());
     if (account == null) {
         account = createAccount(accountId);
+    }
+
+    if (dayData == null) {
+        dayData = createAccountDayData(accountId.toHexString(), event.params.token.toHexString(), dayId);
+
+        account.daysActive = account.daysActive.plus(ONE_BI);
     }
 
     dayData.volume = dayData.volume.plus(volume);

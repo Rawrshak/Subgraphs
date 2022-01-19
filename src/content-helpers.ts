@@ -8,6 +8,7 @@ import {
 } from "../generated/ContentFactory/ContentManager";
 
 import { 
+  StatisticsManager,
   ContentFactory as Factory,
   ContentManager,
   Asset,
@@ -30,13 +31,21 @@ import { ADDRESS_ZERO, ONE_BI, ZERO_BI } from "./constants";
 
 export function createContentFactory(id: Address): Factory {
   let contentFactory = new Factory(id.toHexString());
-  contentFactory.contentsCount = ZERO_BI;
-  contentFactory.contentManagersCount = ZERO_BI;
   contentFactory.save();
   return contentFactory;
 }
 
-export function createContentManager(id: Address, factory: string): ContentManager {
+export function createStatisticsManager(id: string): StatisticsManager {
+  let statsManager = new StatisticsManager(id);
+  statsManager.contentsCount = ZERO_BI;
+  statsManager.contentManagersCount = ZERO_BI;
+  statsManager.assetsCount = ZERO_BI;
+  statsManager.accountsCount = ZERO_BI;
+  statsManager.save();
+  return statsManager;
+}
+
+export function createContentManager(id: Address, factory: string, timestamp: BigInt): ContentManager {
   let contentManager = new ContentManager(id.toHexString());
 
   // Bind allows you to call content manager contract functions
@@ -55,8 +64,11 @@ export function createContentManager(id: Address, factory: string): ContentManag
   let owner = Account.load(contentManagerContract.owner().toHexString());
   if (owner == null) {
     // Create owner
-    owner = createAccount(contentManagerContract.owner());
+    owner = createAccount(contentManagerContract.owner(), timestamp, factory);
   }
+
+  owner.contentsCount = owner.contentsCount.plus(ONE_BI);
+  owner.save();
 
   contentManager.owner = owner.id;
   contentManager.factory = factory;
@@ -64,7 +76,7 @@ export function createContentManager(id: Address, factory: string): ContentManag
   return contentManager;
 }
   
-export function createContent(id: Address, factory: string): Content {
+export function createContent(id: Address, factory: string, timestamp: BigInt): Content {
   ContentTemplate.create(id);
   let content = new Content(id.toHexString());
   content.contractAddress = id;
@@ -80,6 +92,7 @@ export function createContent(id: Address, factory: string): Content {
   content.assetsCount = ZERO_BI;
   content.mintersCount = 0;
   content.tagsCount = 0;
+  content.dateCreated = timestamp;
 
   // get URI metadata
   // log.info('-------- LOG: contract: {}, Uri CID: {}', [content.id, hash]);
@@ -103,7 +116,7 @@ export function createContent(id: Address, factory: string): Content {
   return content;
 }
 
-export function createAccount(address: Address): Account {
+export function createAccount(address: Address, timestamp: BigInt, statsId: string): Account {
   let account = new Account(address.toHexString());
   account.address = address;
   account.mintCount = ZERO_BI;
@@ -111,11 +124,17 @@ export function createAccount(address: Address): Account {
   account.uniqueAssetCount = ZERO_BI;
   account.transactionsCount = ZERO_BI;
   account.transactionsAsOperatorCount = ZERO_BI;
+  account.contentsCount = ZERO_BI;
+  account.dateCreated = timestamp;
   account.save();
+  
+  let statsManager = StatisticsManager.load(statsId)!;
+  statsManager.accountsCount = statsManager.accountsCount.plus(ONE_BI);
+  statsManager.save();
   return account;
 }
   
-export function createAsset(id: string, parent: string, tokenId: BigInt): Asset {
+export function createAsset(id: string, parent: string, tokenId: BigInt, timestamp: BigInt): Asset {
   let asset = new Asset(id);
   asset.tokenId = tokenId;
   asset.parentContract = parent;
@@ -131,6 +150,7 @@ export function createAsset(id: string, parent: string, tokenId: BigInt): Asset 
   asset.transactionsCount = ZERO_BI;
   asset.tags = [];
   asset.tagsCount = 0;
+  asset.dateCreated = timestamp;
   asset.save();
 
   // Set Information from the Asset's public uri

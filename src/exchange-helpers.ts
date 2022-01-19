@@ -24,9 +24,15 @@ export function createAddressResolver(id: Address): Resolver {
 
 export function createExchange(address: Address): Exchange {
     let exchange = new Exchange(address.toHexString());
-    exchange.numOfOrders = ZERO_BI;
-    exchange.numOfBuyOrders = ZERO_BI;
-    exchange.numOfSellOrders = ZERO_BI;
+    exchange.totalActiveOrdersCount = ZERO_BI;
+    exchange.totalActiveBuyOrdersCount = ZERO_BI;
+    exchange.totalActiveSellOrdersCount = ZERO_BI;
+    exchange.totalOrdersCount = ZERO_BI;
+    exchange.totalBuyOrdersCount = ZERO_BI;
+    exchange.totalSellOrdersCount = ZERO_BI;
+    exchange.totalOrderFillsCount = ZERO_BI;
+    exchange.totalBuyOrderFillsCount = ZERO_BI;
+    exchange.totalSellOrderFillsCount = ZERO_BI;
     exchange.save();
     return exchange;
 }
@@ -46,7 +52,7 @@ export function createToken(address: Address, escrow: Address): Token {
     return token;
 }
 
-export function createOrder(id: BigInt, assetId: string, owner: string, exchangeId: string): Order {
+export function createOrder(id: BigInt, assetId: string, tokenId: string, owner: string, exchangeId: string): Order {
     let order = new Order(id.toHexString());
     order.asset = assetId;
     order.exchange = exchangeId;
@@ -60,6 +66,8 @@ export function createOrder(id: BigInt, assetId: string, owner: string, exchange
     order.filledAtTimestamp = ZERO_BI;
     order.cancelledAtTimestamp = ZERO_BI;
     order.lastClaimedAtTimestamp = ZERO_BI;
+    order.token = tokenId;
+    order.claimOrdersCount = ZERO_BI;
     order.save();
     return order;
 }
@@ -76,13 +84,17 @@ export function createAsset(id: string, parentContract: Address, tokenId: BigInt
 export function createAccount(owner: Address): Account {
     let account = new Account(owner.toHexString());
     account.address = owner;
+    account.ordersCount = ZERO_BI;
+    account.orderFillsCount = ZERO_BI;
     account.volume = ZERO_BI;
     account.volumeAsBuyer = ZERO_BI;
     account.volumeAsSeller = ZERO_BI;
-    account.numOfOpenBuyOrders = ZERO_BI;
-    account.numOfOpenSellOrders = ZERO_BI;
-    account.numOfFilledOrders = ZERO_BI;
-    account.numOfCancelledOrders = ZERO_BI;
+    account.activeOrdersCount = ZERO_BI;
+    account.activeBuyOrders = ZERO_BI;
+    account.activeSellOrders = ZERO_BI;
+    account.filledOrdersCount = ZERO_BI;
+    account.cancelledOrdersCount = ZERO_BI;
+    account.daysActive = ZERO_BI;
     account.save();
     return account;
 }
@@ -99,14 +111,16 @@ export function createAccountDayData(accountId: string, tokenId: string, dayId: 
     return accountDayData;
 }
 
-export function createOrderFill(orderFillId: string, filler: string, orderId: string, token: string): OrderFill {
+export function createOrderFill(orderFillId: string, filler: string, orderId: string, token: string, exchange: string): OrderFill {
     let orderFill = new OrderFill(orderFillId);
     orderFill.filler = filler;
     orderFill.order = orderId;
+    orderFill.exchange = exchange;
     orderFill.amount = ZERO_BI;
     orderFill.pricePerItem = ZERO_BI;
     orderFill.totalPrice = ZERO_BI;
     orderFill.token = token;
+    orderFill.createdAtTimestamp = ZERO_BI;
     orderFill.save();
     return orderFill;
 }
@@ -145,7 +159,7 @@ export function getAssetId(content: string, tokenId: string): string {
     return concat(content, tokenId);
 }
 
-function concat(str1: string, str2: string): string {
+export function concat(str1: string, str2: string): string {
     return str1 + '-' + str2;
 }
 
