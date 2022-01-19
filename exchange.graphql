@@ -7,9 +7,16 @@ type AddressResolver @entity {
 type Exchange @entity {
   id: ID!
   orders: [Order!]! @derivedFrom(field: "exchange")
-  numOfOrders: BigInt!
-  numOfBuyOrders: BigInt!
-  numOfSellOrders: BigInt!
+  orderFills: [OrderFill!]! @derivedFrom(field: "exchange")
+  totalActiveOrdersCount: BigInt!
+  totalActiveBuyOrdersCount: BigInt!
+  totalActiveSellOrdersCount: BigInt!
+  totalOrdersCount: BigInt!
+  totalBuyOrdersCount: BigInt!
+  totalSellOrdersCount: BigInt!
+  totalOrderFillsCount: BigInt!
+  totalBuyOrderFillsCount: BigInt!
+  totalSellOrderFillsCount: BigInt!
 }
 
 type TokenEscrow @entity {
@@ -29,14 +36,19 @@ type Account @entity {
   id: ID!
   address: Bytes!
   orders: [Order!]! @derivedFrom(field: "owner")
-  numOfOpenBuyOrders: BigInt!
-  numOfOpenSellOrders: BigInt!
-  numOfFilledOrders: BigInt!
-  numOfCancelledOrders: BigInt!
+  ordersCount: BigInt!
+  orderFills: [OrderFill!]! @derivedFrom(field: "filler")
+  orderFillsCount: BigInt!
+  activeBuyOrders: BigInt!
+  activeSellOrders: BigInt!
+  activeOrdersCount: BigInt!
+  filledOrdersCount: BigInt!
+  cancelledOrdersCount: BigInt!
   volume: BigInt!
   volumeAsBuyer: BigInt!
   volumeAsSeller: BigInt!
   dailyData: [AccountDayData!] @derivedFrom(field: "account")
+  daysActive: BigInt!
   claimedRoyalties: [UserRoyalty!] @derivedFrom(field: "user")
 }
 
@@ -84,6 +96,7 @@ type OrderFill @entity {
   totalPrice: BigInt!
   token: Token!
   createdAtTimestamp: BigInt!
+  exchange: Exchange!
 }
 
 enum OrderType {

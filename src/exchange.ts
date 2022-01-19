@@ -110,10 +110,12 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
         ownerAcc = createAccount(event.params.order.owner);
     }
 
+    ownerAcc.ordersCount = ownerAcc.ordersCount.plus(ONE_BI);
+    ownerAcc.activeOrdersCount = ownerAcc.activeOrdersCount.plus(ONE_BI);
     if (event.params.order.isBuyOrder) {
-        ownerAcc.numOfOpenBuyOrders = ownerAcc.numOfOpenBuyOrders.plus(ONE_BI);
+        ownerAcc.activeBuyOrders = ownerAcc.activeBuyOrders.plus(ONE_BI);
     } else {
-        ownerAcc.numOfOpenSellOrders = ownerAcc.numOfOpenSellOrders.plus(ONE_BI);
+        ownerAcc.activeSellOrders = ownerAcc.activeSellOrders.plus(ONE_BI);
     }
     ownerAcc.save();
     
@@ -128,11 +130,14 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
     order.save();
     
     // Update exchange data
-    exchange.numOfOrders = exchange.numOfOrders.plus(ONE_BI);
+    exchange.totalOrdersCount = exchange.totalOrdersCount.plus(ONE_BI);
+    exchange.totalActiveOrdersCount = exchange.totalActiveOrdersCount.plus(ONE_BI);
     if (event.params.order.isBuyOrder) {
-        exchange.numOfBuyOrders = exchange.numOfBuyOrders.plus(ONE_BI);
+        exchange.totalActiveBuyOrdersCount = exchange.totalActiveBuyOrdersCount.plus(ONE_BI);
+        exchange.totalBuyOrdersCount = exchange.totalBuyOrdersCount.plus(ONE_BI);
     } else {
-        exchange.numOfSellOrders = exchange.numOfSellOrders.plus(ONE_BI);
+        exchange.totalActiveSellOrdersCount = exchange.totalActiveSellOrdersCount.plus(ONE_BI);
+        exchange.totalSellOrdersCount = exchange.totalSellOrdersCount.plus(ONE_BI);
     }
     exchange.save();
 }
@@ -152,6 +157,9 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
     let orderIds = event.params.orderIds;
     let orderAmounts = event.params.amounts;
     let isBuyOrder = false;
+    
+    let exchange = Exchange.load(event.address.toHexString())!;
+
     for (let j = 0; j < orderIds.length; ++j) {
         if (orderAmounts[j].equals(ZERO_BI)) {
             continue;
@@ -161,16 +169,28 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
         
         // create OrderFill object
         let orderFillId = getOrderFillId(orderId.toHexString(), event.transaction.hash.toHexString());
-        let orderFill = createOrderFill(orderFillId, orderFiller.id, orderId.toHexString(), token.id);
+        let orderFill = createOrderFill(orderFillId, orderFiller.id, orderId.toHexString(), token.id, exchange.id);
+
+        orderFiller.orderFillsCount = orderFiller.orderFillsCount.plus(ONE_BI);
+        orderFiller.save();
 
         // Update order status
         let order = Order.load(orderId.toHexString())!;
         isBuyOrder = order.type == "Buy" ? true : false;
 
+        // Update exchange data
+        exchange.totalOrderFillsCount = exchange.totalOrderFillsCount.plus(ONE_BI);
+        if (isBuyOrder) {
+            exchange.totalBuyOrderFillsCount = exchange.totalBuyOrderFillsCount.plus(ONE_BI);
+        } else {
+            exchange.totalSellOrderFillsCount = exchange.totalSellOrderFillsCount.plus(ONE_BI);
+        }
+
         // get order data and update orderFill object
         orderFill.amount = orderAmounts[j];
         orderFill.pricePerItem = order.price;
         orderFill.totalPrice = orderAmounts[j].times(order.price);
+        orderFill.createdAtTimestamp = event.block.timestamp;
         orderFill.save();
 
         // Add user volume to the buy and the orderFiller
@@ -181,11 +201,20 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
         if (amountLeft == ZERO_BI) {
             order.status = "Filled";
             order.filledAtTimestamp = event.block.timestamp;
-            orderOwner.numOfFilledOrders = orderOwner.numOfFilledOrders.plus(ONE_BI);
+            orderOwner.filledOrdersCount = orderOwner.filledOrdersCount.plus(ONE_BI);
+            orderOwner.activeOrdersCount = orderOwner.activeOrdersCount.minus(ONE_BI);
             if (order.type == "Buy") {
-                orderOwner.numOfOpenBuyOrders = orderOwner.numOfOpenBuyOrders.minus(ONE_BI);
+                orderOwner.activeBuyOrders = orderOwner.activeBuyOrders.minus(ONE_BI);
             } else {
-                orderOwner.numOfOpenSellOrders = orderOwner.numOfOpenSellOrders.minus(ONE_BI);
+                orderOwner.activeSellOrders = orderOwner.activeSellOrders.minus(ONE_BI);
+            }
+
+            // Update Active orders stats
+            exchange.totalActiveOrdersCount = exchange.totalActiveOrdersCount.minus(ONE_BI);
+            if (isBuyOrder) {
+                exchange.totalActiveBuyOrdersCount = exchange.totalActiveBuyOrdersCount.minus(ONE_BI);
+            } else {
+                exchange.totalActiveSellOrdersCount = exchange.totalActiveSellOrdersCount.minus(ONE_BI);
             }
         } else {
             order.status = "PartiallyFilled";
@@ -197,6 +226,8 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
         // Update daily volume for the order owner
         updateAccountDailyVolume(event, changetype<Address>(orderOwner.address), orderFill.totalPrice, isBuyOrder);
     }
+
+    exchange.save();
 
     // Note: changetype is for downcasting from Bytes to Address
     updateAccountDailyVolume(event, changetype<Address>(orderFiller.address), event.params.volume, !isBuyOrder);
@@ -210,6 +241,7 @@ export function handleOrdersFilled(event: OrdersFilledEvent): void {
 
 export function handleOrdersDeleted(event: OrdersDeletedEvent): void {
     let orderIds = event.params.orderIds;
+    let exchange = Exchange.load(event.address.toHexString())!;
     for (let j = 0; j < orderIds.length; ++j) {
         let orderId = orderIds[j];
 
@@ -221,14 +253,24 @@ export function handleOrdersDeleted(event: OrdersDeletedEvent): void {
         order.save();
         
         let orderOwner = Account.load(order.owner)!;
+        orderOwner.activeOrdersCount = orderOwner.activeOrdersCount.minus(ONE_BI);
         if (order.type == "Buy") {
-            orderOwner.numOfOpenBuyOrders = orderOwner.numOfOpenBuyOrders.minus(ONE_BI);
+            orderOwner.activeBuyOrders = orderOwner.activeBuyOrders.minus(ONE_BI);
         } else {
-            orderOwner.numOfOpenSellOrders = orderOwner.numOfOpenSellOrders.minus(ONE_BI);
+            orderOwner.activeSellOrders = orderOwner.activeSellOrders.minus(ONE_BI);
         }
-        orderOwner.numOfCancelledOrders = orderOwner.numOfCancelledOrders.plus(ONE_BI);
+        orderOwner.cancelledOrdersCount = orderOwner.cancelledOrdersCount.plus(ONE_BI);
         orderOwner.save();
+        
+        // Update Active orders stats
+        exchange.totalActiveOrdersCount = exchange.totalActiveOrdersCount.minus(ONE_BI);
+        if (order.type == "Buy") {
+            exchange.totalActiveBuyOrdersCount = exchange.totalActiveBuyOrdersCount.minus(ONE_BI);
+        } else {
+            exchange.totalActiveSellOrdersCount = exchange.totalActiveSellOrdersCount.minus(ONE_BI);
+        }
     }
+    exchange.save();
 }
 
 export function handleOrdersClaimed(event: OrdersClaimedEvent): void {
